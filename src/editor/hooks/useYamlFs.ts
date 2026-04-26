@@ -6,6 +6,7 @@ export interface RawScene {
   location_id?: string;
   background?: string;
   bgm?: string;
+  overlay_image?: string;
   messages?: RawMessage[];
   characters?: RawCharacterDisplay[];
   commands?: string[];

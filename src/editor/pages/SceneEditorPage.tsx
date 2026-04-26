@@ -115,6 +115,9 @@ export function SceneEditorPage({ sharedDirHandle, onDirOpen }: SceneEditorPageP
                 <Row label="BGM">
                   <input value={draft.bgm ?? ''} placeholder="audio/bgm/xxx.mp3" onChange={(e) => patch({ bgm: e.target.value || undefined })} />
                 </Row>
+                <Row label="一枚絵 (overlay_image)">
+                  <input value={draft.overlay_image ?? ''} placeholder="cg/xxx.jpg" onChange={(e) => patch({ overlay_image: e.target.value || undefined })} />
+                </Row>
                 <Row label="次のシーン (next_scene)">
                   <select value={draft.next_scene ?? ''} onChange={(e) => patch({ next_scene: e.target.value || null })}>
                     <option value="">（なし）</option>
