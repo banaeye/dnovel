@@ -9,23 +9,45 @@ import { GameScreen } from './components/game/GameScreen';
 import './App.css';
 
 function useGameScale() {
-  const [scale, setScale] = useState(() =>
-    Math.min(1, window.innerWidth / 800, window.innerHeight / 600)
-  );
+  const getScale = () => {
+    const fit = Math.min(window.innerWidth / 800, window.innerHeight / 600);
+    return document.fullscreenElement ? fit : Math.min(1, fit);
+  };
+  const [scale, setScale] = useState(getScale);
   useEffect(() => {
-    function update() {
-      setScale(Math.min(1, window.innerWidth / 800, window.innerHeight / 600));
-    }
+    const update = () => setScale(getScale());
     window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+    document.addEventListener('fullscreenchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      document.removeEventListener('fullscreenchange', update);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return scale;
+}
+
+function useFullscreen() {
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+  const toggle = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+  return { isFullscreen, toggle };
 }
 
 function App() {
   const { state, startNewGame, startDebugGame, loadGame } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
+  const { isFullscreen, toggle } = useFullscreen();
 
   useEffect(() => {
     loadSettings();
@@ -48,6 +70,9 @@ function App() {
           <GameScreen />
         )}
       </div>
+      <button className="fullscreen-btn" onClick={toggle} title={isFullscreen ? '全画面解除' : '全画面表示'}>
+        {isFullscreen ? '⊠' : '⛶'}
+      </button>
     </div>
   );
 }
