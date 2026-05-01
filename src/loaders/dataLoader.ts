@@ -6,13 +6,6 @@ import type { LocationDefinition } from '../types/location';
 import type { CharacterDefinition } from '../types/character';
 import type { CommandDefinition } from '../types/command';
 
-import scenesRaw from '../data/scenes.yaml?raw';
-import flagsRaw from '../data/flags.yaml?raw';
-import itemsRaw from '../data/items.yaml?raw';
-import locationsRaw from '../data/locations.yaml?raw';
-import charactersRaw from '../data/characters.yaml?raw';
-import commandsRaw from '../data/commands.yaml?raw';
-
 export interface MasterData {
   scenes: Record<string, Scene>;
   flags: FlagDefinition[];
@@ -20,6 +13,15 @@ export interface MasterData {
   locations: Record<string, LocationDefinition>;
   characters: Record<string, CharacterDefinition>;
   commands: Record<string, CommandDefinition>;
+}
+
+export interface RawYamlInputs {
+  scenes: string;
+  flags: string;
+  items: string;
+  locations: string;
+  characters: string;
+  commands: string;
 }
 
 function toRecord<T extends { id: string }>(arr: T[]): Record<string, T> {
@@ -43,13 +45,13 @@ function flattenScenes(raw: any[], parentDefaults: Partial<Scene> = {}): Scene[]
   return result;
 }
 
-function loadMasterData(): MasterData {
-  const scenesData = yaml.load(scenesRaw) as { scenes: any[] };
-  const flagsData = yaml.load(flagsRaw) as { flags: FlagDefinition[] };
-  const itemsData = yaml.load(itemsRaw) as { items: ItemDefinition[] };
-  const locationsData = yaml.load(locationsRaw) as { locations: LocationDefinition[] };
-  const charactersData = yaml.load(charactersRaw) as { characters: CharacterDefinition[] };
-  const commandsData = yaml.load(commandsRaw) as { commands: CommandDefinition[] };
+export function parseMasterData(inputs: RawYamlInputs): MasterData {
+  const scenesData = yaml.load(inputs.scenes) as { scenes: any[] };
+  const flagsData = yaml.load(inputs.flags) as { flags: FlagDefinition[] };
+  const itemsData = yaml.load(inputs.items) as { items: ItemDefinition[] };
+  const locationsData = yaml.load(inputs.locations) as { locations: LocationDefinition[] };
+  const charactersData = yaml.load(inputs.characters) as { characters: CharacterDefinition[] };
+  const commandsData = yaml.load(inputs.commands) as { commands: CommandDefinition[] };
 
   return {
     scenes: toRecord(flattenScenes(scenesData.scenes)),
@@ -61,11 +63,3 @@ function loadMasterData(): MasterData {
   };
 }
 
-let cached: MasterData | null = null;
-
-export function getMasterData(): MasterData {
-  if (!cached) {
-    cached = loadMasterData();
-  }
-  return cached;
-}

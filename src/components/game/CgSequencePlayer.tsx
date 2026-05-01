@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { CgFrame } from '../../types/scene';
+import { useAssets } from '../../context/AssetContext';
 import styles from './CgSequencePlayer.module.css';
 
 interface CgSequencePlayerProps {
@@ -10,6 +11,7 @@ interface CgSequencePlayerProps {
 const FRAME_DURATION = 2800;
 
 export function CgSequencePlayer({ frames, onComplete }: CgSequencePlayerProps) {
+  const { resolveAsset } = useAssets();
   const [index, setIndex] = useState(0);
 
   const advance = useCallback(() => {
@@ -26,7 +28,7 @@ export function CgSequencePlayer({ frames, onComplete }: CgSequencePlayerProps) 
   }, [index, advance]);
 
   const frame = frames[index];
-  const src = `${import.meta.env.BASE_URL}assets/${frame.src}`;
+  const src = resolveAsset(frame.src);
 
   return (
     <div className={styles.overlay} onClick={advance}>

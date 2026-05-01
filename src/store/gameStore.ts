@@ -1,10 +1,9 @@
-import { create } from 'zustand';
+import { createStore } from 'zustand';
+import type { StoreApi } from 'zustand';
 import type { GameState } from '../types/gameState';
-import { INITIAL_SCENE_ID, INITIAL_LOCATION_ID } from '../types/gameState';
 import type { MasterData } from '../loaders/dataLoader';
 import type { SaveData } from '../storage/StorageInterface';
 import { SAVE_DATA_VERSION } from '../storage/StorageInterface';
-import { getMasterData } from '../loaders/dataLoader';
 
 export interface DebugStartConfig {
   sceneId: string;
@@ -12,6 +11,7 @@ export interface DebugStartConfig {
   flags?: Record<string, boolean | number | string>;
   inventory?: string[];
 }
+
 import { initializeFlags } from '../engine/FlagEngine';
 import { transitionTo, advanceMessage, selectChoice, pushHistory, completeCgSequence } from '../engine/SceneEngine';
 import { executeCommand } from '../engine/CommandEngine';
@@ -41,11 +41,17 @@ interface GameStore {
   goToTitle: () => void;
 }
 
-function buildInitialState(masterData: MasterData): GameState {
+export type GameStoreApi = StoreApi<GameStore>;
+
+function buildInitialState(
+  masterData: MasterData,
+  initialSceneId: string,
+  initialLocationId: string,
+): GameState {
   const flags = initializeFlags(masterData.flags);
   return {
-    currentSceneId: INITIAL_SCENE_ID,
-    currentLocationId: INITIAL_LOCATION_ID,
+    currentSceneId: initialSceneId,
+    currentLocationId: initialLocationId,
     currentMessageIndex: 0,
     flags,
     inventory: [],
@@ -56,25 +62,28 @@ function buildInitialState(masterData: MasterData): GameState {
   };
 }
 
-export const useGameStore = create<GameStore>((set, get) => {
-  const masterData = getMasterData();
-  const initialState = buildInitialState(masterData);
+export function createGameStore(
+  masterData: MasterData,
+  initialSceneId: string,
+  initialLocationId: string,
+): GameStoreApi {
+  const initialState = buildInitialState(masterData, initialSceneId, initialLocationId);
 
-  return {
+  return createStore<GameStore>((set, get) => ({
     state: initialState,
     masterData,
     playtimeStart: Date.now(),
 
     startNewGame: () => {
       const md = get().masterData;
-      const fresh = buildInitialState(md);
-      const started = transitionTo(INITIAL_SCENE_ID, { ...fresh, phase: 'message' }, md);
+      const fresh = buildInitialState(md, initialSceneId, initialLocationId);
+      const started = transitionTo(initialSceneId, { ...fresh, phase: 'message' }, md);
       set({ state: started, playtimeStart: Date.now() });
     },
 
     startDebugGame: (config: DebugStartConfig) => {
       const md = get().masterData;
-      const base = buildInitialState(md);
+      const base = buildInitialState(md, initialSceneId, initialLocationId);
       const seed: GameState = {
         ...base,
         currentSceneId: config.sceneId,
@@ -202,5 +211,5 @@ export const useGameStore = create<GameStore>((set, get) => {
     goToTitle: () => {
       set((prev) => ({ state: { ...prev.state, phase: 'title' } }));
     },
-  };
-});
+  }));
+}

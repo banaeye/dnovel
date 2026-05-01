@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ItemDefinition } from '../../types/item';
+import { useAssets } from '../../context/AssetContext';
 import styles from './ItemCard.module.css';
 
 interface ItemCardProps {
@@ -9,8 +10,9 @@ interface ItemCardProps {
 }
 
 export function ItemCard({ item, selected, onClick }: ItemCardProps) {
+  const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
-  const src = item.icon ? `${import.meta.env.BASE_URL}assets/${item.icon}` : null;
+  const src = item.icon ? resolveAsset(item.icon) : null;
 
   return (
     <div

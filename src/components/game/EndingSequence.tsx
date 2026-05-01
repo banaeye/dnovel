@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CgFrame } from '../../types/scene';
+import { useAssets } from '../../context/AssetContext';
 import styles from './EndingSequence.module.css';
-
-const BASE = import.meta.env.BASE_URL;
 
 const PHASE1_MS = 12000;
 const PHASE2_MS = 12000;
@@ -54,13 +53,14 @@ function ScrollCredits({ items, durationSec }: { items: CreditItem[]; durationSe
 }
 
 function CgStack({ frames }: { frames: CgFrame[] }) {
+  const { resolveAsset } = useAssets();
   return (
     <div className={styles.cgPanel}>
       {frames.map((frame, i) => (
         <img
           key={frame.src}
           className={styles.cgPanelImg}
-          src={`${BASE}assets/${frame.src}`}
+          src={resolveAsset(frame.src)}
           alt=""
           style={{ animationDelay: `${i * 3}s` }}
         />
@@ -75,6 +75,7 @@ interface Props {
 }
 
 export function EndingSequence({ frames, onTitle }: Props) {
+  const { resolveAsset } = useAssets();
   const [phase, setPhase] = useState<1 | 2 | 3>(1);
 
   useEffect(() => {
@@ -94,7 +95,7 @@ export function EndingSequence({ frames, onTitle }: Props) {
         {finFrame && (
           <img
             className={styles.finImg}
-            src={`${BASE}assets/${finFrame.src}`}
+            src={resolveAsset(finFrame.src)}
             alt=""
           />
         )}

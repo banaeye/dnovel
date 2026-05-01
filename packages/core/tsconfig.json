@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "esnext",
+    "types": ["vite/client"],
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@engine-src/*": ["../../src/*"]
+    }
+  },
+  "include": ["src", "../../src"]
+}

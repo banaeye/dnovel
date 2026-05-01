@@ -31,5 +31,3 @@ export interface GameState {
   talkCandidates: TalkCandidate[];
 }
 
-export const INITIAL_SCENE_ID = 'scene_danchi_morning';
-export const INITIAL_LOCATION_ID = 'loc_danchi';

@@ -202,6 +202,7 @@ scenes:
         messages:
           - text: しかしなんだあいつ、、こっち見てるぞ
             voice_character_id: char_hero
+        overlay_image: cg/dog.jpg
     clickable_areas:
       - id: area_danchi_dog
         x: 439

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAssets } from '../../context/AssetContext';
 import styles from './SceneBackground.module.css';
 
 interface SceneBackgroundProps {
@@ -7,11 +8,10 @@ interface SceneBackgroundProps {
 }
 
 export function SceneBackground({ backgroundPath, locationName }: SceneBackgroundProps) {
+  const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
 
-  const src = backgroundPath
-    ? `${import.meta.env.BASE_URL}assets/${backgroundPath}`
-    : null;
+  const src = backgroundPath ? resolveAsset(backgroundPath) : null;
 
   useEffect(() => { setImgError(false); }, [src]);
 

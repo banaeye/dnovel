@@ -1,5 +1,7 @@
 import type { DebugStartConfig } from '../../store/gameStore';
 
+export type { DebugStartConfig };
+
 const DEBUG_KEY = '__novel_debug_start__';
 
 interface Preset {
@@ -103,12 +105,12 @@ const PRESETS: Preset[] = [
   },
 ];
 
-function launch(config: DebugStartConfig) {
+function launch(config: DebugStartConfig, gameAppUrl: string) {
   localStorage.setItem(DEBUG_KEY, JSON.stringify(config));
-  window.open(import.meta.env.BASE_URL, '_blank');
+  window.open(gameAppUrl, '_blank');
 }
 
-export function TestPlayPage() {
+export function TestPlayPage({ gameAppUrl }: { gameAppUrl: string }) {
   return (
     <div style={{ padding: 24, background: '#0f0f1a', minHeight: '100%', color: '#ccc' }}>
       <div style={{ fontSize: 16, fontWeight: 'bold', color: '#7986cb', marginBottom: 20 }}>
@@ -140,7 +142,7 @@ export function TestPlayPage() {
             <button
               className="primary"
               style={{ flexShrink: 0, padding: '6px 16px', fontSize: 12 }}
-              onClick={() => launch(p.config)}
+              onClick={() => launch(p.config, gameAppUrl)}
             >
               ▶ 起動
             </button>

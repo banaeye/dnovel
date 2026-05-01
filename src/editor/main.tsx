@@ -5,6 +5,6 @@ import './editor.css';
 
 createRoot(document.getElementById('editor-root')!).render(
   <StrictMode>
-    <EditorApp />
+    <EditorApp gameAppUrl={import.meta.env.BASE_URL} />
   </StrictMode>
 );

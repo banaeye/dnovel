@@ -4,11 +4,13 @@ import type { CharacterDefinition } from '../types/character';
 import { voicevoxClient } from '../audio/VoicevoxClient';
 import { audioManager } from '../audio/AudioManager';
 import { voiceHashKey } from '../utils/hashUtils';
+import { useAssets } from '../context/AssetContext';
 
 const memoryCache = new Map<string, string>();
 
 export function useVoicevox() {
   const speakingRef = useRef(false);
+  const { resolveVoicePath } = useAssets();
 
   const speak = useCallback(async (
     message: SceneMessage,
@@ -32,7 +34,7 @@ export function useVoicevox() {
         return;
       }
 
-      const prebuiltUrl = `${import.meta.env.BASE_URL}assets/voicevox/${hashKey}.wav`;
+      const prebuiltUrl = resolveVoicePath(hashKey);
       const prebuiltRes = await fetch(prebuiltUrl, { method: 'HEAD' }).catch(() => null);
       if (prebuiltRes?.ok && prebuiltRes.headers.get('content-type')?.startsWith('audio/')) {
         console.log('[Voicevox] prebuilt hit');
@@ -56,7 +58,7 @@ export function useVoicevox() {
     } finally {
       speakingRef.current = false;
     }
-  }, []);
+  }, [resolveVoicePath]);
 
   const stop = useCallback(() => {
     audioManager.stopVoice();

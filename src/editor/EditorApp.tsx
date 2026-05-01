@@ -5,7 +5,11 @@ import { TestPlayPage } from './pages/TestPlayPage';
 
 type Tab = 'scene' | 'area' | 'test';
 
-export function EditorApp() {
+export interface EditorConfig {
+  gameAppUrl: string;
+}
+
+export function EditorApp({ gameAppUrl }: EditorConfig) {
   const [tab, setTab] = useState<Tab>('scene');
 
   const tabStyle = (t: Tab): React.CSSProperties => ({
@@ -28,7 +32,7 @@ export function EditorApp() {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {tab === 'scene' && <SceneEditorPage />}
         {tab === 'area' && <AreaEditorPage />}
-        {tab === 'test' && <TestPlayPage />}
+        {tab === 'test' && <TestPlayPage gameAppUrl={gameAppUrl} />}
       </div>
     </div>
   );

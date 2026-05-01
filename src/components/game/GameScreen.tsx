@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useGameStore } from '../../store/gameStore';
+import { useGameStore } from '../../context/GameStoreContext';
+import { useAssets } from '../../context/AssetContext';
 import { audioManager } from '../../audio/AudioManager';
 import { useAudioStore } from '../../store/audioStore';
 import { getAvailableCommands } from '../../engine/CommandEngine';
@@ -36,6 +37,7 @@ export function GameScreen() {
   } = useGameStore();
 
   const { settings } = useAudioStore();
+  const { resolveAsset } = useAssets();
 
   const scene = masterData.scenes[state.currentSceneId];
   const location = masterData.locations[state.currentLocationId];
@@ -56,7 +58,7 @@ export function GameScreen() {
     const bgm = scene?.bgm;
     if (!bgm || bgm === currentBgmRef.current) return;
     currentBgmRef.current = bgm;
-    audioManager.playBgm(`${import.meta.env.BASE_URL}assets/${bgm}`, true, settings.bgmVolume);
+    audioManager.playBgm(resolveAsset(bgm), true, settings.bgmVolume);
   }, [scene?.bgm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -89,7 +91,7 @@ export function GameScreen() {
       {state.phase === 'message' && scene?.overlay_image && (
         <div
           className={styles.cgOverlay}
-          style={{ backgroundImage: `url(${import.meta.env.BASE_URL}assets/${scene.overlay_image})` }}
+          style={{ backgroundImage: `url(${resolveAsset(scene.overlay_image)})` }}
         />
       )}
 

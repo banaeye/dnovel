@@ -2,7 +2,9 @@
 
 ReactJS + YAML で作るアドベンチャー/ノベルゲームエンジン。
 このファイルはエンジンの設計・スキーマ・開発フローを記述する。
-別のゲームプロジェクトに流用する際は `src/data/*.yaml` を差し替えるだけでよい。
+
+別のゲームを作るには `@novel-engine/core` をインストールし、
+`parseMasterData()` に YAML 文字列を渡して `<NovelApp>` を使う（詳細は [packages/core/README.md](packages/core/README.md)）。
 
 ---
 
@@ -19,29 +21,42 @@ ReactJS + YAML で作るアドベンチャー/ノベルゲームエンジン。
 
 ---
 
-## プロジェクト構造
+## プロジェクト構造（モノレポ）
 
 ```
-src/
-  data/           YAMLゲームデータ（シナリオ・マスター・フラグ定義）
-  types/          TypeScript型定義（エンジン全体で使用）
-  engine/         純粋関数コアロジック（副作用なし）
-  storage/        ストレージ抽象化レイヤー
-  store/          Zustandストア
-  components/     Reactコンポーネント
-  audio/          音声処理
-  hooks/          カスタムフック
-  editor/         ゲーム管理エディタ（ローカル開発専用）
-  loaders/        YAMLパース・マスターデータ組み立て
-
-public/assets/
-  backgrounds/    背景画像 *.jpg / *.png / *.webp
-  characters/     キャラクタースプライト {id}/*.png
-  cg/             一枚絵・CG *.jpg / *.png
-  audio/bgm/      BGM *.mp3 / *.ogg
-  audio/se/       SE *.mp3 / *.ogg
-  voicevox/       事前生成音声 {hash}.wav
+novel/
+├── packages/
+│   ├── core/          @novel-engine/core  ← エンジン本体（npm パッケージ）
+│   │   ├── src/index.ts                    公開 API エントリ
+│   │   ├── vite.config.ts                  library mode ビルド設定
+│   │   └── README.md                       利用者向けドキュメント
+│   └── editor/        @novel-engine/editor ← 開発エディタ（npm パッケージ）
+│       ├── src/index.ts
+│       └── vite.config.ts
+├── src/               「赤羽の一日」デモゲーム（packages/core の参照実装）
+│   ├── data/          YAMLゲームデータ（シナリオ・マスター・フラグ定義）
+│   ├── types/         TypeScript型定義
+│   ├── engine/        純粋関数コアロジック（副作用なし）
+│   ├── storage/       ストレージ抽象化レイヤー
+│   ├── store/         Zustandストア
+│   ├── context/       AssetContext・GameStoreContext
+│   ├── components/    Reactコンポーネント（NovelApp.tsx を含む）
+│   ├── audio/         音声処理
+│   ├── hooks/         カスタムフック
+│   ├── editor/        ゲーム管理エディタ（ローカル開発専用）
+│   └── loaders/       YAMLパース（dataLoader.ts + demoLoader.ts）
+└── public/assets/
+    ├── backgrounds/   背景画像 *.jpg / *.png / *.webp
+    ├── characters/    キャラクタースプライト {id}/*.png
+    ├── cg/            一枚絵・CG *.jpg / *.png
+    ├── audio/bgm/     BGM *.mp3 / *.ogg
+    ├── audio/se/      SE *.mp3 / *.ogg
+    └── voicevox/      事前生成音声 {hash}.wav
 ```
+
+### loaders 分離ルール
+- `src/loaders/dataLoader.ts` — `parseMasterData(RawYamlInputs)` のみ。`?raw` import なし。ライブラリに含める。
+- `src/loaders/demoLoader.ts` — `getMasterData()` のみ。`?raw` import あり。デモアプリ専用。パッケージに含めない。
 
 ---
 
@@ -436,28 +451,47 @@ git branch -d feature/<task-name>
 ## ビルド・デプロイ
 
 ```bash
-# 開発
+# 開発（デモゲーム）
 npm run dev
 
-# GitHub Pages 用ビルド
+# デモゲーム GitHub Pages 用ビルド
 VITE_BASE_PATH=/dojonovel/ VITE_VOICEVOX_PREBUILT_ONLY=true npm run build
 
 # プレビュー（GitHub Pages 想定）
 npm run preview:gh
+
+# パッケージビルド（@novel-engine/core と @novel-engine/editor）
+npm run build --workspace=packages/core
+npm run build --workspace=packages/editor
 ```
 
 GitHub Actions が `master` ブランチへの push で自動デプロイ。
 
 ---
 
-## 別プロジェクトへの流用
+## 別プロジェクトへの流用（npm パッケージ方式）
 
-1. リポジトリをクローン / テンプレートとして複製する
-2. `src/data/*.yaml` をすべて新しいゲーム用に書き直す
-3. `public/assets/` に新しい画像・音声を配置する
-4. `vite.config.ts` の `base` を変更（または `VITE_BASE_PATH` 環境変数で指定）
-5. `src/components/game/EndingSequence.tsx` の `PART1` / `PART2` でクレジットを編集する
-6. GitHub Actions の deploy 先を変更する
+`@novel-engine/core` をインストールして使う方式。[packages/core/README.md](packages/core/README.md) を参照。
 
-エンジン本体（`src/engine/`・`src/components/`・`src/types/`）は YAML に依存しない純粋関数実装なので、
-データを差し替えるだけで別シナリオのゲームが動作する。
+```bash
+npm install @novel-engine/core react react-dom zustand js-yaml
+```
+
+```tsx
+import { NovelApp, parseMasterData } from '@novel-engine/core';
+import '@novel-engine/core/style.css';
+
+const masterData = parseMasterData({ scenes: scenesRaw, /* ... */ });
+
+export default function App() {
+  return (
+    <NovelApp
+      masterData={masterData}
+      assetsBaseUrl={`${import.meta.env.BASE_URL}assets`}
+      config={{ initialSceneId: 'scene_opening', initialLocationId: 'loc_start' }}
+    />
+  );
+}
+```
+
+クレジット内容は `src/components/game/EndingSequence.tsx` の `PART1` / `PART2` で編集する。

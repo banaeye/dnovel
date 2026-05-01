@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CharacterDisplay } from '../../types/scene';
 import type { CharacterDefinition } from '../../types/character';
+import { useAssets } from '../../context/AssetContext';
 import styles from './CharacterSprite.module.css';
 
 interface CharacterSpriteProps {
@@ -10,14 +11,13 @@ interface CharacterSpriteProps {
 }
 
 export function CharacterSprite({ display, character, isSpeaking }: CharacterSpriteProps) {
+  const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
 
   const expression =
     isSpeaking && character.sprites?.['talking'] ? 'talking' : display.expression;
   const spritePath = character.sprites?.[expression] ?? character.sprites?.['normal'];
-  const src = spritePath
-    ? `${import.meta.env.BASE_URL}assets/${spritePath}`
-    : null;
+  const src = spritePath ? resolveAsset(spritePath) : null;
 
   const posClass =
     display.position === 'left'
