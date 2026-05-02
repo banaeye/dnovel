@@ -1,0 +1,6 @@
+characters:
+  - id: char_master
+    name: "店主"
+    voicevox_speaker_id: null
+    y_offset: 0
+    sprites: {}

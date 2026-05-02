@@ -1,0 +1,7 @@
+locations:
+  - id: loc_shop
+    name: "古本屋"
+    description: "古い本がたくさん並んでいる小さな店"
+    default_commands: []
+    connections: []
+    entry_scene: scene_start

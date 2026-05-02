@@ -1,0 +1,46 @@
+scenes:
+  - id: scene_start
+    location_id: loc_shop
+    messages:
+      - text: "きしむ木の扉を開けると、古本のにおいが漂ってきた。"
+        voice_character_id: null
+      - text: "「いらっしゃい。ゆっくり見ていきなよ」"
+        voice_character_id: char_master
+    next_scene: scene_browse
+
+  - id: scene_browse
+    location_id: loc_shop
+    messages:
+      - text: "背表紙を眺めながら、棚をゆっくり歩く。"
+        voice_character_id: null
+      - text: "どれも面白そうで、なかなか決められない。"
+        voice_character_id: null
+    branches:
+      type: choice
+      choices:
+        - label: "店主に話しかける"
+          next_scene: scene_talk_master
+        - label: "何も買わずに帰る"
+          next_scene: scene_leave
+
+  - id: scene_talk_master
+    location_id: loc_shop
+    messages:
+      - text: "「迷ってるのかい？」"
+        voice_character_id: char_master
+      - text: "「これ、おすすめだよ。きっと気に入る」"
+        voice_character_id: char_master
+      - text: "店主は一冊の文庫本を手渡してくれた。"
+        voice_character_id: null
+      - text: "ありがとう、と言って店を出た。"
+        voice_character_id: null
+    game_end: true
+
+  - id: scene_leave
+    location_id: loc_shop
+    messages:
+      - text: "何も買わずに棚を後にした。"
+        voice_character_id: null
+      - text: "また今度来よう、そう思いながら扉を開けた。"
+        voice_character_id: null
+    game_end: true
