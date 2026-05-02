@@ -50,6 +50,7 @@ function NovelEngineComponent({
       }}
       initialFlags={context.flags}
       initialInventory={context.inventory}
+      autoStart
       onEngineTransition={handleEngineTransition}
     />
   );

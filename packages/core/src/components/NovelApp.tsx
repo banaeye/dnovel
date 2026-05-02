@@ -23,6 +23,8 @@ export interface NovelAppProps {
   config: NovelAppConfig;
   initialFlags?: Record<string, boolean | number | string>;
   initialInventory?: string[];
+  /** true のときタイトル画面をスキップして initialSceneId から直接開始する */
+  autoStart?: boolean;
   onEngineTransition?: (
     flags: Record<string, boolean | number | string>,
     inventory: string[],
@@ -65,12 +67,13 @@ function useFullscreen() {
   return { isFullscreen, toggle };
 }
 
-function GameContent({ onEngineTransition }: {
+function GameContent({ onEngineTransition, autoStart }: {
   onEngineTransition?: (
     flags: Record<string, boolean | number | string>,
     inventory: string[],
     spec: EngineTransitionSpec,
   ) => void;
+  autoStart?: boolean;
 }) {
   const { state, startNewGame, startDebugGame, loadGame } = useGameStore();
   const { loadSettings } = useAudioStore();
@@ -82,6 +85,10 @@ function GameContent({ onEngineTransition }: {
 
   useEffect(() => {
     loadSettings();
+    if (autoStart) {
+      startNewGame();
+      return;
+    }
     const raw = localStorage.getItem(DEBUG_KEY);
     if (raw) {
       localStorage.removeItem(DEBUG_KEY);
@@ -124,6 +131,7 @@ export function NovelApp({
   config,
   initialFlags,
   initialInventory,
+  autoStart,
   onEngineTransition,
 }: NovelAppProps) {
   const storeRef = useRef<GameStoreApi | null>(null);
@@ -150,7 +158,7 @@ export function NovelApp({
   return (
     <AssetProvider assetsBaseUrl={assetsBaseUrl}>
       <GameStoreContext.Provider value={storeRef.current}>
-        <GameContent onEngineTransition={handleEngineTransition} />
+        <GameContent onEngineTransition={handleEngineTransition} autoStart={autoStart} />
       </GameStoreContext.Provider>
     </AssetProvider>
   );
