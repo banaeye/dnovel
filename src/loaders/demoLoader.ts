@@ -6,8 +6,8 @@ import itemsRaw from '../data/items.yaml?raw';
 import locationsRaw from '../data/locations.yaml?raw';
 import charactersRaw from '../data/characters.yaml?raw';
 import commandsRaw from '../data/commands.yaml?raw';
-import { parseMasterData } from './dataLoader';
-import type { MasterData } from './dataLoader';
+import { parseMasterData } from '@novel-engine/core';
+import type { MasterData } from '@novel-engine/core';
 
 let cached: MasterData | null = null;
 

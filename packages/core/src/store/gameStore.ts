@@ -19,7 +19,7 @@ import { moveTo } from '../engine/LocationEngine';
 import { useItem } from '../engine/ItemEngine';
 import { evaluateCondition } from '../engine/ConditionEvaluator';
 
-interface GameStore {
+export interface GameStore {
   state: GameState;
   masterData: MasterData;
   playtimeStart: number;

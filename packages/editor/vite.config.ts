@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@editor-src': path.resolve(__dirname, '../../src/editor'),
-      '@engine-src': path.resolve(__dirname, '../../src'),
+      '@novel-engine/core': path.resolve(__dirname, '../core/src/index.ts'),
     },
   },
   build: {
@@ -18,13 +18,14 @@ export default defineConfig({
       fileName: (format) => `novel-engine-editor.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'js-yaml'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'js-yaml', '@novel-engine/core'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'ReactJsxRuntime',
           'js-yaml': 'jsyaml',
+          '@novel-engine/core': 'NovelEngineCore',
         },
       },
     },

@@ -1,5 +1,5 @@
 import { getMasterData } from './loaders/demoLoader';
-import { NovelApp } from './components/NovelApp';
+import { NovelApp } from '@novel-engine/core';
 
 const masterData = getMasterData();
 

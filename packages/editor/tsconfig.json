@@ -12,8 +12,8 @@
     "noEmit": true,
     "paths": {
       "@editor-src/*": ["../../src/editor/*"],
-      "@engine-src/*": ["../../src/*"]
+      "@novel-engine/core": ["../core/src/index.ts"]
     }
   },
-  "include": ["src", "../../src/editor", "../../src"]
+  "include": ["src", "../../src/editor", "../core/src"]
 }

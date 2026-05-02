@@ -8,11 +8,13 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
     "skipLibCheck": true,
-    "noEmit": true,
-    "paths": {
-      "@engine-src/*": ["../../src/*"]
-    }
+    "isolatedModules": true,
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src", "../../src"]
+  "include": ["src"]
 }

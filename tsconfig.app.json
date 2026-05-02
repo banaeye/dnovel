@@ -23,15 +23,8 @@
 
     /* Path aliases */
     "paths": {
-      "@engine/*": ["./src/engine/*"],
-      "@store/*": ["./src/store/*"],
-      "@types/*": ["./src/types/*"],
-      "@components/*": ["./src/components/*"],
-      "@storage/*": ["./src/storage/*"],
-      "@loaders/*": ["./src/loaders/*"],
-      "@audio/*": ["./src/audio/*"],
-      "@hooks/*": ["./src/hooks/*"]
+      "@novel-engine/core": ["./packages/core/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "packages/core/src"]
 }

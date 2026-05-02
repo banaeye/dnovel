@@ -7,7 +7,7 @@ import { useAudioStore } from '../store/audioStore';
 import type { MasterData } from '../loaders/dataLoader';
 import { TitleScreen } from './system/TitleScreen';
 import { GameScreen } from './game/GameScreen';
-import '../App.css';
+import './NovelApp.css';
 
 const DEBUG_KEY = '__novel_debug_start__';
 

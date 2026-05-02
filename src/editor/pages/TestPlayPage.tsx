@@ -1,6 +1,4 @@
-import type { DebugStartConfig } from '../../store/gameStore';
-
-export type { DebugStartConfig };
+import type { DebugStartConfig } from '@novel-engine/core';
 
 const DEBUG_KEY = '__novel_debug_start__';
 
