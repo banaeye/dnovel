@@ -67,6 +67,12 @@ export interface TalkableEntry {
   condition?: Condition | null;
 }
 
+export interface EngineTransitionSpec {
+  id: string;
+  config?: unknown;
+  return_scene?: string;
+}
+
 export interface Scene {
   id: string;
   location_id?: string;
@@ -85,4 +91,5 @@ export interface Scene {
   item_remove?: string[];
   cg_sequence?: CgFrame[];
   game_end?: boolean;
+  next_engine?: EngineTransitionSpec;
 }

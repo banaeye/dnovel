@@ -17,8 +17,9 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@novel-engine/core": ["../packages/core/src/index.ts"]
+      "@novel-engine/core": ["../packages/core/src/index.ts"],
+      "@novel-engine/hub": ["../packages/hub/src/index.ts"]
     }
   },
-  "include": ["src", "../packages/core/src"]
+  "include": ["src", "../packages/core/src", "../packages/hub/src"]
 }

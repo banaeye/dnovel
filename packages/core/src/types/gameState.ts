@@ -1,5 +1,5 @@
 import type { FlagMap } from './flag';
-import type { CharacterDisplay } from './scene';
+import type { CharacterDisplay, EngineTransitionSpec } from './scene';
 
 export type GamePhase =
   | 'title'
@@ -12,7 +12,8 @@ export type GamePhase =
   | 'system_menu'
   | 'talk_select'
   | 'cg_sequence'
-  | 'ending';
+  | 'ending'
+  | 'engine_transition';
 
 export interface TalkCandidate {
   characterId: string;
@@ -29,5 +30,6 @@ export interface GameState {
   phase: GamePhase;
   currentCharacters: CharacterDisplay[];
   talkCandidates: TalkCandidate[];
+  pendingEngineTransition?: EngineTransitionSpec;
 }
 

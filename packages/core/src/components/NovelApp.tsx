@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createGameStore } from '../store/gameStore';
 import type { DebugStartConfig, GameStoreApi } from '../store/gameStore';
 import { GameStoreContext, useGameStore } from '../context/GameStoreContext';
 import { AssetProvider } from '../context/AssetContext';
 import { useAudioStore } from '../store/audioStore';
 import type { MasterData } from '../loaders/dataLoader';
+import type { EngineTransitionSpec } from '../types/scene';
 import { TitleScreen } from './system/TitleScreen';
 import { GameScreen } from './game/GameScreen';
 import './NovelApp.css';
@@ -20,6 +21,13 @@ export interface NovelAppProps {
   masterData: MasterData;
   assetsBaseUrl: string;
   config: NovelAppConfig;
+  initialFlags?: Record<string, boolean | number | string>;
+  initialInventory?: string[];
+  onEngineTransition?: (
+    flags: Record<string, boolean | number | string>,
+    inventory: string[],
+    spec: EngineTransitionSpec,
+  ) => void;
 }
 
 function useGameScale() {
@@ -57,11 +65,20 @@ function useFullscreen() {
   return { isFullscreen, toggle };
 }
 
-function GameContent() {
+function GameContent({ onEngineTransition }: {
+  onEngineTransition?: (
+    flags: Record<string, boolean | number | string>,
+    inventory: string[],
+    spec: EngineTransitionSpec,
+  ) => void;
+}) {
   const { state, startNewGame, startDebugGame, loadGame } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
   const { isFullscreen, toggle } = useFullscreen();
+
+  const onEngineTransitionRef = useRef(onEngineTransition);
+  onEngineTransitionRef.current = onEngineTransition;
 
   useEffect(() => {
     loadSettings();
@@ -74,6 +91,12 @@ function GameContent() {
       } catch { /* ignore malformed */ }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (state.phase === 'engine_transition' && state.pendingEngineTransition) {
+      onEngineTransitionRef.current?.(state.flags, state.inventory, state.pendingEngineTransition);
+    }
+  }, [state.phase, state.pendingEngineTransition]);
 
   return (
     <div className="app-wrapper">
@@ -95,20 +118,39 @@ function GameContent() {
   );
 }
 
-export function NovelApp({ masterData, assetsBaseUrl, config }: NovelAppProps) {
+export function NovelApp({
+  masterData,
+  assetsBaseUrl,
+  config,
+  initialFlags,
+  initialInventory,
+  onEngineTransition,
+}: NovelAppProps) {
   const storeRef = useRef<GameStoreApi | null>(null);
   if (!storeRef.current) {
     storeRef.current = createGameStore(
       masterData,
       config.initialSceneId,
       config.initialLocationId,
+      { initialFlags, initialInventory },
     );
   }
+
+  const handleEngineTransition = useCallback(
+    (
+      flags: Record<string, boolean | number | string>,
+      inventory: string[],
+      spec: EngineTransitionSpec,
+    ) => {
+      onEngineTransition?.(flags, inventory, spec);
+    },
+    [onEngineTransition],
+  );
 
   return (
     <AssetProvider assetsBaseUrl={assetsBaseUrl}>
       <GameStoreContext.Provider value={storeRef.current}>
-        <GameContent />
+        <GameContent onEngineTransition={handleEngineTransition} />
       </GameStoreContext.Provider>
     </AssetProvider>
   );

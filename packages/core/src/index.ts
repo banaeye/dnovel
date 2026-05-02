@@ -10,4 +10,6 @@ export { AssetProvider, useAssets } from './context/AssetContext';
 export { GameStoreContext, useGameStore } from './context/GameStoreContext';
 
 export { createGameStore } from './store/gameStore';
-export type { GameStoreApi, GameStore, DebugStartConfig } from './store/gameStore';
+export type { GameStoreApi, GameStore, DebugStartConfig, GameStoreOptions } from './store/gameStore';
+
+export type { EngineTransitionSpec } from './types/scene';

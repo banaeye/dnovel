@@ -1,0 +1,34 @@
+{
+  "name": "@novel-engine/hub",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/novel-engine-hub.cjs",
+  "module": "./dist/novel-engine-hub.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/novel-engine-hub.mjs",
+      "require": "./dist/novel-engine-hub.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "@novel-engine/core": "*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.9",
+    "vite-plugin-dts": "^4.5.4"
+  }
+}

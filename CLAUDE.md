@@ -28,51 +28,72 @@ novel/
 ├── packages/
 │   ├── core/          @novel-engine/core  ← エンジン本体（npm パッケージ）
 │   │   ├── src/index.ts                    公開 API エントリ
+│   │   ├── src/components/NovelApp.tsx     最上位コンポーネント
+│   │   ├── src/engine/                     純粋関数コアロジック
+│   │   ├── src/store/gameStore.ts          Zustand ストアファクトリ
+│   │   ├── src/loaders/dataLoader.ts       YAML パーサ（?raw なし）
 │   │   ├── vite.config.ts                  library mode ビルド設定
 │   │   └── README.md                       利用者向けドキュメント
-│   └── editor/        @novel-engine/editor ← 開発エディタ（npm パッケージ）
-│       ├── src/index.ts
+│   ├── editor/        @novel-engine/editor ← 開発エディタ（npm パッケージ）
+│   │   ├── src/index.ts
+│   │   └── vite.config.ts
+│   └── hub/           @novel-engine/hub   ← マルチエンジンハブ（npm パッケージ）
+│       ├── src/types.ts                    共通インターフェース定義
+│       ├── src/GameHub.tsx                 エンジン切り替えコンポーネント
+│       ├── src/novel/NovelEngineAdapter.tsx @novel-engine/core のアダプタ
+│       ├── src/index.ts                    公開 API エントリ
 │       └── vite.config.ts
-├── src/               「赤羽の一日」デモゲーム（packages/core の参照実装）
+├── src/               「赤羽の一日」本体ゲーム（packages/core の参照実装）
 │   ├── data/          YAMLゲームデータ（シナリオ・マスター・フラグ定義）
-│   ├── types/         TypeScript型定義
-│   ├── engine/        純粋関数コアロジック（副作用なし）
-│   ├── storage/       ストレージ抽象化レイヤー
-│   ├── store/         Zustandストア
-│   ├── context/       AssetContext・GameStoreContext
-│   ├── components/    Reactコンポーネント（NovelApp.tsx を含む）
-│   ├── audio/         音声処理
-│   ├── hooks/         カスタムフック
+│   ├── loaders/       demoLoader.ts（?raw import あり、デモ専用）
 │   ├── editor/        ゲーム管理エディタ（ローカル開発専用）
-│   └── loaders/       YAMLパース（dataLoader.ts + demoLoader.ts）
+│   └── App.tsx        エントリ（NovelApp を直接使用）
+├── demo/              ローカル統合デモ（GameHub を使ったサンプル）
+│   ├── src/
+│   │   ├── App.tsx    GameHub + NovelEngineAdapter + スタブRPG
+│   │   └── data/      簡易ゲームデータ（「ある日の古本屋」4シーン）
+│   ├── vite.config.ts  ← packages/core・hub をソースエイリアスで参照
+│   └── package.json    独立した npm プロジェクト（ワークスペース外）
 └── public/assets/
-    ├── backgrounds/   背景画像 *.jpg / *.png / *.webp
+    ├── backgrounds/   背景画像
     ├── characters/    キャラクタースプライト {id}/*.png
-    ├── cg/            一枚絵・CG *.jpg / *.png
-    ├── audio/bgm/     BGM *.mp3 / *.ogg
-    ├── audio/se/      SE *.mp3 / *.ogg
+    ├── cg/            一枚絵・CG
+    ├── audio/         BGM / SE / voicevox
     └── voicevox/      事前生成音声 {hash}.wav
 ```
 
+### パッケージ間の依存関係
+
+```
+demo/  ──uses──▶  @novel-engine/hub  ──uses──▶  @novel-engine/core
+src/   ──uses──▶  @novel-engine/core
+packages/editor/  ──uses──▶  @novel-engine/core
+```
+
+開発中は `vite.config.ts` の `resolve.alias` でビルド済みパッケージを使わず
+ソースファイルを直接参照する（HMR が即効く）。
+
 ### loaders 分離ルール
-- `src/loaders/dataLoader.ts` — `parseMasterData(RawYamlInputs)` のみ。`?raw` import なし。ライブラリに含める。
-- `src/loaders/demoLoader.ts` — `getMasterData()` のみ。`?raw` import あり。デモアプリ専用。パッケージに含めない。
+
+- `packages/core/src/loaders/dataLoader.ts` — `parseMasterData(RawYamlInputs)` のみ。`?raw` import なし。ライブラリに含める。
+- `src/loaders/demoLoader.ts` — `getMasterData()` のみ。`?raw` import あり。本体ゲーム専用。パッケージに含めない。
+- `demo/src/App.tsx` — `?raw` import を直接持つ（demo は独立したアプリ）。
 
 ---
 
 ## 設計原則
 
 ### コアエンジン（純粋関数）
-`src/engine/` 内のすべての関数は `GameState → GameState` の純粋関数で実装。
+`packages/core/src/engine/` 内のすべての関数は `GameState → GameState` の純粋関数で実装。
 副作用（ストレージ・DOM・音声）は持たない。React をインポートしない。
 
 ### YAMLデータ
 `src/data/*.yaml` をゲームコンテンツとして管理。
 Vite の `?raw` suffix でテキスト読み込み → `js-yaml` でパース。
-全定義は `src/loaders/dataLoader.ts` 経由で取得する。
+全定義は `packages/core/src/loaders/dataLoader.ts` 経由で取得する。
 
 ### ストレージ抽象化
-フラグ・セーブデータの保存先は `src/storage/IStorage` を通じてのみアクセスする。
+フラグ・セーブデータの保存先は `packages/core/src/storage/IStorage` を通じてのみアクセスする。
 現在の実装は `LocalStorageAdapter`。切り替えは `VITE_STORAGE_BACKEND` 環境変数で行う。
 
 ```
@@ -84,11 +105,11 @@ VITE_STORAGE_BACKEND=server        # 将来
 ### 画面サイズ
 ゲーム画面は **800×600px 固定**。
 クリッカブルエリア座標は 800×600 基準で定義する。
-スケーリングは `src/App.tsx` の `useGameScale()` が `transform: scale()` で処理。
+スケーリングは `packages/core/src/components/NovelApp.tsx` の `useGameScale()` が `transform: scale()` で処理。
 フルスクリーン時はスケール上限を外して画面いっぱいに拡大する。
 
 ### child_scenes（入れ子シーン）
-シーンは `child_scenes` 配列を持てる。`src/loaders/dataLoader.ts` の `flattenScenes()` がロード時にフラット辞書へ展開する。
+シーンは `child_scenes` 配列を持てる。`packages/core/src/loaders/dataLoader.ts` の `flattenScenes()` がロード時にフラット辞書へ展開する。
 子シーンは親から `location_id`・`background`・`bgm` を継承する（子に明示すれば上書き可）。
 
 ### ChoiceList のインデックス
@@ -111,6 +132,7 @@ transitionTo(sceneId)
 
 resolveAfterMessages（全メッセージ読了後）
   └─ game_end: true             → phase: 'ending'
+  └─ next_engine あり           → phase: 'engine_transition'（GameHub へ制御を返す）
   └─ branches.type === 'choice' → phase: 'choice'
   └─ branches.type === 'auto'   → 条件を上から評価
        next_scene あり    → transitionTo(next_scene)
@@ -123,13 +145,12 @@ resolveAfterMessages（全メッセージ読了後）
 
 **ディスパッチャーシーン**：`messages: []` ＋ `branches.type: auto` の組み合わせで、
 メッセージなしに即条件分岐する入り口シーンを作れる。
-複数フローが合流する場所（loc の `entry_scene` など）に有効。
 
 ---
 
 ## GamePhase
 
-`src/types/gameState.ts` の `GamePhase` union が表示する UI を制御する。
+`packages/core/src/types/gameState.ts` の `GamePhase` union が表示する UI を制御する。
 
 | フェーズ | 表示 UI |
 |---------|---------|
@@ -143,6 +164,7 @@ resolveAfterMessages（全メッセージ読了後）
 | `talk_select` | ChoiceList（話しかけるキャラ選択） |
 | `cg_sequence` | CgSequencePlayer（クリック送り CG） |
 | `ending` | EndingSequence（エンドロール＋CG 演出） |
+| `engine_transition` | なし（GameHub に制御を返す中間状態） |
 | `system_menu` | SystemMenu |
 
 ---
@@ -191,6 +213,11 @@ scenes:
           next_scene: scene_xxx | null  # null → goBack
           condition: ...               # 省略可
     next_scene: scene_xxx | null       # 直進先（null → goBack、省略 → command フェーズ）
+    next_engine:                       # 別エンジンへ遷移（省略可）
+      id: maze_rpg                     # エンジン ID（GameHub の engines キー）
+      config:                          # エンジン固有の設定（任意）
+        map: dungeon_01
+      return_scene: scene_xxx          # エンジン終了後に戻るシーン ID（省略可）
     flags_set:                         # 遷移時に設定するフラグ
       - flag: flag_xxx
         value: true | false | 数値 | 文字列
@@ -356,14 +383,136 @@ condition: null           # 常に真
    - frames[0–2] → Phase1 右パネル（クレジット前半が左）
    - frames[3–4] → Phase2 左パネル（クレジット後半が右）
    - frames[最後] → Phase3 フルスクリーン（Fin）
-3. `EndingSequence.tsx` 内の `PART1` / `PART2` でクレジット内容を編集する
+3. `packages/core/src/components/game/EndingSequence.tsx` の `PART1` / `PART2` でクレジット内容を編集する
 
 ### 新しいコマンドタイプを追加する
 1. `src/data/commands.yaml` に新コマンド追加（`action_type` を定義）
-2. `src/types/command.ts` の `CommandActionType` に型追加
-3. `src/engine/CommandEngine.ts` の `executeCommand()` に switch case 追加
-4. 必要なら `src/types/gameState.ts` に `GamePhase` 追加
-5. `src/components/game/GameScreen.tsx` に対応 UI 描画追加
+2. `packages/core/src/types/command.ts` の `CommandActionType` に型追加
+3. `packages/core/src/engine/CommandEngine.ts` の `executeCommand()` に switch case 追加
+4. 必要なら `packages/core/src/types/gameState.ts` に `GamePhase` 追加
+5. `packages/core/src/components/game/GameScreen.tsx` に対応 UI 描画追加
+
+---
+
+## マルチエンジンハブ（@novel-engine/hub）
+
+複数のゲームエンジンを組み合わせ、実行中に切り替えるための仕組み。
+ノベル → 迷路RPG → ノベルへ戻る、といった遷移を `scenes.yaml` の `next_engine:` 一行で実現する。
+
+### アーキテクチャ
+
+```
+GameHub
+  ├── context: GameContext      ← flags / inventory / playerStats を全エンジンで共有
+  ├── engines['novel']  → NovelEngineAdapter  → NovelApp
+  ├── engines['maze_rpg']       → IGameEngine 実装
+  └── engines['shooting']       → IGameEngine 実装（将来）
+```
+
+### 共通インターフェース（packages/hub/src/types.ts）
+
+```typescript
+interface GameContext {
+  flags:       Record<string, boolean | number | string>;
+  inventory:   string[];
+  playerStats: Record<string, number>;   // HP, EXP, score など
+}
+
+interface EngineTransition {
+  engineId:        string;    // 遷移先エンジン ID
+  config?:         unknown;   // エンジン固有設定
+  returnEngineId?: string;    // 終了後に戻るエンジン ID
+  returnConfig?:   unknown;
+}
+
+interface IGameEngine<TConfig = unknown> {
+  component: React.ComponentType<EngineProps<TConfig>>;
+}
+```
+
+### GameHub の return 処理
+
+エンジンが `onExit(updatedContext)` を `next` なしで呼ぶと、
+`GameHub` は `current.returnEngineId` / `current.returnConfig` に従って元のエンジンへ戻る。
+`returnEngineId` は `NovelEngineAdapter` が `next_engine.return_scene` を見て自動設定する。
+
+### 利用例（App.tsx）
+
+```tsx
+import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
+
+<GameHub
+  engines={{
+    novel:   NovelEngineAdapter,
+    maze_rpg: MazeRpgEngine,
+  }}
+  initial={{
+    engineId: 'novel',
+    config: { masterData, assetsBaseUrl, initialSceneId, initialLocationId },
+  }}
+  initialContext={{ flags: {}, inventory: [], playerStats: {} }}
+/>
+```
+
+---
+
+## demo/ ローカル統合デモ
+
+`demo/` は `@novel-engine/hub` を使ったマルチエンジン統合の動作確認用プロジェクト。
+「ある日の古本屋」という 5 シーンのノベル＋スタブ迷路RPG で構成される。
+
+### 起動方法
+
+```bash
+cd demo
+npm install   # 初回のみ
+npm run dev   # http://localhost:5173（または 5174）
+```
+
+### demo/ と packages/ の関係
+
+`demo/` は npm ワークスペース外の独立プロジェクト。
+`packages/core` や `packages/hub` はビルド済みパッケージを使わず、
+`vite.config.ts` の `resolve.alias` でソースを直接参照する。
+
+```typescript
+// demo/vite.config.ts
+resolve: {
+  dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'zustand'],
+  alias: {
+    '@novel-engine/core': path.resolve(__dirname, '../packages/core/src/index.ts'),
+    '@novel-engine/hub':  path.resolve(__dirname, '../packages/hub/src/index.ts'),
+  },
+},
+server: {
+  fs: { allow: ['..'] },  // packages/ へのアクセスを許可
+},
+```
+
+### モノレポ特有の注意点
+
+**React の多重インスタンス問題**
+`demo/node_modules/react` と `(root)/node_modules/react` が別インスタンスになると、
+Zustand のフック呼び出しで "Invalid hook call" が発生する。
+`resolve.dedupe` で全モジュールの React を demo の node_modules に統一すること。
+
+**FS 制限**
+Vite のデフォルトではプロジェクトルート外のファイルを配信しない。
+`server.fs.allow: ['..']` でモノレポルートへのアクセスを許可する。
+
+**TypeScript パス解決**
+```jsonc
+// demo/tsconfig.app.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@novel-engine/core": ["../packages/core/src/index.ts"],
+      "@novel-engine/hub":  ["../packages/hub/src/index.ts"]
+    }
+  },
+  "include": ["src", "../packages/core/src", "../packages/hub/src"]
+}
+```
 
 ---
 
@@ -405,7 +554,7 @@ src/editor/
 開発時: `http://localhost:50021` で VOICEVOX Engine を起動しておく。
 本番(GitHub Pages): `public/assets/voicevox/{hash}.wav` を事前生成・配置する。
 
-ハッシュキー: `sha1(text + "_" + speakerId)` → `src/utils/hashUtils.ts` の `voiceHashKey()` で計算。
+ハッシュキー: `sha1(text + "_" + speakerId)` → `packages/core/src/utils/hashUtils.ts` の `voiceHashKey()` で計算。
 
 ```bash
 npm run gen:voice   # 全メッセージの音声を一括生成
@@ -451,27 +600,31 @@ git branch -d feature/<task-name>
 ## ビルド・デプロイ
 
 ```bash
-# 開発（デモゲーム）
+# 本体ゲーム（赤羽の一日）開発サーバ
 npm run dev
 
-# デモゲーム GitHub Pages 用ビルド
+# 本体ゲーム GitHub Pages 用ビルド
 VITE_BASE_PATH=/dojonovel/ VITE_VOICEVOX_PREBUILT_ONLY=true npm run build
 
 # プレビュー（GitHub Pages 想定）
 npm run preview:gh
 
-# パッケージビルド（@novel-engine/core と @novel-engine/editor）
-npm run build --workspace=packages/core
-npm run build --workspace=packages/editor
+# パッケージビルド
+cd packages/core  && npm run build   # @novel-engine/core
+cd packages/hub   && npm run build   # @novel-engine/hub
+cd packages/editor && npm run build  # @novel-engine/editor
+
+# demo/ 統合デモ
+cd demo && npm install && npm run dev
 ```
 
 GitHub Actions が `master` ブランチへの push で自動デプロイ。
 
 ---
 
-## 別プロジェクトへの流用（npm パッケージ方式）
+## 別プロジェクトへの流用
 
-`@novel-engine/core` をインストールして使う方式。[packages/core/README.md](packages/core/README.md) を参照。
+### NovelApp 単体（ノベルのみ）
 
 ```bash
 npm install @novel-engine/core react react-dom zustand js-yaml
@@ -479,7 +632,6 @@ npm install @novel-engine/core react react-dom zustand js-yaml
 
 ```tsx
 import { NovelApp, parseMasterData } from '@novel-engine/core';
-import '@novel-engine/core/style.css';
 
 const masterData = parseMasterData({ scenes: scenesRaw, /* ... */ });
 
@@ -494,4 +646,36 @@ export default function App() {
 }
 ```
 
-クレジット内容は `src/components/game/EndingSequence.tsx` の `PART1` / `PART2` で編集する。
+### GameHub（マルチエンジン）
+
+```bash
+npm install @novel-engine/core @novel-engine/hub react react-dom zustand js-yaml
+```
+
+```tsx
+import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
+import type { IGameEngine, EngineProps, GameContext } from '@novel-engine/hub';
+
+// 独自エンジンの定義例
+const MyRpgEngine: IGameEngine<{ mapId: string }> = {
+  component({ context, config, onExit }) {
+    // ...
+    // 終了時: onExit(updatedContext)          ← return_scene へ戻る
+    // 遷移時: onExit(updatedContext, { engineId: 'novel', config: ... })
+  },
+};
+
+export default function App() {
+  return (
+    <GameHub
+      engines={{ novel: NovelEngineAdapter, rpg: MyRpgEngine }}
+      initial={{ engineId: 'novel', config: { masterData, assetsBaseUrl, initialSceneId, initialLocationId } }}
+      initialContext={{ flags: {}, inventory: [], playerStats: {} }}
+    />
+  );
+}
+```
+
+ソースエイリアスで開発する場合は `vite.config.ts` に `resolve.dedupe` と `server.fs.allow` を追加すること（「demo/ ローカル統合デモ」節参照）。
+
+クレジット内容は `packages/core/src/components/game/EndingSequence.tsx` の `PART1` / `PART2` で編集する。

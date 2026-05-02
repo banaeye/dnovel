@@ -81,6 +81,10 @@ function resolveAfterMessages(
     return { ...state, phase: 'ending' };
   }
 
+  if (scene.next_engine) {
+    return { ...state, phase: 'engine_transition', pendingEngineTransition: scene.next_engine };
+  }
+
   const branches = scene.branches;
 
   if (branches?.type === 'choice' && branches.choices && branches.choices.length > 0) {

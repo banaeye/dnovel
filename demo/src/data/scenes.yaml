@@ -20,8 +20,23 @@ scenes:
       choices:
         - label: "店主に話しかける"
           next_scene: scene_talk_master
+        - label: "奥の扉が気になる"
+          next_scene: scene_dungeon_enter
         - label: "何も買わずに帰る"
           next_scene: scene_leave
+
+  - id: scene_dungeon_enter
+    location_id: loc_shop
+    messages:
+      - text: "奥の扉を開けると、薄暗い地下への階段があった。"
+        voice_character_id: null
+      - text: "「あっちは迷宮だよ。気をつけて」と店主が言った。"
+        voice_character_id: char_master
+    next_engine:
+      id: maze_rpg
+      config:
+        map: dungeon_01
+      return_scene: scene_browse
 
   - id: scene_talk_master
     location_id: loc_shop

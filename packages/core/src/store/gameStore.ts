@@ -43,18 +43,25 @@ export interface GameStore {
 
 export type GameStoreApi = StoreApi<GameStore>;
 
+export interface GameStoreOptions {
+  initialFlags?: Record<string, boolean | number | string>;
+  initialInventory?: string[];
+}
+
 function buildInitialState(
   masterData: MasterData,
   initialSceneId: string,
   initialLocationId: string,
+  options?: GameStoreOptions,
 ): GameState {
-  const flags = initializeFlags(masterData.flags);
+  const baseFlags = initializeFlags(masterData.flags);
+  const flags = options?.initialFlags ? { ...baseFlags, ...options.initialFlags } : baseFlags;
   return {
     currentSceneId: initialSceneId,
     currentLocationId: initialLocationId,
     currentMessageIndex: 0,
     flags,
-    inventory: [],
+    inventory: options?.initialInventory ?? [],
     sceneHistory: [],
     phase: 'title',
     currentCharacters: [],
@@ -66,8 +73,9 @@ export function createGameStore(
   masterData: MasterData,
   initialSceneId: string,
   initialLocationId: string,
+  options?: GameStoreOptions,
 ): GameStoreApi {
-  const initialState = buildInitialState(masterData, initialSceneId, initialLocationId);
+  const initialState = buildInitialState(masterData, initialSceneId, initialLocationId, options);
 
   return createStore<GameStore>((set, get) => ({
     state: initialState,
@@ -76,14 +84,14 @@ export function createGameStore(
 
     startNewGame: () => {
       const md = get().masterData;
-      const fresh = buildInitialState(md, initialSceneId, initialLocationId);
+      const fresh = buildInitialState(md, initialSceneId, initialLocationId, options);
       const started = transitionTo(initialSceneId, { ...fresh, phase: 'message' }, md);
       set({ state: started, playtimeStart: Date.now() });
     },
 
     startDebugGame: (config: DebugStartConfig) => {
       const md = get().masterData;
-      const base = buildInitialState(md, initialSceneId, initialLocationId);
+      const base = buildInitialState(md, initialSceneId, initialLocationId, options);
       const seed: GameState = {
         ...base,
         currentSceneId: config.sceneId,
