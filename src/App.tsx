@@ -11,6 +11,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter1',
     title: '第1章へ',
+    chapterTitle: '赤羽の一日',
     masterData,
     initialSceneId: 'scene_danchi_morning',
     initialLocationId: 'loc_danchi',
@@ -21,6 +22,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter2',
     title: '第2章へ',
+    chapterTitle: '一番街の怨霊',
     masterData: chapter2MasterData,
     initialSceneId: 'scene_ch2_start',
     initialLocationId: 'loc_danchi',

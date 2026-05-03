@@ -5,6 +5,10 @@ export interface ChapterConfig {
   id: string;
   /** タイトル画面に表示するボタンラベル（例: "第2章へ"） */
   title: string;
+  /** 章タイトル画面に表示するタイトル（例: "一番街の怨霊"）。省略時はタイトルカードを表示しない */
+  chapterTitle?: string;
+  /** 章タイトル画面のサブタイトル（省略可） */
+  subtitle?: string;
   /** この章で使用するマスターデータ */
   masterData: MasterData;
   /** この章の開始シーン ID */

@@ -21,9 +21,11 @@ import styles from './GameScreen.module.css';
 
 interface GameScreenProps {
   onLoadGame: (saveData: SaveData) => void;
+  /** エンディング完了後に呼ばれるコールバック。省略時は goToTitle */
+  onTitle?: () => void;
 }
 
-export function GameScreen({ onLoadGame }: GameScreenProps) {
+export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
   const {
     state,
     masterData,
@@ -188,7 +190,7 @@ export function GameScreen({ onLoadGame }: GameScreenProps) {
       )}
 
       {state.phase === 'ending' && (
-        <EndingSequence frames={scene?.cg_sequence ?? []} onTitle={goToTitle} />
+        <EndingSequence frames={scene?.cg_sequence ?? []} onTitle={onTitle ?? goToTitle} />
       )}
     </div>
   );

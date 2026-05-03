@@ -10,6 +10,7 @@ import type { EngineTransitionSpec } from '../types/scene';
 import type { ChapterConfig } from '../types/chapter';
 import { TitleScreen } from './system/TitleScreen';
 import { GameScreen } from './game/GameScreen';
+import { ChapterTitleCard } from './game/ChapterTitleCard';
 import './NovelApp.css';
 
 const DEBUG_KEY = '__novel_debug_start__';
@@ -94,13 +95,51 @@ function GameContent({
   onLoadGame: (saveData: SaveData) => void;
   chapterId: string;
 }) {
-  const { state, startNewGame, startDebugGame } = useGameStore();
+  const { state, startNewGame, startDebugGame, goToTitle } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
   const { isFullscreen, toggle } = useFullscreen();
 
   const onEngineTransitionRef = useRef(onEngineTransition);
   onEngineTransitionRef.current = onEngineTransition;
+
+  // 章タイトルカード表示制御
+  type PendingChapter = { chapter: ChapterConfig; index: number; action: () => void };
+  const [pendingChapter, setPendingChapter] = useState<PendingChapter | null>(null);
+
+  function showChapterTitle(chapter: ChapterConfig, action: () => void) {
+    if (!chapter.chapterTitle) { action(); return; }
+    const index = (chapters ?? []).findIndex(c => c.id === chapter.id);
+    setPendingChapter({ chapter, index: Math.max(0, index), action });
+  }
+
+  function dismissChapterTitle() {
+    if (!pendingChapter) return;
+    const action = pendingChapter.action;
+    setPendingChapter(null);
+    action();
+  }
+
+  // 「はじめから」: 第1章のタイトルカードを挟む
+  function handleNewGame() {
+    const first = (chapters ?? [])[0];
+    if (first) showChapterTitle(first, onNewGame);
+    else onNewGame();
+  }
+
+  // チャプターボタン: そのチャプターのタイトルカードを挟む
+  const handleStartChapter = useCallback((chapter: ChapterConfig) => {
+    showChapterTitle(chapter, () => onStartChapter(chapter));
+  }, [chapters, onStartChapter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // エンディング完了: 次の章があればタイトルカード → 次章へ / なければタイトルへ
+  const handleEndingToTitle = useCallback(() => {
+    const list = chapters ?? [];
+    const idx = list.findIndex(c => c.id === chapterId);
+    const next = list[idx + 1];
+    if (next) showChapterTitle(next, () => onStartChapter(next));
+    else goToTitle();
+  }, [chapters, chapterId, onStartChapter, goToTitle]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadSettings();
@@ -127,15 +166,24 @@ function GameContent({
   return (
     <div className="app-wrapper">
       <div className="game-container" style={{ transform: `scale(${scale})` }}>
+        {/* 章タイトルカードオーバーレイ */}
+        {pendingChapter && (
+          <ChapterTitleCard
+            chapter={pendingChapter.chapter}
+            chapterIndex={pendingChapter.index}
+            onDismiss={dismissChapterTitle}
+          />
+        )}
+
         {state.phase === 'title' ? (
           <TitleScreen
-            onNewGame={onNewGame}
+            onNewGame={handleNewGame}
             onLoad={onLoadGame}
             chapters={chapters}
-            onStartChapter={onStartChapter}
+            onStartChapter={handleStartChapter}
           />
         ) : (
-          <GameScreen onLoadGame={onLoadGame} />
+          <GameScreen onLoadGame={onLoadGame} onTitle={handleEndingToTitle} />
         )}
       </div>
       <button
