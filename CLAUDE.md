@@ -37,12 +37,20 @@ novel/
 │   ├── editor/        @novel-engine/editor ← 開発エディタ（npm パッケージ）
 │   │   ├── src/index.ts
 │   │   └── vite.config.ts
-│   └── hub/           @novel-engine/hub   ← マルチエンジンハブ（npm パッケージ）
-│       ├── src/types.ts                    共通インターフェース定義
-│       ├── src/GameHub.tsx                 エンジン切り替えコンポーネント
-│       ├── src/novel/NovelEngineAdapter.tsx @novel-engine/core のアダプタ
-│       ├── src/index.ts                    公開 API エントリ
-│       └── vite.config.ts
+│   ├── hub/           @novel-engine/hub   ← マルチエンジンハブ（npm パッケージ）
+│   │   ├── src/types.ts                    共通インターフェース定義
+│   │   ├── src/GameHub.tsx                 エンジン切り替えコンポーネント
+│   │   ├── src/novel/NovelEngineAdapter.tsx @novel-engine/core のアダプタ
+│   │   ├── src/index.ts                    公開 API エントリ
+│   │   └── vite.config.ts
+│   └── maze-rpg/      @novel-engine/maze-rpg ← ウィザードリィ風迷路エンジン
+│       ├── src/index.ts
+│       ├── src/MazeApp.tsx                 800×600 コンテナ・入力ハンドリング
+│       ├── src/engine/types.ts             Dir / Vec2 / MazeState
+│       ├── src/engine/maps.ts              BUILT_IN_MAPS（dungeon_01 など）
+│       ├── src/engine/mazeEngine.ts        純粋関数（移動・壁判定・視野計算）
+│       ├── src/components/MazeView.tsx     Canvas 480×320 一人称透視レンダラ
+│       └── src/components/MiniMap.tsx      Canvas 俯瞰マップ
 ├── src/               「赤羽の一日」本体ゲーム（packages/core の参照実装）
 │   ├── data/          YAMLゲームデータ（シナリオ・マスター・フラグ定義）
 │   ├── loaders/       demoLoader.ts（?raw import あり、デモ専用）
@@ -65,7 +73,8 @@ novel/
 ### パッケージ間の依存関係
 
 ```
-demo/  ──uses──▶  @novel-engine/hub  ──uses──▶  @novel-engine/core
+demo/  ──uses──▶  @novel-engine/hub      ──uses──▶  @novel-engine/core
+demo/  ──uses──▶  @novel-engine/maze-rpg ──uses──▶  @novel-engine/hub
 src/   ──uses──▶  @novel-engine/core
 packages/editor/  ──uses──▶  @novel-engine/core
 ```
@@ -436,6 +445,26 @@ interface IGameEngine<TConfig = unknown> {
 `GameHub` は `current.returnEngineId` / `current.returnConfig` に従って元のエンジンへ戻る。
 `returnEngineId` は `NovelEngineAdapter` が `next_engine.return_scene` を見て自動設定する。
 
+### autoStart — タイトルスキップ
+
+`NovelApp` の `autoStart?: boolean` prop が `true` のとき、マウント時に `startNewGame()` を自動呼び出しして
+タイトル画面をスキップし `initialSceneId` のシーンから直接開始する。
+
+`NovelEngineAdapter` は `returnConfig` に `autoStart: true` を注入するため、
+別エンジンから `return_scene` へ戻る際は常にタイトルをスキップして指定シーンへ直行する。
+初回起動時（`App.tsx` の `initial` config）は `autoStart` を指定しないのでタイトル画面が表示される。
+
+```typescript
+// NovelAdapterConfig の autoStart フィールド
+export interface NovelAdapterConfig {
+  masterData: MasterData;
+  assetsBaseUrl: string;
+  initialSceneId: string;
+  initialLocationId: string;
+  autoStart?: boolean;  // returnConfig にのみ true を入れる
+}
+```
+
 ### 利用例（App.tsx）
 
 ```tsx
@@ -458,8 +487,8 @@ import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 
 ## demo/ ローカル統合デモ
 
-`demo/` は `@novel-engine/hub` を使ったマルチエンジン統合の動作確認用プロジェクト。
-「ある日の古本屋」という 5 シーンのノベル＋スタブ迷路RPG で構成される。
+`demo/` は `@novel-engine/hub` + `@novel-engine/maze-rpg` を使ったマルチエンジン統合の動作確認用プロジェクト。
+「ある日の古本屋」という 5 シーンのノベル＋ウィザードリィ風迷路RPG で構成される。
 
 ### 起動方法
 
@@ -480,8 +509,9 @@ npm run dev   # http://localhost:5173（または 5174）
 resolve: {
   dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'zustand'],
   alias: {
-    '@novel-engine/core': path.resolve(__dirname, '../packages/core/src/index.ts'),
-    '@novel-engine/hub':  path.resolve(__dirname, '../packages/hub/src/index.ts'),
+    '@novel-engine/core':     path.resolve(__dirname, '../packages/core/src/index.ts'),
+    '@novel-engine/hub':      path.resolve(__dirname, '../packages/hub/src/index.ts'),
+    '@novel-engine/maze-rpg': path.resolve(__dirname, '../packages/maze-rpg/src/index.ts'),
   },
 },
 server: {
@@ -506,12 +536,77 @@ Vite のデフォルトではプロジェクトルート外のファイルを配
 {
   "compilerOptions": {
     "paths": {
-      "@novel-engine/core": ["../packages/core/src/index.ts"],
-      "@novel-engine/hub":  ["../packages/hub/src/index.ts"]
+      "@novel-engine/core":     ["../packages/core/src/index.ts"],
+      "@novel-engine/hub":      ["../packages/hub/src/index.ts"],
+      "@novel-engine/maze-rpg": ["../packages/maze-rpg/src/index.ts"]
     }
   },
-  "include": ["src", "../packages/core/src", "../packages/hub/src"]
+  "include": ["src", "../packages/core/src", "../packages/hub/src", "../packages/maze-rpg/src"]
 }
+```
+
+---
+
+## @novel-engine/maze-rpg
+
+ウィザードリィ初代風の一人称視点ダンジョン探索エンジン。`IGameEngine<MazeRpgConfig>` を実装し、`GameHub` に登録して使う。
+
+### レンダリング
+
+`MazeView`（Canvas 480×320）が painter's algorithm で一人称透視図法を描画。
+`FRAMES[d]` テーブル（5段階）で各深さのスクリーン上「窓枠」を定義し、遠→近の順に前面壁・側面壁を塗る。
+
+| 深さ d | FRAME [left, top, right, bottom] | 明度 |
+|-------|----------------------------------|------|
+| 1 | [60, 40, 420, 280] | 100% |
+| 2 | [120, 80, 360, 240] | 78% |
+| 3 | [172, 110, 308, 210] | 56% |
+| 4 | [207, 128, 273, 192] | 38% |
+
+### マップ形式
+
+`packages/maze-rpg/src/engine/maps.ts` の `BUILT_IN_MAPS` に `string[]` で定義する。
+
+| 文字 | 意味 |
+|------|------|
+| `#` | 壁（歩行不可） |
+| `.` | 床 |
+| `S` | スタート位置 |
+| `X` | 出口（ゴール） |
+
+**注意**: BFS で S から X に到達できることを必ず確認すること（孤立した通路は見つかっても進めない）。
+
+```typescript
+// 追加例
+BUILT_IN_MAPS['dungeon_02'] = [
+  '#########',
+  '#S.....X#',
+  '#########',
+];
+```
+
+### 操作
+
+| キー | 動作 |
+|------|------|
+| ↑ / W | 前進 |
+| ↓ / S | 後退 |
+| ← / A | 左回転（90°） |
+| → / D | 右回転（90°） |
+| Enter / Space | 出口（X）到達後に脱出確認 |
+
+### 設定とフラグ
+
+```typescript
+// scenes.yaml での呼び出し例
+next_engine:
+  id: maze_rpg
+  config:
+    map: dungeon_01        # BUILT_IN_MAPS のキー
+  return_scene: scene_xxx  # クリア後に戻るシーン
+
+// 脱出時に GameContext へ追加されるフラグ
+explored_dungeon_01: true  // explored_{mapId} の形式
 ```
 
 ---
@@ -610,9 +705,10 @@ VITE_BASE_PATH=/dojonovel/ VITE_VOICEVOX_PREBUILT_ONLY=true npm run build
 npm run preview:gh
 
 # パッケージビルド
-cd packages/core  && npm run build   # @novel-engine/core
-cd packages/hub   && npm run build   # @novel-engine/hub
-cd packages/editor && npm run build  # @novel-engine/editor
+cd packages/core     && npm run build      # @novel-engine/core
+cd packages/hub      && npm run build      # @novel-engine/hub
+cd packages/editor   && npm run build      # @novel-engine/editor
+cd packages/maze-rpg && npx tsc --noEmit   # @novel-engine/maze-rpg（型チェックのみ）
 
 # demo/ 統合デモ
 cd demo && npm install && npm run dev
@@ -649,31 +745,36 @@ export default function App() {
 ### GameHub（マルチエンジン）
 
 ```bash
-npm install @novel-engine/core @novel-engine/hub react react-dom zustand js-yaml
+npm install @novel-engine/core @novel-engine/hub @novel-engine/maze-rpg react react-dom zustand js-yaml
 ```
 
 ```tsx
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
-import type { IGameEngine, EngineProps, GameContext } from '@novel-engine/hub';
-
-// 独自エンジンの定義例
-const MyRpgEngine: IGameEngine<{ mapId: string }> = {
-  component({ context, config, onExit }) {
-    // ...
-    // 終了時: onExit(updatedContext)          ← return_scene へ戻る
-    // 遷移時: onExit(updatedContext, { engineId: 'novel', config: ... })
-  },
-};
+import { MazeRpgEngine } from '@novel-engine/maze-rpg';
 
 export default function App() {
   return (
     <GameHub
-      engines={{ novel: NovelEngineAdapter, rpg: MyRpgEngine }}
+      engines={{ novel: NovelEngineAdapter, maze_rpg: MazeRpgEngine }}
       initial={{ engineId: 'novel', config: { masterData, assetsBaseUrl, initialSceneId, initialLocationId } }}
       initialContext={{ flags: {}, inventory: [], playerStats: {} }}
     />
   );
 }
+```
+
+独自エンジンを作る場合は `IGameEngine<TConfig>` を実装する:
+
+```tsx
+import type { IGameEngine, EngineProps } from '@novel-engine/hub';
+
+const MyEngine: IGameEngine<{ level: number }> = {
+  component({ context, config, onExit }) {
+    // 終了時: onExit(updatedContext)                        ← return_scene へ戻る
+    // 他エンジンへ: onExit(updatedContext, { engineId: 'novel', config: ... })
+    return <div>Level {config.level}</div>;
+  },
+};
 ```
 
 ソースエイリアスで開発する場合は `vite.config.ts` に `resolve.dedupe` と `server.fs.allow` を追加すること（「demo/ ローカル統合デモ」節参照）。
