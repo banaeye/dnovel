@@ -1,25 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useYamlFs, findScene, updateSceneInTree, addSceneToTree, collectAllSceneIds } from '../hooks/useYamlFs';
-import type { RawScene, RawCharacterDisplay, RawFlagSet, RawChoice, RawItemGive, RawItem } from '../hooks/useYamlFs';
+import { findScene, updateSceneInTree, addSceneToTree, collectAllSceneIds } from '../hooks/useYamlFs';
+import type { RawScene, RawCharacterDisplay, RawFlagSet, RawChoice, RawItemGive, RawItem, SharedFsProps } from '../hooks/useYamlFs';
 import { SceneList } from '../components/SceneList';
 import { MessageEditor } from '../components/MessageEditor';
 
 const POSITIONS = ['left', 'center', 'right'] as const;
 
-interface SceneEditorPageProps {
-  sharedDirHandle?: FileSystemDirectoryHandle | null;
-  onDirOpen?: () => void;
+interface SceneEditorPageProps extends SharedFsProps {
+  initialSelectedId?: string | null;
+  onShowInFlow?: (id: string) => void;
 }
 
-export function SceneEditorPage({ sharedDirHandle, onDirOpen }: SceneEditorPageProps) {
-  const { dirHandle, rawScenes, rawCharacters, rawLocations, rawItems, error, openDirectory, saveScenes } = useYamlFs();
+export function SceneEditorPage({
+  dirHandle, rawScenes, rawCharacters, rawLocations, rawItems, error, openDirectory, saveScenes,
+  initialSelectedId, onShowInFlow,
+}: SceneEditorPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<RawScene | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
 
-  const effectiveDirHandle = sharedDirHandle ?? dirHandle;
   const allSceneIds = collectAllSceneIds(rawScenes);
+
+  useEffect(() => {
+    if (initialSelectedId) setSelectedId(initialSelectedId);
+  }, [initialSelectedId]);
 
   useEffect(() => {
     if (!selectedId) { setDraft(null); setDirty(false); return; }
@@ -51,8 +56,6 @@ export function SceneEditorPage({ sharedDirHandle, onDirOpen }: SceneEditorPageP
     setTimeout(() => setSaveStatus(''), 2500);
   }
 
-  const open = onDirOpen ?? openDirectory;
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* ツールバー */}
@@ -64,14 +67,20 @@ export function SceneEditorPage({ sharedDirHandle, onDirOpen }: SceneEditorPageP
         flexShrink: 0,
       }}>
         <span style={{ fontWeight: 'bold', color: '#5c6bc0' }}>シーンエディタ</span>
-        <button className="primary" onClick={open}>
-          {effectiveDirHandle ? '📂 再読み込み' : '📂 フォルダを開く'}
-        </button>
-        <button className="primary" onClick={handleSave} disabled={!dirty || !effectiveDirHandle}>
+        <button className="primary" onClick={handleSave} disabled={!dirty || !dirHandle}>
           💾 保存
         </button>
+        {onShowInFlow && (
+          <button
+            className="primary"
+            onClick={() => selectedId && onShowInFlow(selectedId)}
+            disabled={!selectedId}
+            title="フロー図でこのシーンを表示"
+          >
+            フロー図で見る
+          </button>
+        )}
         {saveStatus && <span style={{ color: '#66bb6a', fontSize: 12 }}>{saveStatus}</span>}
-        {error && <span style={{ color: '#ef5350', fontSize: 12 }}>エラー: {error}</span>}
         {dirty && !saveStatus && <span style={{ color: '#ffb300', fontSize: 12 }}>● 未保存</span>}
       </div>
 

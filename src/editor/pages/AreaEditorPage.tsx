@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useYamlFs, collectAllSceneIds, findScene, updateSceneInTree } from '../hooks/useYamlFs';
-import type { RawArea, RawScene } from '../hooks/useYamlFs';
+import { collectAllSceneIds, findScene, updateSceneInTree } from '../hooks/useYamlFs';
+import type { RawArea, RawScene, SharedFsProps } from '../hooks/useYamlFs';
 import { AreaCanvas } from '../components/AreaCanvas';
 import { AreaPanel } from '../components/AreaPanel';
 
-export function AreaEditorPage() {
-  const { dirHandle, rawScenes, error, openDirectory, saveScenes } = useYamlFs();
+export function AreaEditorPage({ dirHandle, rawScenes, error, saveScenes }: SharedFsProps) {
   const [selectedSceneId, setSelectedSceneId] = useState<string>('');
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [localAreas, setLocalAreas] = useState<RawArea[]>([]);
@@ -61,14 +60,6 @@ export function AreaEditorPage() {
         flexWrap: 'wrap',
       }}>
         <span style={{ fontWeight: 'bold', color: '#5c6bc0', marginRight: 4 }}>エリアエディタ</span>
-
-        <button
-          className="primary"
-          onClick={openDirectory}
-          title="src/data/ フォルダを開く"
-        >
-          {dirHandle ? '📂 再読み込み' : '📂 フォルダを開く'}
-        </button>
 
         <select
           style={{ width: 300 }}

@@ -80,6 +80,17 @@ export interface RawItem {
   name: string;
 }
 
+export interface SharedFsProps {
+  dirHandle: FileSystemDirectoryHandle | null;
+  rawScenes: RawScene[];
+  rawCharacters: RawCharacter[];
+  rawLocations: RawLocation[];
+  rawItems: RawItem[];
+  error: string | null;
+  openDirectory: () => Promise<void>;
+  saveScenes: (scenes: RawScene[]) => Promise<void>;
+}
+
 export function useYamlFs() {
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [rawScenes, setRawScenes] = useState<RawScene[]>([]);
