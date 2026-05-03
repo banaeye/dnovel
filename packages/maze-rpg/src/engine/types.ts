@@ -37,4 +37,5 @@ export interface MazeState {
   playerAtk: number;
   playerDef: number;
   battle: BattleState | null;
+  inventory: string[];
 }

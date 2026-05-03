@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { IGameEngine, EngineProps, GameContext } from '@novel-engine/hub';
-import { initMaze, handleKey } from './engine/mazeEngine.js';
+import { initMaze, handleKey, useItemInMaze } from './engine/mazeEngine.js';
 import { MazeView } from './components/MazeView.js';
 import { MiniMap } from './components/MiniMap.js';
 import { BattleView } from './components/BattleView.js';
 import { EnemySprite } from './components/EnemySprite.js';
+import { ItemPanel } from './components/ItemPanel.js';
+import type { MazeItemDef } from './components/ItemPanel.js';
+
+export type { MazeItemDef };
 
 export interface MazeTheme {
   /** 天井グラデーション上端色 @default '#020213' */
@@ -49,8 +53,10 @@ export interface MazeRpgConfig {
   /** タイトルバーに表示する名前（省略時は map ID） */
   name?: string;
   theme?: MazeTheme;
-  /** 敵画像などのアセットベース URL（省略時は import.meta.env.BASE_URL + 'assets'） */
+  /** 敵画像などのアセットベース URL（省略時は '/assets'） */
   assetsBaseUrl?: string;
+  /** インベントリに表示するアイテム情報（NovelEngineAdapter が自動注入） */
+  items?: MazeItemDef[];
 }
 
 const DIR_LABEL: Record<string, string> = { N: '北', E: '東', S: '南', W: '西' };
@@ -66,15 +72,46 @@ function useGameScale() {
   return scale;
 }
 
+function navBtnStyle(theme: Required<MazeTheme>): React.CSSProperties {
+  return {
+    background: theme.uiBg,
+    border: `1px solid ${theme.uiBorder}`,
+    color: theme.uiBorder,
+    fontFamily: 'monospace',
+    fontSize: 11,
+    padding: '4px 8px',
+    cursor: 'pointer',
+    borderRadius: 2,
+    userSelect: 'none',
+    flex: 1,
+    textAlign: 'center',
+  };
+}
+
 function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig>) {
   const scale = useGameScale();
-  const [state, setState] = useState(() => initMaze(config.map, context.playerStats));
+  const [state, setState] = useState(() =>
+    initMaze(config.map, context.playerStats, context.inventory),
+  );
   const theme = mergeTheme(config.theme);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
+
+  // アイテム使用時の探索モード通知（バトル中は battle.log に入るので不要）
+  const [itemNotice, setItemNotice] = useState<string | null>(null);
+  const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const dispatch = useCallback((key: string) => {
     setState(prev => handleKey(prev, key));
   }, []);
+
+  const handleUseItem = useCallback((itemId: string, itemName: string) => {
+    setState(prev => useItemInMaze(prev, itemId, itemName));
+    if (!state.battle) {
+      if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
+      setItemNotice(`${itemName}を使った！`);
+      noticeTimerRef.current = setTimeout(() => setItemNotice(null), 2500);
+    }
+  }, [state.battle]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -91,6 +128,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     const updatedContext: GameContext = {
       ...context,
       flags: { ...context.flags, [`explored_${config.map}`]: true },
+      inventory: state.inventory,
       playerStats: {
         ...context.playerStats,
         hp: state.playerHp,
@@ -100,7 +138,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       },
     };
     onExit(updatedContext);
-  }, [context, config.map, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef, onExit]);
+  }, [context, config.map, state.inventory, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef, onExit]);
 
   const handleExitKey = useCallback(
     (e: KeyboardEvent) => {
@@ -164,45 +202,111 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
 
         {/* メインエリア */}
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          {/* 左: 3D ビュー */}
+
+          {/* 左: 3D ビューのみ */}
           <div
             style={{
+              flex: '0 0 488px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              flex: '0 0 520px',
-              padding: '0 20px',
-              gap: 8,
             }}
           >
-            {/* 3D ビュー — 常に表示。バトル中は敵グラフィックをオーバーレイ */}
-            <div
-              style={{
-                border: `2px solid ${theme.uiBorder}`,
-                boxShadow: '0 0 12px rgba(100,60,10,0.4)',
-                position: 'relative',
-              }}
-            >
-              <MazeView state={state} theme={theme} />
+            <div style={{ position: 'relative' }}>
+              {/* 3D ビュー — 常に表示 */}
+              <div
+                style={{
+                  border: `2px solid ${theme.uiBorder}`,
+                  boxShadow: '0 0 12px rgba(100,60,10,0.4)',
+                  position: 'relative',
+                }}
+              >
+                <MazeView state={state} theme={theme} />
 
-              {/* 敵グラフィックオーバーレイ（バトル中） */}
-              {state.battle && <EnemySprite enemy={state.battle.enemy} assetsBaseUrl={assetsBaseUrl} />}
+                {/* 敵グラフィックオーバーレイ（バトル中） */}
+                {state.battle && <EnemySprite enemy={state.battle.enemy} assetsBaseUrl={assetsBaseUrl} />}
 
-              {/* クリックゾーン（探索中のみ） */}
-              {!state.battle && !state.atExit && (
-                <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gridTemplateRows: '1fr 1fr' }}>
-                  <div title="左回転" style={{ cursor: 'w-resize' }} onClick={() => dispatch('ArrowLeft')} />
-                  <div title="前進"   style={{ cursor: 'n-resize' }} onClick={() => dispatch('ArrowUp')} />
-                  <div title="右回転" style={{ cursor: 'e-resize' }} onClick={() => dispatch('ArrowRight')} />
-                  <div title="左回転" style={{ cursor: 'w-resize' }} onClick={() => dispatch('ArrowLeft')} />
-                  <div title="後退"   style={{ cursor: 's-resize' }} onClick={() => dispatch('ArrowDown')} />
-                  <div title="右回転" style={{ cursor: 'e-resize' }} onClick={() => dispatch('ArrowRight')} />
+                {/* クリックゾーン（探索中のみ） */}
+                {!state.battle && !state.atExit && (
+                  <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+                    <div title="左回転" style={{ cursor: 'w-resize' }} onClick={() => dispatch('ArrowLeft')} />
+                    <div title="前進"   style={{ cursor: 'n-resize' }} onClick={() => dispatch('ArrowUp')} />
+                    <div title="右回転" style={{ cursor: 'e-resize' }} onClick={() => dispatch('ArrowRight')} />
+                    <div title="左回転" style={{ cursor: 'w-resize' }} onClick={() => dispatch('ArrowLeft')} />
+                    <div title="後退"   style={{ cursor: 's-resize' }} onClick={() => dispatch('ArrowDown')} />
+                    <div title="右回転" style={{ cursor: 'e-resize' }} onClick={() => dispatch('ArrowRight')} />
+                  </div>
+                )}
+              </div>
+
+              {/* 出口パネル */}
+              {state.atExit && (
+                <div
+                  onClick={triggerExit}
+                  style={{
+                    marginTop: 8,
+                    background: '#1a2a0a',
+                    border: '1px solid #44aa22',
+                    borderRadius: 4,
+                    padding: '8px 16px',
+                    color: '#88ff44',
+                    fontSize: 14,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                  }}
+                >
+                  階段を見つけた！ [Enter] / クリックで地上へ戻る
                 </div>
               )}
             </div>
+          </div>
 
-            {/* バトル中: コンパクトバトルパネル / 探索中: 方向ボタン */}
+          {/* 右: コントロールパネル */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              borderLeft: `1px solid ${theme.uiBorder}`,
+              padding: '10px 10px 8px',
+              gap: 8,
+              overflow: 'hidden',
+            }}
+          >
+            {/* コンパス */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '24px 24px 24px',
+                  gridTemplateRows: '24px 24px 24px',
+                  gap: 2,
+                  textAlign: 'center',
+                }}
+              >
+                {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
+                {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
+                {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
+              </div>
+              <div style={{ fontSize: 11, color: theme.uiAccent }}>
+                向き: {DIR_LABEL[state.dir]}
+              </div>
+            </div>
+
+            {/* ミニマップ */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <div style={{ border: `1px solid ${theme.uiBorder}` }}>
+                <MiniMap state={state} />
+              </div>
+              <div style={{ fontSize: 10, opacity: 0.5 }}>
+                ({state.pos.x}, {state.pos.y})
+              </div>
+            </div>
+
+            {/* セパレーター */}
+            <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
+
+            {/* コマンド: バトル中 = バトルパネル / 探索中 = 方向ボタン */}
             {state.battle ? (
               <BattleView
                 state={state}
@@ -219,92 +323,31 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                 onAdvance={() => dispatch('Enter')}
               />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <button onClick={() => dispatch('ArrowUp')}    style={navBtnStyle(theme)}>↑ 前進</button>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => dispatch('ArrowLeft')}  style={navBtnStyle(theme)}>← 左回転</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex' }}>
+                  <button onClick={() => dispatch('ArrowUp')} style={{ ...navBtnStyle(theme) }}>↑ 前進</button>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button onClick={() => dispatch('ArrowLeft')}  style={navBtnStyle(theme)}>← 左</button>
                   <button onClick={() => dispatch('ArrowDown')}  style={navBtnStyle(theme)}>↓ 後退</button>
-                  <button onClick={() => dispatch('ArrowRight')} style={navBtnStyle(theme)}>→ 右回転</button>
+                  <button onClick={() => dispatch('ArrowRight')} style={navBtnStyle(theme)}>→ 右</button>
                 </div>
               </div>
             )}
 
-            {state.atExit && (
-              <div
-                onClick={triggerExit}
-                style={{
-                  background: '#1a2a0a',
-                  border: '1px solid #44aa22',
-                  borderRadius: 4,
-                  padding: '8px 16px',
-                  color: '#88ff44',
-                  fontSize: 14,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                }}
-              >
-                階段を見つけた！ [Enter] / クリックで地上へ戻る
-              </div>
-            )}
-          </div>
-
-          {/* 右: ミニマップ + コンパス */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              borderLeft: `1px solid ${theme.uiBorder}`,
-              padding: '8px 0',
-            }}
-          >
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '28px 28px 28px',
-                gridTemplateRows: '28px 28px 28px',
-                gap: 2,
-                textAlign: 'center',
-              }}
-            >
-              {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
-              {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
-              {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
-            </div>
-
-            <div style={{ fontSize: 13, color: theme.uiAccent }}>
-              向き: {DIR_LABEL[state.dir]}
-            </div>
-
-            <div style={{ border: `1px solid ${theme.uiBorder}` }}>
-              <MiniMap state={state} />
-            </div>
-
-            <div style={{ fontSize: 10, opacity: 0.5 }}>
-              ({state.pos.x}, {state.pos.y})
-            </div>
+            {/* アイテムパネル */}
+            <ItemPanel
+              inventory={state.inventory}
+              itemDefs={config.items ?? []}
+              theme={theme}
+              onUse={handleUseItem}
+              notification={itemNotice ?? undefined}
+            />
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-function navBtnStyle(theme: Required<MazeTheme>): React.CSSProperties {
-  return {
-    background: theme.uiBg,
-    border: `1px solid ${theme.uiBorder}`,
-    color: theme.uiBorder,
-    fontFamily: 'monospace',
-    fontSize: 11,
-    padding: '3px 10px',
-    cursor: 'pointer',
-    borderRadius: 2,
-    userSelect: 'none',
-  };
 }
 
 function CompassCell({ label, dir, theme }: { label: string; dir: string; theme: Required<MazeTheme> }) {
@@ -320,7 +363,7 @@ function CompassCell({ label, dir, theme }: { label: string; dir: string; theme:
         borderRadius: 2,
         color: active ? theme.uiAccent : theme.uiBorder,
         fontWeight: active ? 'bold' : 'normal',
-        fontSize: 11,
+        fontSize: 10,
       }}
     >
       {label}

@@ -37,7 +37,11 @@ export function findStart(map: string[]): Vec2 {
   return { x: 1, y: 1 };
 }
 
-export function initMaze(mapId: string, playerStats?: Record<string, number>): MazeState {
+export function initMaze(
+  mapId: string,
+  playerStats?: Record<string, number>,
+  inventory?: string[],
+): MazeState {
   const map = BUILT_IN_MAPS[mapId] ?? BUILT_IN_MAPS['dungeon_01']!;
   const pos = findStart(map);
   const playerMaxHp = playerStats?.maxHp ?? 20;
@@ -54,7 +58,20 @@ export function initMaze(mapId: string, playerStats?: Record<string, number>): M
     playerAtk: playerStats?.atk ?? 5,
     playerDef: playerStats?.def ?? 2,
     battle: null,
+    inventory: inventory ?? [],
   };
+}
+
+export function useItemInMaze(state: MazeState, itemId: string, itemName: string): MazeState {
+  const idx = state.inventory.indexOf(itemId);
+  if (idx === -1) return state;
+  const inventory = [...state.inventory.slice(0, idx), ...state.inventory.slice(idx + 1)];
+  const msg = `${itemName}を使った！`;
+  if (state.battle) {
+    const log = [...state.battle.log, msg];
+    return { ...state, inventory, battle: { ...state.battle, log } };
+  }
+  return { ...state, inventory };
 }
 
 function step(state: MazeState, delta: Vec2): MazeState {

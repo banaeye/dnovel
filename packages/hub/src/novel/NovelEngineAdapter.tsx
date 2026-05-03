@@ -32,10 +32,19 @@ function NovelEngineComponent({
         inventory,
         playerStats: context.playerStats,
       };
+      // 遷移先エンジンに assetsBaseUrl とアイテム一覧を自動注入
+      const itemDefs = Object.values(config.masterData.items).map(item => ({
+        id: item.id,
+        name: item.name,
+        usable: item.usable,
+      }));
       const transition: EngineTransition = {
         engineId: spec.id,
-        // assetsBaseUrl を遷移先エンジンに自動注入（エンジン側が使わなければ無視される）
-        config: { assetsBaseUrl: config.assetsBaseUrl, ...(spec.config as object ?? {}) },
+        config: {
+          assetsBaseUrl: config.assetsBaseUrl,
+          items: itemDefs,
+          ...(spec.config as object ?? {}),
+        },
         returnEngineId: spec.return_scene ? 'novel' : undefined,
         returnConfig: spec.return_scene
           ? { ...config, chapterId, initialSceneId: spec.return_scene, autoStart: true }
