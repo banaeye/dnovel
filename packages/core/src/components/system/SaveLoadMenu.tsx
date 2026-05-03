@@ -12,10 +12,11 @@ interface SaveLoadMenuProps {
   onSave: (slotId: number) => Promise<void>;
   onLoad: (saveData: SaveData) => void;
   onClose: () => void;
+  initialTab?: Tab;
 }
 
-export function SaveLoadMenu({ onSave, onLoad, onClose }: SaveLoadMenuProps) {
-  const [tab, setTab] = useState<Tab>('save');
+export function SaveLoadMenu({ onSave, onLoad, onClose, initialTab = 'save' }: SaveLoadMenuProps) {
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [saves, setSaves] = useState<Array<{ slotId: number; data: SaveData } | null>>([]);
 
   useEffect(() => {

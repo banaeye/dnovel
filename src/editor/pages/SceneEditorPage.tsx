@@ -12,7 +12,7 @@ interface SceneEditorPageProps extends SharedFsProps {
 }
 
 export function SceneEditorPage({
-  dirHandle, rawScenes, rawCharacters, rawLocations, rawItems, error, openDirectory, saveScenes,
+  dirHandle, rawScenes, rawCharacters, rawLocations, rawItems, saveScenes,
   initialSelectedId, onShowInFlow,
 }: SceneEditorPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);

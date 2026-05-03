@@ -5,6 +5,7 @@ import { audioManager } from '../../audio/AudioManager';
 import { useAudioStore } from '../../store/audioStore';
 import { getAvailableCommands } from '../../engine/CommandEngine';
 import { getAvailableConnections } from '../../engine/LocationEngine';
+import type { SaveData } from '../../storage/StorageInterface';
 import { SceneBackground } from './SceneBackground';
 import { CharacterSprite } from './CharacterSprite';
 import { DialogueBox } from './DialogueBox';
@@ -18,7 +19,11 @@ import { CgSequencePlayer } from './CgSequencePlayer';
 import { EndingSequence } from './EndingSequence';
 import styles from './GameScreen.module.css';
 
-export function GameScreen() {
+interface GameScreenProps {
+  onLoadGame: (saveData: SaveData) => void;
+}
+
+export function GameScreen({ onLoadGame }: GameScreenProps) {
   const {
     state,
     masterData,
@@ -33,7 +38,6 @@ export function GameScreen() {
     closeOverlay,
     goToTitle,
     toSaveData,
-    loadGame,
   } = useGameStore();
 
   const { settings } = useAudioStore();
@@ -178,7 +182,7 @@ export function GameScreen() {
       {state.phase !== 'ending' && (
         <SystemMenu
           onGetSaveData={toSaveData}
-          onLoad={loadGame}
+          onLoad={onLoadGame}
           onTitle={goToTitle}
         />
       )}

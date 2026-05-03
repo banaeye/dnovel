@@ -5,7 +5,9 @@ import { GameStoreContext, useGameStore } from '../context/GameStoreContext';
 import { AssetProvider } from '../context/AssetContext';
 import { useAudioStore } from '../store/audioStore';
 import type { MasterData } from '../loaders/dataLoader';
+import type { SaveData } from '../storage/StorageInterface';
 import type { EngineTransitionSpec } from '../types/scene';
+import type { ChapterConfig } from '../types/chapter';
 import { TitleScreen } from './system/TitleScreen';
 import { GameScreen } from './game/GameScreen';
 import './NovelApp.css';
@@ -13,8 +15,10 @@ import './NovelApp.css';
 const DEBUG_KEY = '__novel_debug_start__';
 
 export interface NovelAppConfig {
+  chapterId?: string;
   initialSceneId: string;
   initialLocationId: string;
+  chapters?: ChapterConfig[];
 }
 
 export interface NovelAppProps {
@@ -29,6 +33,7 @@ export interface NovelAppProps {
     flags: Record<string, boolean | number | string>,
     inventory: string[],
     spec: EngineTransitionSpec,
+    chapterId?: string,
   ) => void;
 }
 
@@ -67,15 +72,29 @@ function useFullscreen() {
   return { isFullscreen, toggle };
 }
 
-function GameContent({ onEngineTransition, autoStart }: {
+function GameContent({
+  onEngineTransition,
+  autoStart,
+  chapters,
+  onNewGame,
+  onStartChapter,
+  onLoadGame,
+  chapterId,
+}: {
   onEngineTransition?: (
     flags: Record<string, boolean | number | string>,
     inventory: string[],
     spec: EngineTransitionSpec,
+    chapterId?: string,
   ) => void;
   autoStart?: boolean;
+  chapters?: ChapterConfig[];
+  onNewGame: () => void;
+  onStartChapter: (chapter: ChapterConfig) => void;
+  onLoadGame: (saveData: SaveData) => void;
+  chapterId: string;
 }) {
-  const { state, startNewGame, startDebugGame, loadGame } = useGameStore();
+  const { state, startNewGame, startDebugGame } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
   const { isFullscreen, toggle } = useFullscreen();
@@ -101,17 +120,22 @@ function GameContent({ onEngineTransition, autoStart }: {
 
   useEffect(() => {
     if (state.phase === 'engine_transition' && state.pendingEngineTransition) {
-      onEngineTransitionRef.current?.(state.flags, state.inventory, state.pendingEngineTransition);
+      onEngineTransitionRef.current?.(state.flags, state.inventory, state.pendingEngineTransition, chapterId);
     }
-  }, [state.phase, state.pendingEngineTransition]);
+  }, [state.phase, state.pendingEngineTransition, chapterId]);
 
   return (
     <div className="app-wrapper">
       <div className="game-container" style={{ transform: `scale(${scale})` }}>
         {state.phase === 'title' ? (
-          <TitleScreen onNewGame={startNewGame} onLoad={loadGame} />
+          <TitleScreen
+            onNewGame={onNewGame}
+            onLoad={onLoadGame}
+            chapters={chapters}
+            onStartChapter={onStartChapter}
+          />
         ) : (
-          <GameScreen />
+          <GameScreen onLoadGame={onLoadGame} />
         )}
       </div>
       <button
@@ -134,14 +158,61 @@ export function NovelApp({
   autoStart,
   onEngineTransition,
 }: NovelAppProps) {
-  const storeRef = useRef<GameStoreApi | null>(null);
-  if (!storeRef.current) {
-    storeRef.current = createGameStore(
+  const chapters = config.chapters ?? [];
+  const defaultChapter: ChapterConfig = chapters.find((chapter) => chapter.id === (config.chapterId ?? 'chapter1'))
+    ?? chapters[0]
+    ?? {
+      id: config.chapterId ?? 'chapter1',
+      title: '本編',
       masterData,
-      config.initialSceneId,
-      config.initialLocationId,
-      { initialFlags, initialInventory },
+      initialSceneId: config.initialSceneId,
+      initialLocationId: config.initialLocationId,
+      initialFlags,
+    };
+
+  function createStoreForChapter(
+    chapter: ChapterConfig,
+    flags?: Record<string, boolean | number | string>,
+    inventory?: string[],
+  ): GameStoreApi {
+    return createGameStore(
+      chapter.masterData,
+      chapter.initialSceneId,
+      chapter.initialLocationId,
+      {
+        chapterId: chapter.id,
+        initialFlags: flags,
+        initialInventory: inventory,
+      },
     );
+  }
+
+  const [storeEntry, setStoreEntry] = useState(() => ({
+    key: 0,
+    chapter: defaultChapter,
+    store: createStoreForChapter(defaultChapter, initialFlags, initialInventory),
+  }));
+
+  function startChapter(chapter: ChapterConfig) {
+    const flags = {
+      ...(chapter.unlockFlag ? { [chapter.unlockFlag]: true } : {}),
+      ...(chapter.initialFlags ?? {}),
+    };
+    const store = createStoreForChapter(chapter, flags, []);
+    store.getState().startNewGame();
+    setStoreEntry((prev) => ({ key: prev.key + 1, chapter, store }));
+  }
+
+  function startDefaultChapter() {
+    startChapter(defaultChapter);
+  }
+
+  function loadGameByChapter(saveData: SaveData) {
+    const chapterId = saveData.chapterId ?? 'chapter1';
+    const chapter = chapters.find((candidate) => candidate.id === chapterId) ?? defaultChapter;
+    const store = createStoreForChapter(chapter, saveData.flags, saveData.inventory);
+    store.getState().loadGame({ ...saveData, chapterId: chapter.id });
+    setStoreEntry((prev) => ({ key: prev.key + 1, chapter, store }));
   }
 
   const handleEngineTransition = useCallback(
@@ -149,16 +220,26 @@ export function NovelApp({
       flags: Record<string, boolean | number | string>,
       inventory: string[],
       spec: EngineTransitionSpec,
+      chapterId?: string,
     ) => {
-      onEngineTransition?.(flags, inventory, spec);
+      onEngineTransition?.(flags, inventory, spec, chapterId);
     },
     [onEngineTransition],
   );
 
   return (
     <AssetProvider assetsBaseUrl={assetsBaseUrl}>
-      <GameStoreContext.Provider value={storeRef.current}>
-        <GameContent onEngineTransition={handleEngineTransition} autoStart={autoStart} />
+      <GameStoreContext.Provider value={storeEntry.store}>
+        <GameContent
+          key={storeEntry.key}
+          onEngineTransition={handleEngineTransition}
+          autoStart={autoStart}
+          chapters={chapters}
+          onNewGame={startDefaultChapter}
+          onStartChapter={startChapter}
+          onLoadGame={loadGameByChapter}
+          chapterId={storeEntry.chapter.id}
+        />
       </GameStoreContext.Provider>
     </AssetProvider>
   );

@@ -31,3 +31,22 @@
   gap: 12px;
   align-items: center;
 }
+
+.continueMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.chapterList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.sectionLabel {
+  font-size: 12px;
+  color: #8a7a60;
+}

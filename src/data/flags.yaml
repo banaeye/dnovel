@@ -63,3 +63,13 @@ flags:
     type: integer
     default: 1
     description: "現在のチャプター番号"
+
+  - id: flag_chapter1_cleared
+    type: boolean
+    default: false
+    description: "第1章クリア済み（グミエンディング到達）"
+
+  - id: flag_ch2_cleared
+    type: boolean
+    default: false
+    description: "第2章クリア済み"

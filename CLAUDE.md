@@ -52,10 +52,10 @@ novel/
 │       ├── src/components/MazeView.tsx     Canvas 480×320 一人称透視レンダラ
 │       └── src/components/MiniMap.tsx      Canvas 俯瞰マップ
 ├── src/               「赤羽の一日」本体ゲーム（packages/core の参照実装）
-│   ├── data/          YAMLゲームデータ（シナリオ・マスター・フラグ定義）
+│   ├── data/          YAMLゲームデータ（章別シーン・マスター・フラグ定義）
 │   ├── loaders/       demoLoader.ts（?raw import あり、デモ専用）
 │   ├── editor/        ゲーム管理エディタ（ローカル開発専用）
-│   └── App.tsx        エントリ（NovelApp を直接使用）
+│   └── App.tsx        エントリ（GameHub + NovelEngineAdapter を使用）
 ├── demo/              ローカル統合デモ（GameHub を使ったサンプル）
 │   ├── src/
 │   │   ├── App.tsx    GameHub + NovelEngineAdapter + スタブRPG
@@ -85,7 +85,7 @@ packages/editor/  ──uses──▶  @novel-engine/core
 ### loaders 分離ルール
 
 - `packages/core/src/loaders/dataLoader.ts` — `parseMasterData(RawYamlInputs)` のみ。`?raw` import なし。ライブラリに含める。
-- `src/loaders/demoLoader.ts` — `getMasterData()` のみ。`?raw` import あり。本体ゲーム専用。パッケージに含めない。
+- `src/loaders/demoLoader.ts` — `getMasterData(chapterId)` のみ。章別 scenes YAML を `?raw` import する。本体ゲーム専用。パッケージに含めない。
 - `demo/src/App.tsx` — `?raw` import を直接持つ（demo は独立したアプリ）。
 
 ---
@@ -100,6 +100,23 @@ packages/editor/  ──uses──▶  @novel-engine/core
 `src/data/*.yaml` をゲームコンテンツとして管理。
 Vite の `?raw` suffix でテキスト読み込み → `js-yaml` でパース。
 全定義は `packages/core/src/loaders/dataLoader.ts` 経由で取得する。
+
+### 章別シーンファイル
+本体ゲームは章ごとに読み込むシーン YAML を分ける。
+
+```
+src/data/
+  scenes_ch1.yaml   # 第1章用シーン
+  scenes_ch2.yaml   # 第2章用シーン
+  scenes.yaml       # 互換用（現在は第1章相当）
+```
+
+`locations.yaml` / `characters.yaml` / `items.yaml` / `flags.yaml` / `commands.yaml` は全章共通。
+`src/loaders/demoLoader.ts` の `getMasterData('chapter1' | 'chapter2')` が、章 ID に対応する scenes YAML と共通マスターを結合して `MasterData` を返す。
+
+各章の scenes YAML は単独で動く必要がある。共有 `locations.yaml` の全 `entry_scene` は、各章ファイル内に必ず定義する。
+同じ `scene_ichibangai_default` でも章ごとに別内容を定義してよい。第2章では `scene_ichibangai_default` 自体をユイ登場シーンにする。
+章の差分は読み込む scenes ファイルで表現し、`flag_chapter` による細かい自動分岐で章差分を制御しない。
 
 ### ストレージ抽象化
 フラグ・セーブデータの保存先は `packages/core/src/storage/IStorage` を通じてのみアクセスする。
@@ -180,7 +197,7 @@ resolveAfterMessages（全メッセージ読了後）
 
 ## YAML スキーマ
 
-### scenes.yaml
+### scenes_ch*.yaml
 
 ```yaml
 scenes:
@@ -243,6 +260,9 @@ scenes:
       - id: scene_child_xxx
         ...
 ```
+
+本体ゲームでは `scenes_ch1.yaml` / `scenes_ch2.yaml` のように章別ファイルを使う。
+ライブラリとしては `parseMasterData({ scenes: scenesRaw, ... })` に渡された scenes 文字列をそのまま読むだけなので、ファイル名はアプリ側の責務。
 
 ### locations.yaml
 
@@ -375,7 +395,14 @@ condition: null           # 常に真
 1. `src/data/locations.yaml` にエントリ追加（`entry_scene` を必ず設定）
 2. 既存ロケーションの `connections` に接続先として追加（`condition` で出現制御）
 3. 背景画像を `public/assets/backgrounds/` に配置
-4. 対応する `entry_scene` を `scenes.yaml` に追加
+4. 対応する `entry_scene` を各章の `scenes_ch*.yaml` に追加
+
+### 新しい章を追加する
+1. `src/data/scenes_chN.yaml` を作成する
+2. `src/loaders/demoLoader.ts` に scenes raw import と `ChapterId` / `sceneSources` エントリを追加する
+3. `src/App.tsx` の `CHAPTERS` に `ChapterConfig` を追加する
+4. `src/editor/hooks/useYamlFs.ts` の `SCENE_FILENAMES` に新しい scenes ファイル名を追加する
+5. 全ロケーションの `entry_scene` がその章ファイルに存在することを確認する
 
 ### アイテムを追加する
 1. `src/data/items.yaml` にエントリ追加
@@ -406,7 +433,7 @@ condition: null           # 常に真
 ## マルチエンジンハブ（@novel-engine/hub）
 
 複数のゲームエンジンを組み合わせ、実行中に切り替えるための仕組み。
-ノベル → 迷路RPG → ノベルへ戻る、といった遷移を `scenes.yaml` の `next_engine:` 一行で実現する。
+ノベル → 迷路RPG → ノベルへ戻る、といった遷移を `scenes_ch*.yaml` の `next_engine:` 一行で実現する。
 
 ### アーキテクチャ
 
@@ -444,6 +471,8 @@ interface IGameEngine<TConfig = unknown> {
 エンジンが `onExit(updatedContext)` を `next` なしで呼ぶと、
 `GameHub` は `current.returnEngineId` / `current.returnConfig` に従って元のエンジンへ戻る。
 `returnEngineId` は `NovelEngineAdapter` が `next_engine.return_scene` を見て自動設定する。
+ノベル側から別エンジンへ遷移するときは現在の `chapterId` も returnConfig に保持するため、
+第2章など章別 scenes ファイルの途中から迷路RPGへ出ても、戻り先は同じ章の `MasterData` になる。
 
 ### autoStart — タイトルスキップ
 
@@ -459,16 +488,42 @@ interface IGameEngine<TConfig = unknown> {
 export interface NovelAdapterConfig {
   masterData: MasterData;
   assetsBaseUrl: string;
+  chapterId?: string;     // 章別 scenes ファイル復元用
   initialSceneId: string;
   initialLocationId: string;
+  chapters?: ChapterConfig[];
   autoStart?: boolean;  // returnConfig にのみ true を入れる
 }
 ```
+
+### 章選択と ChapterConfig
+
+タイトルの「続きから」には、セーブデータのロードと章選択を表示する。
+章選択時は `ChapterConfig.masterData` を使って `NovelApp` 内の Zustand store を作り直す。
+ロード時は `SaveData.chapterId` に対応する章の `MasterData` で store を作り直してから復元する。
+
+```typescript
+interface ChapterConfig {
+  id: string;                       // "chapter1" など。SaveData.chapterId と一致させる
+  title: string;                    // タイトル画面の表示名
+  masterData: MasterData;           // その章の scenes YAML で parse した MasterData
+  initialSceneId: string;
+  initialLocationId: string;
+  unlockFlag?: string;              // true のとき章選択に表示。省略時は常時表示
+  initialFlags?: Record<string, boolean | number | string>;
+}
+```
+
+既存セーブのように `chapterId` がない場合は `chapter1` として扱う。
 
 ### 利用例（App.tsx）
 
 ```tsx
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
+import { getMasterData } from './loaders/demoLoader';
+
+const masterData = getMasterData('chapter1');
+const chapter2MasterData = getMasterData('chapter2');
 
 <GameHub
   engines={{
@@ -477,7 +532,24 @@ import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
   }}
   initial={{
     engineId: 'novel',
-    config: { masterData, assetsBaseUrl, initialSceneId, initialLocationId },
+    config: {
+      masterData,
+      assetsBaseUrl,
+      chapterId: 'chapter1',
+      initialSceneId,
+      initialLocationId,
+      chapters: [
+        { id: 'chapter1', title: '第1章へ', masterData, initialSceneId, initialLocationId },
+        {
+          id: 'chapter2',
+          title: '第2章へ',
+          masterData: chapter2MasterData,
+          initialSceneId: 'scene_ch2_start',
+          initialLocationId: 'loc_danchi',
+          unlockFlag: 'flag_chapter1_cleared',
+        },
+      ],
+    },
   }}
   initialContext={{ flags: {}, inventory: [], playerStats: {} }}
 />
@@ -598,7 +670,7 @@ BUILT_IN_MAPS['dungeon_02'] = [
 ### 設定とフラグ
 
 ```typescript
-// scenes.yaml での呼び出し例
+// scenes_ch*.yaml での呼び出し例
 next_engine:
   id: maze_rpg
   config:
@@ -624,6 +696,8 @@ GitHub Pages にはデプロイしない。
 **YAML 読み書き**
 File System Access API（Chrome/Edge のみ）で `src/data/` フォルダを直接読み書き。
 「フォルダを開く」→ `src/data/` を選択 → Vite HMR でゲームに即反映。
+上部の scenes ファイル選択で `scenes_ch1.yaml` / `scenes_ch2.yaml` を切り替え、現在選択中のファイルへ保存する。
+キャラクター・ロケーション・アイテムなどのマスター YAML は全章共通で読み込む。
 
 ```
 src/editor/
@@ -639,7 +713,7 @@ src/editor/
     AreaCanvas.tsx      ドラッグ矩形描画
     AreaPanel.tsx
   hooks/
-    useYamlFs.ts        File System Access API ラッパー
+    useYamlFs.ts        File System Access API ラッパー（章別 scenes ファイル選択を含む）
 ```
 
 ---
@@ -664,6 +738,7 @@ npm run gen:voice   # 全メッセージの音声を一括生成
 ```typescript
 interface SaveData {
   version: number;
+  chapterId?: string;        // 章別 scenes ファイル識別子。未指定は chapter1 扱い
   timestamp: number;
   currentSceneId: string;
   currentLocationId: string;

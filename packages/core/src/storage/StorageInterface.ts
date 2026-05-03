@@ -3,6 +3,7 @@ import type { CharacterDisplay } from '../types/scene';
 
 export interface SaveData {
   version: number;
+  chapterId?: string;
   timestamp: number;
   currentSceneId: string;
   currentLocationId: string;

@@ -22,6 +22,7 @@ import { evaluateCondition } from '../engine/ConditionEvaluator';
 export interface GameStore {
   state: GameState;
   masterData: MasterData;
+  chapterId: string;
   playtimeStart: number;
 
   startNewGame: () => void;
@@ -39,11 +40,17 @@ export interface GameStore {
   useItem: (itemId: string) => void;
   closeOverlay: () => void;
   goToTitle: () => void;
+  startFromScene: (
+    sceneId: string,
+    locationId: string,
+    initialFlags?: Record<string, boolean | number | string>,
+  ) => void;
 }
 
 export type GameStoreApi = StoreApi<GameStore>;
 
 export interface GameStoreOptions {
+  chapterId?: string;
   initialFlags?: Record<string, boolean | number | string>;
   initialInventory?: string[];
 }
@@ -80,6 +87,7 @@ export function createGameStore(
   return createStore<GameStore>((set, get) => ({
     state: initialState,
     masterData,
+    chapterId: options?.chapterId ?? 'chapter1',
     playtimeStart: Date.now(),
 
     startNewGame: () => {
@@ -124,6 +132,7 @@ export function createGameStore(
       const { state, playtimeStart } = get();
       return {
         version: SAVE_DATA_VERSION,
+        chapterId: get().chapterId,
         timestamp: Date.now(),
         currentSceneId: state.currentSceneId,
         currentLocationId: state.currentLocationId,
@@ -218,6 +227,17 @@ export function createGameStore(
 
     goToTitle: () => {
       set((prev) => ({ state: { ...prev.state, phase: 'title' } }));
+    },
+
+    startFromScene: (sceneId: string, locationId: string, initialFlags) => {
+      const { state, masterData } = get();
+      const seed: GameState = {
+        ...buildInitialState(masterData, sceneId, locationId, {}),
+        flags: { ...state.flags, ...(initialFlags ?? {}) },
+        inventory: state.inventory,
+        phase: 'message',
+      };
+      set({ state: transitionTo(sceneId, seed, masterData), playtimeStart: Date.now() });
     },
   }));
 }

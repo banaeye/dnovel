@@ -82,22 +82,40 @@ export interface RawItem {
 
 export interface SharedFsProps {
   dirHandle: FileSystemDirectoryHandle | null;
+  sceneFilename: string;
+  sceneFilenames: string[];
   rawScenes: RawScene[];
   rawCharacters: RawCharacter[];
   rawLocations: RawLocation[];
   rawItems: RawItem[];
   error: string | null;
   openDirectory: () => Promise<void>;
+  selectSceneFile: (filename: string) => Promise<void>;
   saveScenes: (scenes: RawScene[]) => Promise<void>;
 }
 
+const SCENE_FILENAMES = ['scenes_ch1.yaml', 'scenes_ch2.yaml'];
+
 export function useYamlFs() {
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
+  const [sceneFilename, setSceneFilename] = useState(SCENE_FILENAMES[0]);
   const [rawScenes, setRawScenes] = useState<RawScene[]>([]);
   const [rawCharacters, setRawCharacters] = useState<RawCharacter[]>([]);
   const [rawLocations, setRawLocations] = useState<RawLocation[]>([]);
   const [rawItems, setRawItems] = useState<RawItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const readYaml = useCallback(async <T,>(handle: FileSystemDirectoryHandle, filename: string): Promise<T> => {
+    const fh = await handle.getFileHandle(filename);
+    const file = await fh.getFile();
+    return yaml.load(await file.text()) as T;
+  }, []);
+
+  const loadSceneFile = useCallback(async (handle: FileSystemDirectoryHandle, filename: string) => {
+    const scenesData = await readYaml<{ scenes: RawScene[] }>(handle, filename);
+    setRawScenes(scenesData.scenes ?? []);
+    setSceneFilename(filename);
+  }, [readYaml]);
 
   const openDirectory = useCallback(async () => {
     try {
@@ -106,20 +124,13 @@ export function useYamlFs() {
       }).showDirectoryPicker();
       setDirHandle(handle);
 
-      async function readYaml<T>(filename: string): Promise<T> {
-        const fh = await handle.getFileHandle(filename);
-        const file = await fh.getFile();
-        return yaml.load(await file.text()) as T;
-      }
-
-      const [scenesData, charsData, locsData, itemsData] = await Promise.all([
-        readYaml<{ scenes: RawScene[] }>('scenes.yaml'),
-        readYaml<{ characters: RawCharacter[] }>('characters.yaml'),
-        readYaml<{ locations: RawLocation[] }>('locations.yaml'),
-        readYaml<{ items: RawItem[] }>('items.yaml'),
+      const [charsData, locsData, itemsData] = await Promise.all([
+        readYaml<{ characters: RawCharacter[] }>(handle, 'characters.yaml'),
+        readYaml<{ locations: RawLocation[] }>(handle, 'locations.yaml'),
+        readYaml<{ items: RawItem[] }>(handle, 'items.yaml'),
       ]);
 
-      setRawScenes(scenesData.scenes ?? []);
+      await loadSceneFile(handle, sceneFilename);
       setRawCharacters(charsData.characters ?? []);
       setRawLocations(locsData.locations ?? []);
       setRawItems(itemsData.items ?? []);
@@ -127,12 +138,25 @@ export function useYamlFs() {
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError((e as Error).message);
     }
-  }, []);
+  }, [loadSceneFile, readYaml, sceneFilename]);
+
+  const selectSceneFile = useCallback(async (filename: string) => {
+    if (!dirHandle) {
+      setSceneFilename(filename);
+      return;
+    }
+    try {
+      await loadSceneFile(dirHandle, filename);
+      setError(null);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }, [dirHandle, loadSceneFile]);
 
   const saveScenes = useCallback(async (scenes: RawScene[]) => {
     if (!dirHandle) return;
     try {
-      const fh = await dirHandle.getFileHandle('scenes.yaml', { create: false });
+      const fh = await dirHandle.getFileHandle(sceneFilename, { create: false });
       const writable = await (fh as FileSystemFileHandle & {
         createWritable: () => Promise<FileSystemWritableFileStream>;
       }).createWritable();
@@ -143,9 +167,21 @@ export function useYamlFs() {
     } catch (e) {
       setError((e as Error).message);
     }
-  }, [dirHandle]);
+  }, [dirHandle, sceneFilename]);
 
-  return { dirHandle, rawScenes, rawCharacters, rawLocations, rawItems, error, openDirectory, saveScenes };
+  return {
+    dirHandle,
+    sceneFilename,
+    sceneFilenames: SCENE_FILENAMES,
+    rawScenes,
+    rawCharacters,
+    rawLocations,
+    rawItems,
+    error,
+    openDirectory,
+    selectSceneFile,
+    saveScenes,
+  };
 }
 
 export function findScene(rawScenes: RawScene[], id: string): RawScene | null {

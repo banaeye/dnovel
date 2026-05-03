@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 import { NovelApp } from '@novel-engine/core';
-import type { MasterData } from '@novel-engine/core';
+import type { MasterData, ChapterConfig } from '@novel-engine/core';
 import type { EngineTransitionSpec } from '@novel-engine/core';
 import type { IGameEngine, EngineProps, GameContext, EngineTransition } from '../types';
 
 export interface NovelAdapterConfig {
   masterData: MasterData;
   assetsBaseUrl: string;
+  chapterId?: string;
   initialSceneId: string;
   initialLocationId: string;
+  chapters?: ChapterConfig[];
   /** 別エンジンから戻った際に true を渡すとタイトルをスキップして直接開始する */
   autoStart?: boolean;
 }
@@ -23,6 +25,7 @@ function NovelEngineComponent({
       flags: Record<string, boolean | number | string>,
       inventory: string[],
       spec: EngineTransitionSpec,
+      chapterId?: string,
     ) => {
       const updatedContext: GameContext = {
         flags,
@@ -34,7 +37,7 @@ function NovelEngineComponent({
         config: spec.config,
         returnEngineId: spec.return_scene ? 'novel' : undefined,
         returnConfig: spec.return_scene
-          ? { ...config, initialSceneId: spec.return_scene, autoStart: true }
+          ? { ...config, chapterId, initialSceneId: spec.return_scene, autoStart: true }
           : undefined,
       };
       onExit(updatedContext, transition);
@@ -49,6 +52,8 @@ function NovelEngineComponent({
       config={{
         initialSceneId: config.initialSceneId,
         initialLocationId: config.initialLocationId,
+        chapterId: config.chapterId,
+        chapters: config.chapters,
       }}
       initialFlags={context.flags}
       initialInventory={context.inventory}

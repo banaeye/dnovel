@@ -45,6 +45,16 @@ export function EditorApp({ gameAppUrl }: EditorConfig) {
         <button style={tabStyle('flow')} onClick={() => setTab('flow')}>フロー図</button>
         <button style={tabStyle('test')} onClick={() => setTab('test')}>テストプレイ</button>
         <div style={{ flex: 1 }} />
+        <select
+          value={fs.sceneFilename}
+          onChange={(e) => void fs.selectSceneFile(e.target.value)}
+          disabled={!fs.dirHandle}
+          style={{ marginRight: 8, fontSize: 13 }}
+        >
+          {fs.sceneFilenames.map((filename) => (
+            <option key={filename} value={filename}>{filename}</option>
+          ))}
+        </select>
         <button
           className="primary"
           style={{ margin: '0 12px', fontSize: 13 }}

@@ -13,3 +13,4 @@ export { createGameStore } from './store/gameStore';
 export type { GameStoreApi, GameStore, DebugStartConfig, GameStoreOptions } from './store/gameStore';
 
 export type { EngineTransitionSpec } from './types/scene';
+export type { ChapterConfig } from './types/chapter';

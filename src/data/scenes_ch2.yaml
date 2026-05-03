@@ -1,0 +1,150 @@
+scenes:
+  - id: scene_danchi_morning
+    location_id: loc_danchi
+    background: backgrounds/danchi_day.jpg
+    messages:
+      - text: 団地に戻ってきた。
+        voice_character_id: null
+  - id: scene_station_default
+    location_id: loc_station
+    background: backgrounds/station_day.jpg
+    messages:
+      - text: 赤羽駅前に来た。
+        voice_character_id: null
+  - id: scene_coderdojo_default
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    messages:
+      - text: CoderDojo赤羽の会場は、今日は静かだった。
+        voice_character_id: null
+  - id: scene_slope_default
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    messages:
+      - text: 団地への坂に来た。
+        voice_character_id: null
+  - id: scene_ch2_start
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    flags_set:
+      - flag: flag_chapter
+        value: 2
+      - flag: flag_chapter1_cleared
+        value: true
+    messages:
+      - text: 変な夢を見た。
+        voice_character_id: char_hero
+      - text: 薄暗い通路が続いていて、出口が見つからない夢だった。
+        voice_character_id: null
+      - text: 目が覚めると朝の七時。なんとなく一番街が気になって窓の外を見ると、あちらの空だけが重くよどんでいた。
+        voice_character_id: null
+      - text: スマホを開いたら、ユイからメッセージが届いていた。
+        voice_character_id: null
+      - text: 「ケン、一番街が変だよ。昨日からお店が急に閉まってて、冷たい空気がするの」
+        voice_character_id: char_yui
+      - text: 「地下からおかしな音もするって、噂になってる。気になって」
+        voice_character_id: char_yui
+      - text: なんか、気になる。一番街に行ってみよう。
+        voice_character_id: char_hero
+  - id: scene_ch2_ichibangai_post
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    messages:
+      - text: 一番街の入り口。あの夜以来、この通りにはまた少しだけ光が戻ってきた気がする。
+        voice_character_id: null
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 昼間なのに、アーケードに人がいない。シャッターが下りたお店が続いている。
+        voice_character_id: null
+      - text: 「ケン、来てくれた！　あのビル——あの前だけ、空気がおかしいの」
+        voice_character_id: char_yui
+      - text: 「地下から変な音が聞こえてくるって、周りの人みんな怖がってて」
+        voice_character_id: char_yui
+      - text: 言われてみれば確かに、あの雑居ビルの前だけ空気が重い。
+        voice_character_id: null
+    clickable_areas:
+      - id: area_ch2_building_strange
+        x: 280
+        "y": 180
+        width: 240
+        height: 200
+        label: 雑居ビル（飲み屋街）
+        next_scene: scene_ch2_building_approach
+        condition: null
+  - id: scene_ch2_building_approach
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 扉が半開きのまま。地下から冷たい空気が漏れてくる。
+        voice_character_id: null
+      - text: 「ケン……入るの？」
+        voice_character_id: char_yui
+      - text: うん。この不気味な空気の原因、確かめたい。
+        voice_character_id: char_hero
+      - text: 「わたしも行く。ひとりにしないで」
+        voice_character_id: char_yui
+      - text: 階段を降りると——通路が、異様に広がっていた。
+        voice_character_id: null
+      - text: 前に来たときとは全然違う。まるで迷路だ。
+        voice_character_id: char_hero
+    next_engine:
+      id: maze_rpg
+      config:
+        map: dungeon_02
+        name: 一番街の異空間
+        theme:
+          wallFront: "#584060"
+          wallSide: "#2e1e38"
+          ceilTop: "#02000c"
+          ceilBottom: "#0a0618"
+          floorTop: "#060410"
+          floorBottom: "#030208"
+          uiBg: "#04020e"
+          uiAccent: "#c080ff"
+          uiBorder: "#3a2060"
+      return_scene: scene_ch2_after_maze
+  - id: scene_ch2_after_maze
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: right
+        expression: happy
+    messages:
+      - text: 出口を抜けると、外の空気がまるで変わっていた。
+        voice_character_id: null
+      - text: さっきまでの重さが消えて、秋の午後みたいな澄んだ風が一番街に流れていた。
+        voice_character_id: null
+      - text: 「ケン！　無事だった？　なんか急に——空気が変わったんだけど」
+        voice_character_id: char_yui
+      - text: うん。なんとか出てこられた。
+        voice_character_id: char_hero
+      - text: 「あの迷路、何だったんだろ。でも……なんか一番街が戻ってきた気がする」
+        voice_character_id: char_yui
+      - text: ぼくも、そう思う。
+        voice_character_id: char_hero
+    next_scene: scene_ch2_ending_credits
+  - id: scene_ch2_ending_credits
+    location_id: loc_ichibangai
+    messages: []
+    game_end: true
+    flags_set:
+      - flag: flag_ch2_cleared
+        value: true
+    cg_sequence:
+      - src: cg/happy_dojo.jpg
+        position: right
+      - src: cg/mirai.jpg
+        position: left
+      - src: cg/dog.jpg
+        position: center
