@@ -7,7 +7,9 @@ export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? '/',
   resolve: {
     alias: {
-      '@novel-engine/core': path.resolve(__dirname, 'packages/core/src/index.ts'),
+      '@novel-engine/core':     path.resolve(__dirname, 'packages/core/src/index.ts'),
+      '@novel-engine/hub':      path.resolve(__dirname, 'packages/hub/src/index.ts'),
+      '@novel-engine/maze-rpg': path.resolve(__dirname, 'packages/maze-rpg/src/index.ts'),
     },
   },
   build: {

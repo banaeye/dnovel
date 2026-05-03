@@ -32,6 +32,9 @@ locations:
       - location_id: loc_danchi
         label: "団地へ戻る"
         condition: null
+      - location_id: loc_ichibangai
+        label: "一番街入口へ"
+        condition: null
       - location_id: loc_coderdojo
         label: "CoderDojo赤羽へ"
         condition:
@@ -63,6 +66,21 @@ locations:
             - flag: flag_examined_kids
               value: true
     entry_scene: scene_coderdojo_default
+
+  - id: loc_ichibangai
+    name: "一番街入口"
+    description: "赤羽一番街商店街への入り口。昔ながらのアーケードが続く。"
+    background_default: backgrounds/ichibangai.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_station
+        label: "駅前へ戻る"
+        condition: null
+    entry_scene: scene_ichibangai_default
 
   - id: loc_slope
     name: "団地への坂"

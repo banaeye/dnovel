@@ -4,8 +4,49 @@ import { initMaze, handleKey } from './engine/mazeEngine.js';
 import { MazeView } from './components/MazeView.js';
 import { MiniMap } from './components/MiniMap.js';
 
+export interface MazeTheme {
+  /** 天井グラデーション上端色 @default '#020213' */
+  ceilTop?: string;
+  /** 天井グラデーション下端色 @default '#0d0d25' */
+  ceilBottom?: string;
+  /** 床グラデーション上端色 @default '#130a02' */
+  floorTop?: string;
+  /** 床グラデーション下端色 @default '#060300' */
+  floorBottom?: string;
+  /** 前面壁の基本色 (hex) @default '#9a7420' */
+  wallFront?: string;
+  /** 側面壁の基本色 (hex) @default '#5a420a' */
+  wallSide?: string;
+  /** メインフレーム背景色 @default '#080504' */
+  uiBg?: string;
+  /** テキスト・UI のアクセントカラー @default '#ccaa66' */
+  uiAccent?: string;
+  /** ボーダー色 @default '#443322' */
+  uiBorder?: string;
+}
+
+const DEFAULT_THEME: Required<MazeTheme> = {
+  ceilTop:    '#020213',
+  ceilBottom: '#0d0d25',
+  floorTop:   '#130a02',
+  floorBottom:'#060300',
+  wallFront:  '#9a7420',
+  wallSide:   '#5a420a',
+  uiBg:       '#080504',
+  uiAccent:   '#ccaa66',
+  uiBorder:   '#443322',
+};
+
+function mergeTheme(t?: MazeTheme): Required<MazeTheme> {
+  if (!t) return DEFAULT_THEME;
+  return { ...DEFAULT_THEME, ...t };
+}
+
 export interface MazeRpgConfig {
   map: string;
+  /** タイトルバーに表示する名前（省略時は map ID） */
+  name?: string;
+  theme?: MazeTheme;
 }
 
 const DIR_LABEL: Record<string, string> = { N: '北', E: '東', S: '南', W: '西' };
@@ -24,6 +65,7 @@ function useGameScale() {
 function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig>) {
   const scale = useGameScale();
   const [state, setState] = useState(() => initMaze(config.map));
+  const theme = mergeTheme(config.theme);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -55,7 +97,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   }, [handleExitKey]);
 
   return (
-    // NovelApp と同じ centering wrapper パターン
     <div
       style={{
         width: '100vw',
@@ -63,7 +104,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#04030a',
+        background: theme.uiBg,
         overflow: 'hidden',
       }}
     >
@@ -74,11 +115,11 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           flexShrink: 0,
           transformOrigin: 'center center',
           transform: `scale(${scale})`,
-          background: '#080504',
+          background: theme.uiBg,
           display: 'flex',
           flexDirection: 'column',
           fontFamily: 'monospace',
-          color: '#ccaa66',
+          color: theme.uiAccent,
           userSelect: 'none',
           overflow: 'hidden',
           boxShadow: '0 0 60px rgba(0,0,0,0.8)',
@@ -87,8 +128,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         {/* タイトルバー */}
         <div
           style={{
-            background: '#1a0f05',
-            borderBottom: '1px solid #443322',
+            background: theme.uiBorder,
+            borderBottom: `1px solid ${theme.uiBorder}`,
             padding: '4px 12px',
             fontSize: 13,
             display: 'flex',
@@ -97,8 +138,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             flexShrink: 0,
           }}
         >
-          <span>⚔ 地下迷宮 — {config.map}</span>
-          <span style={{ color: '#887755', fontSize: 11 }}>歩数: {state.steps}</span>
+          <span>⚔ {config.name ?? config.map}</span>
+          <span style={{ fontSize: 11, opacity: 0.7 }}>歩数: {state.steps}</span>
         </div>
 
         {/* メインエリア */}
@@ -117,14 +158,14 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           >
             <div
               style={{
-                border: '2px solid #443322',
+                border: `2px solid ${theme.uiBorder}`,
                 boxShadow: '0 0 12px rgba(100,60,10,0.4)',
               }}
             >
-              <MazeView state={state} />
+              <MazeView state={state} theme={theme} />
             </div>
 
-            <div style={{ fontSize: 11, color: '#665544', textAlign: 'center', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 11, color: theme.uiBorder, textAlign: 'center', lineHeight: 1.6 }}>
               <span>↑ 前進</span>
               {'　'}
               <span>↓ 後退</span>
@@ -160,7 +201,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               alignItems: 'center',
               justifyContent: 'center',
               gap: 16,
-              borderLeft: '1px solid #2a1a0a',
+              borderLeft: `1px solid ${theme.uiBorder}`,
               padding: '8px 0',
             }}
           >
@@ -173,20 +214,20 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                 textAlign: 'center',
               }}
             >
-              {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} />)}
-              {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} />)}
-              {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} />)}
+              {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
+              {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
+              {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
             </div>
 
-            <div style={{ fontSize: 13, color: '#aa8844' }}>
+            <div style={{ fontSize: 13, color: theme.uiAccent }}>
               向き: {DIR_LABEL[state.dir]}
             </div>
 
-            <div style={{ border: '1px solid #332211' }}>
+            <div style={{ border: `1px solid ${theme.uiBorder}` }}>
               <MiniMap state={state} />
             </div>
 
-            <div style={{ fontSize: 10, color: '#554433' }}>
+            <div style={{ fontSize: 10, opacity: 0.5 }}>
               ({state.pos.x}, {state.pos.y})
             </div>
           </div>
@@ -196,7 +237,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   );
 }
 
-function CompassCell({ label, dir }: { label: string; dir: string }) {
+function CompassCell({ label, dir, theme }: { label: string; dir: string; theme: Required<MazeTheme> }) {
   const active = label === dir;
   return (
     <div
@@ -204,10 +245,10 @@ function CompassCell({ label, dir }: { label: string; dir: string }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: active ? '#664400' : label ? '#1a1005' : 'transparent',
-        border: label ? `1px solid ${active ? '#aa7722' : '#332211'}` : 'none',
+        background: active ? theme.uiBorder : label ? theme.uiBg : 'transparent',
+        border: label ? `1px solid ${active ? theme.uiAccent : theme.uiBorder}` : 'none',
         borderRadius: 2,
-        color: active ? '#ffcc44' : '#554422',
+        color: active ? theme.uiAccent : theme.uiBorder,
         fontWeight: active ? 'bold' : 'normal',
         fontSize: 11,
       }}

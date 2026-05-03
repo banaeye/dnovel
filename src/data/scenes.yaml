@@ -751,3 +751,51 @@ scenes:
           - flag: flag_yui_told_gummy
             value: true
         next_scene: null
+
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    messages:
+      - text: 一番街の入り口に来た。
+        voice_character_id: null
+      - text: アーケードの奥に商店が並んでいる。
+        voice_character_id: null
+    clickable_areas:
+      - id: area_ichibangai_building
+        x: 280
+        y: 180
+        width: 240
+        height: 200
+        label: 雑居ビル
+        next_scene: scene_ichibangai_enter_building
+        condition: null
+    child_scenes:
+      - id: scene_ichibangai_enter_building
+        messages:
+          - text: 雑居ビルの入り口を見ると、地下へ続く薄暗い階段がある。
+            voice_character_id: null
+          - text: 何があるのか、降りてみることにした。
+            voice_character_id: null
+        next_engine:
+          id: maze_rpg
+          config:
+            map: dungeon_01
+            name: "雑居ビル B1F"
+            theme:
+              wallFront:  "#787470"   # コンクリート壁（やや温かみ）
+              wallSide:   "#4a4640"   # 暗いコンクリート側面
+              ceilTop:    "#000408"   # 暗い天井
+              ceilBottom: "#080c14"   # 蛍光灯の薄い光
+              floorTop:   "#0e0c0a"   # コンクリート床
+              floorBottom: "#060504"
+              uiBg:       "#0c0c0e"
+              uiAccent:   "#98aaa6"   # 蛍光灯のような冷たい光
+              uiBorder:   "#2c3032"
+          return_scene: scene_ichibangai_after_dungeon
+      - id: scene_ichibangai_after_dungeon
+        messages:
+          - text: 地下から戻ってきた。
+            voice_character_id: null
+          - text: なんとか出口を見つけることができた。
+            voice_character_id: null
+        next_scene: scene_ichibangai_default
