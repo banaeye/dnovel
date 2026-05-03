@@ -9,6 +9,8 @@ export interface NovelAdapterConfig {
   assetsBaseUrl: string;
   initialSceneId: string;
   initialLocationId: string;
+  /** 別エンジンから戻った際に true を渡すとタイトルをスキップして直接開始する */
+  autoStart?: boolean;
 }
 
 function NovelEngineComponent({
@@ -32,7 +34,7 @@ function NovelEngineComponent({
         config: spec.config,
         returnEngineId: spec.return_scene ? 'novel' : undefined,
         returnConfig: spec.return_scene
-          ? { ...config, initialSceneId: spec.return_scene }
+          ? { ...config, initialSceneId: spec.return_scene, autoStart: true }
           : undefined,
       };
       onExit(updatedContext, transition);
@@ -50,7 +52,7 @@ function NovelEngineComponent({
       }}
       initialFlags={context.flags}
       initialInventory={context.inventory}
-      autoStart
+      autoStart={config.autoStart}
       onEngineTransition={handleEngineTransition}
     />
   );
