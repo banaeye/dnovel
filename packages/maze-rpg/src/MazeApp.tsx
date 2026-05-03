@@ -49,6 +49,8 @@ export interface MazeRpgConfig {
   /** タイトルバーに表示する名前（省略時は map ID） */
   name?: string;
   theme?: MazeTheme;
+  /** 敵画像などのアセットベース URL（省略時は import.meta.env.BASE_URL + 'assets'） */
+  assetsBaseUrl?: string;
 }
 
 const DIR_LABEL: Record<string, string> = { N: '北', E: '東', S: '南', W: '西' };
@@ -68,6 +70,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const scale = useGameScale();
   const [state, setState] = useState(() => initMaze(config.map, context.playerStats));
   const theme = mergeTheme(config.theme);
+  const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
 
   const dispatch = useCallback((key: string) => {
     setState(prev => handleKey(prev, key));
@@ -184,7 +187,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               <MazeView state={state} theme={theme} />
 
               {/* 敵グラフィックオーバーレイ（バトル中） */}
-              {state.battle && <EnemySprite enemy={state.battle.enemy} />}
+              {state.battle && <EnemySprite enemy={state.battle.enemy} assetsBaseUrl={assetsBaseUrl} />}
 
               {/* クリックゾーン（探索中のみ） */}
               {!state.battle && !state.atExit && (

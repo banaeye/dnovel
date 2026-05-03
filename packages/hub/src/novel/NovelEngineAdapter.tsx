@@ -34,7 +34,8 @@ function NovelEngineComponent({
       };
       const transition: EngineTransition = {
         engineId: spec.id,
-        config: spec.config,
+        // assetsBaseUrl を遷移先エンジンに自動注入（エンジン側が使わなければ無視される）
+        config: { assetsBaseUrl: config.assetsBaseUrl, ...(spec.config as object ?? {}) },
         returnEngineId: spec.return_scene ? 'novel' : undefined,
         returnConfig: spec.return_scene
           ? { ...config, chapterId, initialSceneId: spec.return_scene, autoStart: true }
