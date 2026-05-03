@@ -1,5 +1,9 @@
 import type { Dir, Vec2, MazeState } from './types.js';
 import { BUILT_IN_MAPS } from './maps.js';
+import { MAP_ENEMIES } from './enemies.js';
+import { startBattle, handleBattleKey } from './battleEngine.js';
+
+const ENCOUNTER_RATE = 0.2;
 
 const DELTAS: Record<Dir, { fwd: Vec2; left: Vec2; right: Vec2; back: Vec2 }> = {
   N: { fwd: { x: 0, y: -1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 }, back: { x: 0, y: 1 } },
@@ -8,7 +12,7 @@ const DELTAS: Record<Dir, { fwd: Vec2; left: Vec2; right: Vec2; back: Vec2 }> = 
   W: { fwd: { x: -1, y: 0 }, left: { x: 0, y: 1 }, right: { x: 0, y: -1 }, back: { x: 1, y: 0 } },
 };
 
-const TURN_LEFT: Record<Dir, Dir> = { N: 'W', W: 'S', S: 'E', E: 'N' };
+const TURN_LEFT: Record<Dir, Dir>  = { N: 'W', W: 'S', S: 'E', E: 'N' };
 const TURN_RIGHT: Record<Dir, Dir> = { N: 'E', E: 'S', S: 'W', W: 'N' };
 
 export function getCell(map: string[], x: number, y: number): string {
@@ -33,9 +37,10 @@ export function findStart(map: string[]): Vec2 {
   return { x: 1, y: 1 };
 }
 
-export function initMaze(mapId: string): MazeState {
+export function initMaze(mapId: string, playerStats?: Record<string, number>): MazeState {
   const map = BUILT_IN_MAPS[mapId] ?? BUILT_IN_MAPS['dungeon_01']!;
   const pos = findStart(map);
+  const playerMaxHp = playerStats?.maxHp ?? 20;
   return {
     pos,
     dir: 'N',
@@ -44,6 +49,11 @@ export function initMaze(mapId: string): MazeState {
     visited: new Set([`${pos.x},${pos.y}`]),
     atExit: false,
     steps: 0,
+    playerHp: playerMaxHp,
+    playerMaxHp,
+    playerAtk: playerStats?.atk ?? 5,
+    playerDef: playerStats?.def ?? 2,
+    battle: null,
   };
 }
 
@@ -54,7 +64,11 @@ function step(state: MazeState, delta: Vec2): MazeState {
   const visited = new Set(state.visited);
   visited.add(key);
   const atExit = getCell(state.map, next.x, next.y) === 'X';
-  return { ...state, pos: next, visited, atExit, steps: state.steps + 1 };
+  const moved: MazeState = { ...state, pos: next, visited, atExit, steps: state.steps + 1 };
+  if (!atExit && MAP_ENEMIES[state.mapId] && Math.random() < ENCOUNTER_RATE) {
+    return startBattle(moved);
+  }
+  return moved;
 }
 
 export function moveForward(state: MazeState): MazeState {
@@ -74,6 +88,7 @@ export function turnRight(state: MazeState): MazeState {
 }
 
 export function handleKey(state: MazeState, key: string): MazeState {
+  if (state.battle) return handleBattleKey(state, key);
   if (state.atExit) return state;
   switch (key) {
     case 'ArrowUp':    case 'w': case 'W': return moveForward(state);
