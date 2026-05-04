@@ -3,6 +3,8 @@ import type { FlagValue } from './flag';
 export interface Condition {
   flag?: string;
   value?: FlagValue;
+  min?: number;
+  max?: number;
   negate?: boolean;
   has_item?: string;
   location_id?: string;

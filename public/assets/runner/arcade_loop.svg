@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#171b2b"/>
+      <stop offset="0.58" stop-color="#090b15"/>
+      <stop offset="1" stop-color="#05060b"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2d3035"/>
+      <stop offset="1" stop-color="#121419"/>
+    </linearGradient>
+    <pattern id="tiles" width="80" height="36" patternUnits="userSpaceOnUse">
+      <rect width="80" height="36" fill="none"/>
+      <path d="M0 18H80M40 0V18M0 0H80" stroke="#3d4148" stroke-width="2" opacity="0.45"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <rect y="56" width="800" height="28" fill="#242938"/>
+  <rect y="84" width="800" height="12" fill="#f2d16b" opacity="0.45"/>
+  <g opacity="0.34">
+    <rect x="40" y="128" width="88" height="230" fill="#1f2530"/>
+    <rect x="168" y="106" width="96" height="252" fill="#202431"/>
+    <rect x="304" y="146" width="112" height="212" fill="#1d222c"/>
+    <rect x="456" y="116" width="92" height="242" fill="#222633"/>
+    <rect x="594" y="136" width="112" height="222" fill="#1f2530"/>
+    <rect x="760" y="128" width="88" height="230" fill="#1f2530"/>
+  </g>
+  <g opacity="0.75">
+    <rect x="74" y="172" width="18" height="36" fill="#f2d16b"/>
+    <rect x="196" y="154" width="20" height="38" fill="#d9715b"/>
+    <rect x="344" y="194" width="24" height="32" fill="#f2d16b"/>
+    <rect x="486" y="166" width="18" height="42" fill="#8bc4ff"/>
+    <rect x="638" y="184" width="28" height="36" fill="#f2d16b"/>
+  </g>
+  <g>
+    <rect y="360" width="800" height="95" fill="#181b22"/>
+    <path d="M0 360H800" stroke="#f2d16b" stroke-width="5" opacity="0.6"/>
+    <rect x="0" y="382" width="800" height="42" fill="#262a32"/>
+    <rect x="46" y="392" width="94" height="18" fill="#343944"/>
+    <rect x="246" y="392" width="94" height="18" fill="#343944"/>
+    <rect x="446" y="392" width="94" height="18" fill="#343944"/>
+    <rect x="646" y="392" width="94" height="18" fill="#343944"/>
+  </g>
+  <rect y="455" width="800" height="145" fill="url(#floor)"/>
+  <rect y="455" width="800" height="145" fill="url(#tiles)"/>
+  <g opacity="0.5">
+    <circle cx="92" cy="488" r="4" fill="#f2d16b"/>
+    <circle cx="292" cy="488" r="4" fill="#f2d16b"/>
+    <circle cx="492" cy="488" r="4" fill="#f2d16b"/>
+    <circle cx="692" cy="488" r="4" fill="#f2d16b"/>
+  </g>
+</svg>

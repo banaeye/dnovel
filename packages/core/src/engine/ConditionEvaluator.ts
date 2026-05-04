@@ -26,7 +26,15 @@ export function evaluateCondition(
   if (condition.flag !== undefined) {
     const actual = ctx.flags[condition.flag];
     const expected = condition.value;
-    result = result && actual === expected;
+    if (expected !== undefined) {
+      result = result && actual === expected;
+    }
+    if (condition.min !== undefined) {
+      result = result && typeof actual === 'number' && actual >= condition.min;
+    }
+    if (condition.max !== undefined) {
+      result = result && typeof actual === 'number' && actual <= condition.max;
+    }
   }
 
   if (condition.has_item !== undefined) {

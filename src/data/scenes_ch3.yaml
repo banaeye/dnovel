@@ -78,6 +78,11 @@ scenes:
         stageId: arcade_deathmatch
         name: アーケード街の死闘
         durationMs: 30000
+        backgroundImage: runner/arcade_loop.jpg
+        backgroundLoopWidth: 1352
+        playerImage: runner/obachan.png
+        playerWidth: 72
+        playerHeight: 104
         theme:
           sky: "#151827"
           ground: "#2a2d32"
@@ -85,6 +90,76 @@ scenes:
       return_scene: scene_ch3_after_runner
 
   - id: scene_ch3_after_runner
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: runner_action_score_arcade_deathmatch
+            min: 7
+          next_scene: scene_ch3_after_runner_many_candy
+        - condition:
+            flag: runner_action_score_arcade_deathmatch
+            min: 4
+          next_scene: scene_ch3_after_runner_some_candy
+        - condition: null
+          next_scene: scene_ch3_after_runner_few_candy
+
+  - id: scene_ch3_after_runner_many_candy
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: happy
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_yui
+      - text: 「しかもアメ、ようけ拾ってきたやないの。商店街もびっくりしとるわ」
+        voice_character_id: char_obachan
+      - text: ポケットの中で、集めたアメがころころ鳴った。
+        voice_character_id: null
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+
+  - id: scene_ch3_after_runner_some_candy
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: happy
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_yui
+      - text: 「アメも拾えたんやね。走りながらなら、上出来や」
+        voice_character_id: char_obachan
+      - text: 息を整えると、手の中に甘い匂いが残っていた。
+        voice_character_id: null
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+
+  - id: scene_ch3_after_runner_few_candy
     location_id: loc_arcade
     background: backgrounds/intersection.jpg
     characters:
@@ -101,6 +176,8 @@ scenes:
         voice_character_id: char_yui
       - text: 「よう走ったねえ。これで今日は、商店街も少し眠れるやろ」
         voice_character_id: char_obachan
+      - text: アメを拾う余裕はあまりなかった。でも、走り抜けられたことだけで十分だった。
+        voice_character_id: null
       - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
         voice_character_id: null
     game_end: true
