@@ -54,6 +54,7 @@ export function initMaze(
   const pos = options?.initialPos ?? findStart(map);
   const dir: Dir = options?.initialDir ?? 'N';
   const playerMaxHp = playerStats?.maxHp ?? 20;
+  const playerHp = Math.min(playerMaxHp, Math.max(1, playerStats?.hp ?? playerMaxHp));
   const visited = options?.initialVisited
     ? new Set(options.initialVisited)
     : new Set([`${pos.x},${pos.y}`]);
@@ -68,7 +69,7 @@ export function initMaze(
     visited,
     atExit: false,
     steps: 0,
-    playerHp: playerMaxHp,
+    playerHp,
     playerMaxHp,
     playerAtk: playerStats?.atk ?? 5,
     playerDef: playerStats?.def ?? 2,

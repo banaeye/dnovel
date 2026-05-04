@@ -106,7 +106,12 @@ export function handleBattleKey(state: MazeState, key: string): MazeState {
     if (state.pendingBossTilePos) {
       const triggeredEvents = new Set(state.triggeredEvents);
       triggeredEvents.add(state.pendingBossTilePos);
-      return { ...state, battle: null, pendingBossTilePos: null, triggeredEvents };
+      return {
+        ...state,
+        battle: null,
+        pendingBossTilePos: null,
+        triggeredEvents,
+      };
     }
     return { ...state, battle: null };
   }

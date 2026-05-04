@@ -191,7 +191,14 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   }), [context, config.map, state.inventory, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef]);
 
   const triggerExit = useCallback(() => {
-    const updatedContext = buildUpdatedContext();
+    const baseContext = buildUpdatedContext();
+    const updatedContext: GameContext = {
+      ...baseContext,
+      playerStats: {
+        ...baseContext.playerStats,
+        hp: state.playerMaxHp,
+      },
+    };
     const nr = config._novelReturn as Record<string, unknown> | undefined;
     if (nr?.exitSceneId) {
       onExit(updatedContext, {
@@ -201,7 +208,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     } else {
       onExit(updatedContext);
     }
-  }, [buildUpdatedContext, config._novelReturn, onExit]);
+  }, [buildUpdatedContext, config._novelReturn, onExit, state.playerMaxHp]);
 
   useEffect(() => {
     if (!state.pendingDeath) return;
@@ -219,7 +226,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         inventory: state.inventory,
         playerStats: {
           ...context.playerStats,
-          hp: 0,
+          hp: state.playerMaxHp,
           maxHp: state.playerMaxHp,
           atk: state.playerAtk,
           def: state.playerDef,
@@ -260,7 +267,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         inventory: state.inventory,
         playerStats: {
           ...context.playerStats,
-          hp: 0,
+          hp: state.playerMaxHp,
           maxHp: state.playerMaxHp,
           atk: state.playerAtk,
           def: state.playerDef,
