@@ -80,6 +80,13 @@ export interface RawItem {
   name: string;
 }
 
+export interface RawFlag {
+  id: string;
+  type: 'boolean' | 'integer' | 'string';
+  default: boolean | number | string;
+  description?: string;
+}
+
 export interface SharedFsProps {
   dirHandle: FileSystemDirectoryHandle | null;
   sceneFilename: string;
@@ -88,6 +95,7 @@ export interface SharedFsProps {
   rawCharacters: RawCharacter[];
   rawLocations: RawLocation[];
   rawItems: RawItem[];
+  rawFlags: RawFlag[];
   error: string | null;
   openDirectory: () => Promise<void>;
   selectSceneFile: (filename: string) => Promise<void>;
@@ -103,6 +111,7 @@ export function useYamlFs() {
   const [rawCharacters, setRawCharacters] = useState<RawCharacter[]>([]);
   const [rawLocations, setRawLocations] = useState<RawLocation[]>([]);
   const [rawItems, setRawItems] = useState<RawItem[]>([]);
+  const [rawFlags, setRawFlags] = useState<RawFlag[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const readYaml = useCallback(async <T,>(handle: FileSystemDirectoryHandle, filename: string): Promise<T> => {
@@ -124,16 +133,18 @@ export function useYamlFs() {
       }).showDirectoryPicker();
       setDirHandle(handle);
 
-      const [charsData, locsData, itemsData] = await Promise.all([
+      const [charsData, locsData, itemsData, flagsData] = await Promise.all([
         readYaml<{ characters: RawCharacter[] }>(handle, 'characters.yaml'),
         readYaml<{ locations: RawLocation[] }>(handle, 'locations.yaml'),
         readYaml<{ items: RawItem[] }>(handle, 'items.yaml'),
+        readYaml<{ flags: RawFlag[] }>(handle, 'flags.yaml'),
       ]);
 
       await loadSceneFile(handle, sceneFilename);
       setRawCharacters(charsData.characters ?? []);
       setRawLocations(locsData.locations ?? []);
       setRawItems(itemsData.items ?? []);
+      setRawFlags(flagsData.flags ?? []);
       setError(null);
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError((e as Error).message);
@@ -177,6 +188,7 @@ export function useYamlFs() {
     rawCharacters,
     rawLocations,
     rawItems,
+    rawFlags,
     error,
     openDirectory,
     selectSceneFile,

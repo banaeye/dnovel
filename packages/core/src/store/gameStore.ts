@@ -45,6 +45,10 @@ export interface GameStore {
     locationId: string,
     initialFlags?: Record<string, boolean | number | string>,
   ) => void;
+
+  debugSetFlag: (flagId: string, value: boolean | number | string) => void;
+  debugSetInventory: (inventory: string[]) => void;
+  debugJumpToScene: (sceneId: string, locationId: string) => void;
 }
 
 export type GameStoreApi = StoreApi<GameStore>;
@@ -238,6 +242,19 @@ export function createGameStore(
         phase: 'message',
       };
       set({ state: transitionTo(sceneId, seed, masterData), playtimeStart: Date.now() });
+    },
+
+    debugSetFlag: (flagId, value) => {
+      set(s => ({ state: { ...s.state, flags: { ...s.state.flags, [flagId]: value } } }));
+    },
+
+    debugSetInventory: (inventory) => {
+      set(s => ({ state: { ...s.state, inventory } }));
+    },
+
+    debugJumpToScene: (sceneId, locationId) => {
+      const { state, masterData } = get();
+      set({ state: transitionTo(sceneId, { ...state, currentLocationId: locationId, phase: 'message' }, masterData) });
     },
   }));
 }

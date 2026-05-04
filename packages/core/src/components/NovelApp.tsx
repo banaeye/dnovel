@@ -95,13 +95,15 @@ function GameContent({
   onLoadGame: (saveData: SaveData) => void;
   chapterId: string;
 }) {
-  const { state, startNewGame, startDebugGame, goToTitle } = useGameStore();
+  const { state, startNewGame, startDebugGame, goToTitle, debugSetFlag, debugSetInventory, debugJumpToScene } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
   const { isFullscreen, toggle } = useFullscreen();
 
   const onEngineTransitionRef = useRef(onEngineTransition);
   onEngineTransitionRef.current = onEngineTransition;
+
+  const debugModeRef = useRef(false);
 
   // 章タイトルカード表示制御
   type PendingChapter = { chapter: ChapterConfig; index: number; action: () => void };
@@ -149,6 +151,7 @@ function GameContent({
     }
     const raw = localStorage.getItem(DEBUG_KEY);
     if (raw) {
+      debugModeRef.current = true;
       localStorage.removeItem(DEBUG_KEY);
       try {
         const config: DebugStartConfig = JSON.parse(raw);
@@ -156,6 +159,33 @@ function GameContent({
       } catch { /* ignore malformed */ }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // デバッグモード: 状態変化をlocalStorageに書き出す（iframeとの通信用）
+  useEffect(() => {
+    if (!debugModeRef.current) return;
+    localStorage.setItem('__novel_debug_state__', JSON.stringify({
+      flags: state.flags,
+      inventory: state.inventory,
+      currentSceneId: state.currentSceneId,
+      currentLocationId: state.currentLocationId,
+      phase: state.phase,
+    }));
+  }, [state.flags, state.inventory, state.currentSceneId, state.currentLocationId, state.phase]);
+
+  // デバッグモード: エディタからのコマンドを受信して適用
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (!debugModeRef.current || e.key !== '__novel_debug_cmd__' || !e.newValue) return;
+      try {
+        const cmd = JSON.parse(e.newValue) as Record<string, unknown>;
+        if (cmd.type === 'setFlag') debugSetFlag(cmd.flagId as string, cmd.value as boolean | number | string);
+        else if (cmd.type === 'setInventory') debugSetInventory(cmd.inventory as string[]);
+        else if (cmd.type === 'jumpToScene') debugJumpToScene(cmd.sceneId as string, cmd.locationId as string);
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, [debugSetFlag, debugSetInventory, debugJumpToScene]);
 
   useEffect(() => {
     if (state.phase === 'engine_transition' && state.pendingEngineTransition) {

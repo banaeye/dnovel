@@ -70,7 +70,7 @@ export function EditorApp({ gameAppUrl }: EditorConfig) {
         {tab === 'scene' && <SceneEditorPage {...fs} initialSelectedId={flowTargetId} onShowInFlow={handleShowInFlow} />}
         {tab === 'area' && <AreaEditorPage {...fs} />}
         {tab === 'flow' && <FlowPage rawScenes={fs.rawScenes} onSelectScene={handleSelectScene} initialSelectedId={flowHighlightId} />}
-        {tab === 'test' && <TestPlayPage gameAppUrl={gameAppUrl} />}
+        {tab === 'test' && <TestPlayPage gameAppUrl={gameAppUrl} rawScenes={fs.rawScenes} rawItems={fs.rawItems} rawFlags={fs.rawFlags} rawLocations={fs.rawLocations} />}
       </div>
     </div>
   );
