@@ -98,3 +98,23 @@ flags:
     type: boolean
     default: false
     description: "ボス敗北後に一番街へ戻った直後のユイ会話を見た"
+
+  - id: flag_ch3_helping_obachan
+    type: boolean
+    default: false
+    description: "おばちゃんのためにチケットを探すことになった"
+
+  - id: flag_ch3_museum_unlocked
+    type: boolean
+    default: false
+    description: "団地のミュージアムの場所を知った（大学生から情報入手）"
+
+  - id: flag_ch3_got_ticket
+    type: boolean
+    default: false
+    description: "アメちゃんイベントのチケットを入手した"
+
+  - id: flag_ch3_ticket_given
+    type: boolean
+    default: false
+    description: "おばちゃんにチケットを渡した"

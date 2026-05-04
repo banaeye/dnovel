@@ -20,6 +20,7 @@ scenes:
         messages:
           - text: 団地に戻ってきた。
             voice_character_id: null
+        background: backgrounds/danchimae.jpg
       - id: scene_danchi_obachan
         characters:
           - character_id: char_obachan
@@ -39,6 +40,7 @@ scenes:
         item_give:
           - item_id: item_candy
             condition: null
+        background: backgrounds/danchimae.jpg
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
@@ -72,10 +74,10 @@ scenes:
         next_scene: scene_examine_hatena
         condition: null
       - id: area_station_plaza
-        x: 100
-        "y": 280
-        width: 340
-        height: 160
+        x: 183
+        "y": 316
+        width: 173
+        height: 121
         label: 駅前の広場
         next_scene: scene_station_plaza_examine
         condition:
@@ -90,7 +92,7 @@ scenes:
       choices:
         - condition:
             and:
-              - flag: flag_maze_defeated
+              - flag: flag_boss_challenged
                 value: true
               - has_item: item_kinchu_hikari
                 negate: true
@@ -139,9 +141,9 @@ scenes:
             child_scenes:
               - id: scene_coderdojo_juice_get
                 messages:
-                  - text: 机の隅に、缶のジュースが置いてある。
+                  - text: 机の隅に、ジュースが置いてある。
                     voice_character_id: null
-                  - text: ……誰のだろう。手をつけずに置いてある。もらっていいかな。
+                  - text: もらっていいかな。
                     voice_character_id: char_hero
                   - text: ポケットに入れた。
                     voice_character_id: null
@@ -166,32 +168,32 @@ scenes:
             child_scenes:
               - id: scene_coderdojo_milktea_get
                 messages:
-                  - text: 窓際のテーブルに、紙コップのミルクティーが置いてある。まだ湯気が立っている。
+                  - text: ペットボトルのミルクティーが置いてある。おいしそう。
                     voice_character_id: null
-                  - text: 誰かが来ていたのかな。ひとくちもらっていこう。
+                  - text: ラッキー　もらっとこう
                     voice_character_id: char_hero
                 item_give:
                   - item_id: item_milktea
                     condition: null
               - id: scene_coderdojo_milktea_have
                 messages:
-                  - text: 窓際にミルクティーがある。もう持っているからいいか。
+                  - text: ミルクティーがある。もう持っているからいいか。
                     voice_character_id: char_hero
         clickable_areas:
           - id: area_coderdojo_juice
-            x: 120
-            "y": 260
-            width: 160
-            height: 140
+            x: 102
+            "y": 357
+            width: 70
+            height: 68
             label: 机の隅
             next_scene: scene_coderdojo_examine_juice
             condition: null
           - id: area_coderdojo_milktea
-            x: 520
-            "y": 220
-            width: 180
-            height: 150
-            label: 窓際のテーブル
+            x: 618
+            "y": 367
+            width: 87
+            height: 69
+            label: テーブル
             next_scene: scene_coderdojo_examine_milktea
             condition: null
   - id: scene_slope_default
@@ -592,7 +594,7 @@ scenes:
       id: __return__
   - id: scene_maze_event_01
     location_id: loc_ichibangai
-    background: backgrounds/ichibangai_gate.jpg
+    background: backgrounds/inner_ichibangai_dark.jpg
     characters:
       - character_id: char_obachan
         position: left

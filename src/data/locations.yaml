@@ -17,6 +17,11 @@ locations:
         condition:
           flag: flag_visited_slope
           value: true
+      - location_id: loc_museum
+        label: "団地のミュージアムへ"
+        condition:
+          flag: flag_ch3_museum_unlocked
+          value: true
     entry_scene: scene_danchi_morning
 
   - id: loc_station
@@ -104,6 +109,21 @@ locations:
         label: "駅前へ戻る"
         condition: null
     entry_scene: scene_arcade_default
+
+  - id: loc_museum
+    name: "団地のミュージアム"
+    description: "団地の一角にある小さなミュージアム。地域の歴史が展示されている。"
+    background_default: backgrounds/coderdojo.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_danchi
+        label: "団地へ戻る"
+        condition: null
+    entry_scene: scene_museum_default
 
   - id: loc_slope
     name: "団地への坂"

@@ -77,3 +77,13 @@ items:
     use_condition: null
     stackable: false
     category: key_item
+
+  - id: item_event_ticket
+    name: "アメちゃんゲットのチケット"
+    description: "アーケード街で開かれるアメちゃんゲットゲームのイベントチケット。手書きで番号が入っている。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item

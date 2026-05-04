@@ -49,3 +49,12 @@ characters:
       normal: characters/college_student/daigakusei_normal.png
       talking: characters/college_student/daigakusei_normal.png
 
+  - id: char_museum_staff
+    name: "ミュージアムの受付"
+    name_flag: null
+    voicevox_speaker_id: 11
+    y_offset: -250
+    sprites:
+      normal: characters/mentor/mentor_nomal.png
+      talking: characters/mentor/talking.png
+

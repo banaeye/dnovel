@@ -1,7 +1,7 @@
 scenes:
   - id: scene_ch3_start
-    location_id: loc_station
-    background: backgrounds/akabane.jpg
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
     flags_set:
       - flag: flag_chapter
         value: 3
@@ -10,67 +10,446 @@ scenes:
       - flag: flag_ch2_cleared
         value: true
     messages:
-      - text: 第3章　アーケード街の死闘
+      - text: 第3章　おばちゃんとアメちゃんゲーム
         voice_character_id: null
-      - text: 一番街の異変が収まってから、赤羽駅前には少しだけ日常が戻っていた。
+      - text: 一番街での騒動が落ち着いてから、数日が経った。
         voice_character_id: null
-      - text: それでも、駅前のアーケード街だけは様子が違っていた。
+      - text: 団地の広場に出ると、田村のおばあさんがベンチに座ってため息をついていた。
         voice_character_id: null
-      - text: ひとの流れが、そこだけ避けるように曲がっている。
-        voice_character_id: null
-      - text: ……アーケード街へ行ってみよう。
-        voice_character_id: char_hero
-
+    next_scene: scene_ch3_obachan_intro
+  - id: scene_danchi_morning
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            and:
+              - flag: flag_ch3_got_ticket
+                value: true
+              - flag: flag_ch3_ticket_given
+                value: false
+          next_scene: scene_ch3_ready_to_give_ticket
+        - condition:
+            and:
+              - flag: flag_ch3_helping_obachan
+                value: true
+              - flag: flag_ch3_museum_unlocked
+                value: true
+              - flag: flag_ch3_got_ticket
+                value: false
+          next_scene: scene_ch3_danchi_go_museum
+        - condition:
+            flag: flag_ch3_helping_obachan
+            value: true
+          next_scene: scene_ch3_danchi_searching
+        - condition: null
+          next_scene: scene_ch3_danchi_idle
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            and:
+              - flag: flag_ch3_helping_obachan
+                value: true
+              - flag: flag_ch3_museum_unlocked
+                value: false
+          next_scene: scene_ch3_station_college
+        - condition: null
+          next_scene: scene_ch3_station_idle
+  - id: scene_museum_default
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch3_got_ticket
+            value: true
+          next_scene: scene_ch3_museum_after_ticket
+        - condition: null
+          next_scene: scene_ch3_museum_receptionist
+  - id: scene_coderdojo_default
+    location_id: loc_coderdojo
+    background: backgrounds/museum.jpg
     messages:
-      - text: 赤羽駅前にいる。アーケード街の入り口が、いつもより暗く見える。
+      - text: CoderDojo赤羽の会場は静かだ。今日は駅前へ戻ったほうがよさそうだ。
         voice_character_id: null
-
-  - id: scene_arcade_default
-    location_id: loc_arcade
-    background: backgrounds/intersection.jpg
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    messages:
+      - text: 一番街の入口に来た。今は別の場所が気にかかる。
+        voice_character_id: null
+  - id: scene_slope_default
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    messages:
+      - text: 団地への坂に来た。駅前のざわめきが、ここまで届いている気がする。
+        voice_character_id: null
+  - id: scene_ch3_obachan_intro
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
     characters:
-      - character_id: char_yui
-        position: left
-        expression: normal
       - character_id: char_obachan
         position: right
         expression: normal
     messages:
-      - text: アーケード街に足を踏み入れた瞬間、シャッターの奥から金属音が響いた。
-        voice_character_id: null
-      - text: 「ケン、ここ……一番街のときと違う。誰かが、まだ中にいる感じがする」
-        voice_character_id: char_yui
-      - text: 通りの入り口で、田村のおばあさんが買い物袋を抱えたまま立っていた。
-        voice_character_id: null
-      - text: 「あらケンちゃん。こっちへ来たらあかんよ。今日はこの商店街、走らな抜けられへん」
+      - text: 「おばちゃん、どうしたん？　元気なさそうやで」
+        voice_character_id: char_hero
+      - text: 「あらケンちゃん。実はな……アーケード街でアメちゃんゲットのイベントがあるんやけど」
         voice_character_id: char_obachan
-      - text: 通りの奥で、蛍光灯がひとつ、またひとつと消えていく。
+      - text: 「チケット取り損ねてしもうてな。もう今から申し込みは無理らしいわ」
+        voice_character_id: char_obachan
+      - text: 「そのイベント、走りながらアメちゃんを拾うやつやんな。おばちゃんが参加したら絶対楽しいのに」
+        voice_character_id: char_hero
+      - text: 「ほんまやろ。でもチケットがないとなあ……」
+        voice_character_id: char_obachan
+      - text: おばちゃんのためにチケットを探してみよう。まずは駅前で情報を集めよう。
+        voice_character_id: null
+    flags_set:
+      - flag: flag_ch3_helping_obachan
+        value: true
+  - id: scene_ch3_danchi_searching
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: おばちゃんのためにチケットを探している。まずは駅前で話を聞いてみよう。
+        voice_character_id: null
+  - id: scene_ch3_danchi_go_museum
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: ミュージアムの受付がチケットを持っているらしい。団地のミュージアムへ行ってみよう。
+        voice_character_id: null
+  - id: scene_ch3_danchi_idle
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: 団地に戻ってきた。
+        voice_character_id: null
+  - id: scene_ch3_ready_to_give_ticket
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: おばちゃんがまだベンチで待っていた。ポケットの中のチケットが気になった。
+        voice_character_id: null
+      - text: 「おばちゃん、これ。チケット、見つけてきたで」
+        voice_character_id: char_hero
+    next_scene: scene_ch3_give_ticket_to_obachan
+  - id: scene_ch3_give_ticket_to_obachan
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: talking
+    item_remove:
+      - item_event_ticket
+    flags_set:
+      - flag: flag_ch3_ticket_given
+        value: true
+    messages:
+      - text: 「え……！　ケンちゃん、ほんまに……？」
+        voice_character_id: char_obachan
+      - text: 「うん。ミュージアムの受付さんから直接もらってきた」
+        voice_character_id: char_hero
+      - text: 「もう、ケンちゃん……ありがとうな。ほな、一緒にアーケードへ行こか！」
+        voice_character_id: char_obachan
+      - text: おばちゃんの目に光が戻った気がした。
+        voice_character_id: null
+    next_scene: scene_ch3_goto_arcade
+  - id: scene_ch3_station_idle
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    messages:
+      - text: 赤羽駅前にいる。おばちゃんのことが気になる。
+        voice_character_id: null
+  - id: scene_ch3_station_college
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    characters:
+      - character_id: char_college_student
+        position: right
+        expression: normal
+    messages:
+      - text: 駅前に出ると、大学生らしい人が立ち止まってスマホをいじっていた。
+        voice_character_id: null
+    talkable:
+      - character_id: char_college_student
+        scene_id: scene_ch3_talk_college_student
+  - id: scene_ch3_talk_college_student
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    characters:
+      - character_id: char_college_student
+        position: right
+        expression: normal
+    messages:
+      - text: 「あ、もしかしてアメちゃんゲットのチケット探してます？」
+        voice_character_id: char_college_student
+      - text: 「そう！　知ってる？」
+        voice_character_id: char_hero
+      - text: 「団地の中にミュージアムってあるじゃないですか。あそこの受付さんが余分に持ってるって聞きましたよ」
+        voice_character_id: char_college_student
+      - text: 「ありがとう！　行ってみる！」
+        voice_character_id: char_hero
+      - text: 団地の中にミュージアムがあるらしい。行ってみよう。
+        voice_character_id: null
+    flags_set:
+      - flag: flag_ch3_museum_unlocked
+        value: true
+  - id: scene_ch3_museum_receptionist
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    characters:
+      - character_id: char_museum_staff
+        position: right
+        expression: normal
+    messages:
+      - text: ミュージアムの受付に、スタッフの方が立っていた。
+        voice_character_id: null
+    talkable:
+      - character_id: char_museum_staff
+        scene_id: scene_ch3_talk_museum_staff
+  - id: scene_ch3_talk_museum_staff
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    characters:
+      - character_id: char_museum_staff
+        position: right
+        expression: talking
+    messages:
+      - text: 「あのう、アメちゃんゲットのチケットをお持ちって聞いたんですが……」
+        voice_character_id: char_hero
+      - text: 「まあ、おばあさまのために。でも、簡単にはお渡しできませんよ」
+        voice_character_id: char_museum_staff
+      - text: 「わたしと神経衰弱で勝負していただけますか？　勝ったら差し上げます」
+        voice_character_id: char_museum_staff
+      - text: 「神経衰弱……わかりました、やります！」
+        voice_character_id: char_hero
+    next_engine:
+      id: memory_game
+      config:
+        stageId: museum_challenge
+        pairs: 6
+        maxTurns: 20
+        title: 神経衰弱
+      return_scene: scene_ch3_museum_game_result
+  - id: scene_ch3_museum_game_result
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: memory_game_result_museum_challenge
+            value: win
+          next_scene: scene_ch3_museum_win
+        - condition: null
+          next_scene: scene_ch3_museum_lose
+  - id: scene_ch3_museum_win
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    characters:
+      - character_id: char_museum_staff
+        position: right
+        expression: talking
+    item_give:
+      - item_id: item_event_ticket
+        condition: null
+    flags_set:
+      - flag: flag_ch3_got_ticket
+        value: true
+    messages:
+      - text: 「見事！　お約束通り、チケットを差し上げます」
+        voice_character_id: char_museum_staff
+      - text: 「ありがとうございます！　おばちゃん、喜ぶと思います」
+        voice_character_id: char_hero
+      - text: 「イベント、楽しんでくださいね。おばあさまにもよろしく」
+        voice_character_id: char_museum_staff
+      - text: チケットを手に入れた。おばちゃんのいる団地へ戻ろう。
+        voice_character_id: null
+  - id: scene_ch3_museum_lose
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    characters:
+      - character_id: char_museum_staff
+        position: right
+        expression: normal
+    messages:
+      - text: 「惜しかったですね。よろしければ、もう一度いらしてください」
+        voice_character_id: char_museum_staff
+      - text: 「……絶対に勝ちます。もう一度お願いします！」
+        voice_character_id: char_hero
+    talkable:
+      - character_id: char_museum_staff
+        scene_id: scene_ch3_talk_museum_staff
+  - id: scene_ch3_museum_after_ticket
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    messages:
+      - text: もうチケットはもらった。おばちゃんのところへ戻ろう。
+        voice_character_id: null
+  - id: scene_ch3_goto_arcade
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: talking
+    messages:
+      - text: アーケード街の入り口に「アメちゃんゲット大会」の垂れ幕が下がっていた。
+        voice_character_id: null
+      - text: 「おばちゃん、ここやな」
+        voice_character_id: char_hero
+      - text: 「ケンちゃんのおかげや。ほな、全力で走るで！」
+        voice_character_id: char_obachan
+    next_scene: scene_ch3_arcade_event_start
+  - id: scene_ch3_arcade_event_start
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: 「では参加者の方、スタートラインへどうぞ！」
+        voice_character_id: null
+      - text: 「ケンちゃん、見ててね！」
+        voice_character_id: char_obachan
+    next_engine:
+      id: runner_action
+      config:
+        stageId: arcade_deathmatch
+        name: アメちゃんゲット大会
+        durationMs: 30000
+        backgroundImage: runner/arcade_loop.jpg
+        backgroundLoopWidth: 1352
+        playerImage: runner/obachan.png
+        playerWidth: 72
+        playerHeight: 104
+        theme:
+          sky: "#151827"
+          ground: "#2a2d32"
+          accent: "#f2d16b"
+      return_scene: scene_ch3_after_runner
+  - id: scene_ch3_after_runner
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: runner_action_score_arcade_deathmatch
+            min: 7
+          next_scene: scene_ch3_after_runner_many_candy
+        - condition:
+            flag: runner_action_score_arcade_deathmatch
+            min: 4
+          next_scene: scene_ch3_after_runner_some_candy
+        - condition: null
+          next_scene: scene_ch3_after_runner_few_candy
+  - id: scene_ch3_after_runner_many_candy
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_obachan
+      - text: 「しかもアメ、ようけ拾ってきたやないの。商店街もびっくりしとるわ」
+        voice_character_id: char_obachan
+      - text: ポケットの中で、集めたアメがころころ鳴った。
+        voice_character_id: null
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+  - id: scene_ch3_after_runner_some_candy
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_obachan
+      - text: 「アメも拾えたんやね。走りながらなら、上出来や」
+        voice_character_id: char_obachan
+      - text: 息を整えると、手の中に甘い匂いが残っていた。
+        voice_character_id: null
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+  - id: scene_ch3_after_runner_few_candy
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_obachan
+      - text: 「よう走ったねえ。これで今日は、商店街も少し眠れるやろ」
+        voice_character_id: char_obachan
+      - text: アメを拾う余裕はあまりなかった。でも、走り抜けられたことだけで十分だった。
+        voice_character_id: null
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+  - id: scene_arcade_default
+    location_id: loc_arcade
+    background: backgroundsarchade.jpg
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケード街に足を踏み入れた。おばちゃんがスタンバイしている。
         voice_character_id: null
     talkable:
       - character_id: char_obachan
         scene_id: scene_talk_arcade_obachan
-
   - id: scene_talk_arcade_obachan
     location_id: loc_arcade
     background: backgrounds/intersection.jpg
     characters:
-      - character_id: char_yui
-        position: left
-        expression: normal
       - character_id: char_obachan
         position: right
         expression: normal
     messages:
-      - text: 「おばちゃん、走らな抜けられへんって、どういうこと？」
-        voice_character_id: char_hero
-      - text: 「この先のアーケード、止まったら影に追いつかれるんよ」
-        voice_character_id: char_obachan
-      - text: 「ケン、行くならわたしも見る。絶対、戻ってきて」
-        voice_character_id: char_yui
-      - text: 「ほな、足元だけ見て走り。商店街は、まっすぐ抜けた子をちゃんと帰してくれるから」
+      - text: 「ケンちゃん、準備はええ？　全力で走るで！」
         voice_character_id: char_obachan
     next_engine:
       id: runner_action
@@ -88,127 +467,3 @@ scenes:
           ground: "#2a2d32"
           accent: "#f2d16b"
       return_scene: scene_ch3_after_runner
-
-  - id: scene_ch3_after_runner
-    location_id: loc_arcade
-    background: backgrounds/intersection.jpg
-    messages: []
-    branches:
-      type: auto
-      choices:
-        - condition:
-            flag: runner_action_score_arcade_deathmatch
-            min: 7
-          next_scene: scene_ch3_after_runner_many_candy
-        - condition:
-            flag: runner_action_score_arcade_deathmatch
-            min: 4
-          next_scene: scene_ch3_after_runner_some_candy
-        - condition: null
-          next_scene: scene_ch3_after_runner_few_candy
-
-  - id: scene_ch3_after_runner_many_candy
-    location_id: loc_arcade
-    background: backgrounds/intersection.jpg
-    characters:
-      - character_id: char_yui
-        position: left
-        expression: happy
-      - character_id: char_obachan
-        position: right
-        expression: normal
-    messages:
-      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
-        voice_character_id: null
-      - text: 「ケン！　戻ってきた……よかった」
-        voice_character_id: char_yui
-      - text: 「しかもアメ、ようけ拾ってきたやないの。商店街もびっくりしとるわ」
-        voice_character_id: char_obachan
-      - text: ポケットの中で、集めたアメがころころ鳴った。
-        voice_character_id: null
-      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
-        voice_character_id: null
-    game_end: true
-    flags_set:
-      - flag: flag_ch3_cleared
-        value: true
-
-  - id: scene_ch3_after_runner_some_candy
-    location_id: loc_arcade
-    background: backgrounds/intersection.jpg
-    characters:
-      - character_id: char_yui
-        position: left
-        expression: happy
-      - character_id: char_obachan
-        position: right
-        expression: normal
-    messages:
-      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
-        voice_character_id: null
-      - text: 「ケン！　戻ってきた……よかった」
-        voice_character_id: char_yui
-      - text: 「アメも拾えたんやね。走りながらなら、上出来や」
-        voice_character_id: char_obachan
-      - text: 息を整えると、手の中に甘い匂いが残っていた。
-        voice_character_id: null
-      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
-        voice_character_id: null
-    game_end: true
-    flags_set:
-      - flag: flag_ch3_cleared
-        value: true
-
-  - id: scene_ch3_after_runner_few_candy
-    location_id: loc_arcade
-    background: backgrounds/intersection.jpg
-    characters:
-      - character_id: char_yui
-        position: left
-        expression: happy
-      - character_id: char_obachan
-        position: right
-        expression: normal
-    messages:
-      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
-        voice_character_id: null
-      - text: 「ケン！　戻ってきた……よかった」
-        voice_character_id: char_yui
-      - text: 「よう走ったねえ。これで今日は、商店街も少し眠れるやろ」
-        voice_character_id: char_obachan
-      - text: アメを拾う余裕はあまりなかった。でも、走り抜けられたことだけで十分だった。
-        voice_character_id: null
-      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
-        voice_character_id: null
-    game_end: true
-    flags_set:
-      - flag: flag_ch3_cleared
-        value: true
-
-  - id: scene_danchi_morning
-    location_id: loc_danchi
-    background: backgrounds/danchimae.jpg
-    messages:
-      - text: 団地に戻ってきた。駅前のアーケード街のことが頭から離れない。
-        voice_character_id: null
-
-  - id: scene_coderdojo_default
-    location_id: loc_coderdojo
-    background: backgrounds/coderdojo.jpg
-    messages:
-      - text: CoderDojo赤羽の会場は静かだ。今日は駅前へ戻ったほうがよさそうだ。
-        voice_character_id: null
-
-  - id: scene_ichibangai_default
-    location_id: loc_ichibangai
-    background: backgrounds/ichibangai_gate.jpg
-    messages:
-      - text: 一番街の入口に来た。今は別の場所が気にかかる。
-        voice_character_id: null
-
-  - id: scene_slope_default
-    location_id: loc_slope
-    background: backgrounds/slope_day.jpg
-    messages:
-      - text: 団地への坂に来た。駅前のざわめきが、ここまで届いている気がする。
-        voice_character_id: null

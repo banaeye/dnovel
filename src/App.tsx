@@ -2,6 +2,7 @@ import { getMasterData } from './loaders/demoLoader';
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 import { MazeRpgEngine } from '@novel-engine/maze-rpg';
 import { RunnerActionEngine } from '@novel-engine/runner-action';
+import { MemoryGameEngine } from '@novel-engine/memory-game';
 import type { ChapterConfig } from '@novel-engine/core';
 
 const masterData = getMasterData();
@@ -37,10 +38,10 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter3',
     title: '第3章へ',
-    chapterTitle: 'アーケード街の死闘',
+    chapterTitle: 'おばちゃんとアメちゃんゲーム',
     masterData: chapter3MasterData,
     initialSceneId: 'scene_ch3_start',
-    initialLocationId: 'loc_station',
+    initialLocationId: 'loc_danchi',
     unlockFlag: 'flag_ch2_cleared',
     initialFlags: {
       flag_chapter: 3,
@@ -57,6 +58,7 @@ export default function App() {
         novel: NovelEngineAdapter,
         maze_rpg: MazeRpgEngine,
         runner_action: RunnerActionEngine,
+        memory_game: MemoryGameEngine,
       }}
       initial={{
         engineId: 'novel',
