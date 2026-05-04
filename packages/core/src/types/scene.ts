@@ -75,6 +75,8 @@ export interface EngineTransitionSpec {
   gameover_scene?: string;
   /** ボス戦死亡時に遷移するノベルシーン ID */
   gameover_boss_scene?: string;
+  /** 死亡直後に戻るノベルシーン ID。省略時は gameover_scene に直接遷移 */
+  gameover_landing_scene?: string;
 }
 
 export interface Scene {

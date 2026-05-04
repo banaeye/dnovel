@@ -208,19 +208,23 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     const nr = config._novelReturn as Record<string, unknown> | undefined;
     if (!nr) return;
 
-    const updatedContext: GameContext = {
-      ...context,
-      inventory: state.inventory,
-      playerStats: {
-        ...context.playerStats,
-        hp: 0,
-        maxHp: state.playerMaxHp,
-        atk: state.playerAtk,
-        def: state.playerDef,
-      },
-    };
-
     if (state.pendingBossTilePos && nr.gameoverBossSceneId) {
+      const updatedContext: GameContext = {
+        ...context,
+        flags: {
+          ...context.flags,
+          flag_maze_defeated: true,
+          flag_boss_challenged: true,
+        },
+        inventory: state.inventory,
+        playerStats: {
+          ...context.playerStats,
+          hp: 0,
+          maxHp: state.playerMaxHp,
+          atk: state.playerAtk,
+          def: state.playerDef,
+        },
+      };
       const [bx, by] = state.pendingBossTilePos.split(',').map(Number);
       const bossRetryConfig: MazeRpgConfig = {
         map:          config.map,
@@ -238,11 +242,30 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       };
       onExit(updatedContext, {
         engineId: 'novel',
-        config: { ...nr, initialSceneId: nr.gameoverBossSceneId, autoStart: true },
+        config: {
+          ...nr,
+          initialSceneId: nr.gameoverLandingSceneId ?? nr.gameoverBossSceneId,
+          autoStart: true,
+        },
         returnEngineId: 'maze_rpg',
         returnConfig: bossRetryConfig,
       } as EngineTransition);
     } else if (nr.gameoverSceneId) {
+      const updatedContext: GameContext = {
+        ...context,
+        flags: {
+          ...context.flags,
+          flag_maze_defeated: true,
+        },
+        inventory: state.inventory,
+        playerStats: {
+          ...context.playerStats,
+          hp: 0,
+          maxHp: state.playerMaxHp,
+          atk: state.playerAtk,
+          def: state.playerDef,
+        },
+      };
       const retryConfig: MazeRpgConfig = {
         map:          config.map,
         name:         config.name,
@@ -255,7 +278,11 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       };
       onExit(updatedContext, {
         engineId: 'novel',
-        config: { ...nr, initialSceneId: nr.gameoverSceneId, autoStart: true },
+        config: {
+          ...nr,
+          initialSceneId: nr.gameoverLandingSceneId ?? nr.gameoverSceneId,
+          autoStart: true,
+        },
         returnEngineId: 'maze_rpg',
         returnConfig: retryConfig,
       } as EngineTransition);

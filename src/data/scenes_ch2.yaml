@@ -236,24 +236,230 @@ scenes:
       - character_id: char_yui
         position: left
         expression: normal
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            and:
+              - flag: flag_boss_challenged
+                value: true
+              - flag: flag_boss_return_yui_seen
+                value: true
+                negate: true
+          next_scene: scene_ichibangai_boss_return
+        - condition:
+            and:
+              - flag: flag_maze_defeated
+                value: true
+              - flag: flag_boss_challenged
+                value: true
+                negate: true
+              - flag: flag_maze_return_yui_seen
+                value: true
+                negate: true
+          next_scene: scene_ichibangai_maze_return
+        - condition:
+            flag: flag_boss_challenged
+            value: true
+          next_scene: scene_ichibangai_boss_ready
+        - condition:
+            and:
+              - flag: flag_maze_defeated
+                value: true
+              - flag: flag_boss_challenged
+                value: true
+                negate: true
+          next_scene: scene_ichibangai_maze_ready
+        - condition: null
+          next_scene: scene_ichibangai_first_visit
+  - id: scene_ichibangai_first_visit
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
     messages:
-      - text: 昼間なのに、アーケードに人がいない。シャッターが下りたお店が続いている。
-        voice_character_id: null
-      - text: 「ケン、来てくれた！　あのビル——あの前だけ、空気がおかしいの」
+      - text: 「ケン、来てくれた。あのゲートの奥だけ、空気が変なの」
         voice_character_id: char_yui
-      - text: 「地下から変な音が聞こえてくるって、周りの人みんな怖がってて」
+      - text: 「地下から変な音もするって……近づくなら気をつけて」
         voice_character_id: char_yui
-      - text: 言われてみれば確かに、あの雑居ビルの前だけ空気が重い。
-        voice_character_id: null
     clickable_areas:
       - id: area_ch2_building_strange
-        x: 280
-        "y": 180
+        x: 284
+        "y": 314
         width: 240
         height: 200
-        label: 雑居ビル（飲み屋街）
+        label: ゲート
         next_scene: scene_ch2_building_approach
         condition: null
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_talk_ichibangai_first_yui
+  - id: scene_ichibangai_maze_return
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    flags_set:
+      - flag: flag_maze_return_yui_seen
+        value: true
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: sad
+    messages:
+      - text: 「ケン！　よかった……戻ってこられたんだね」
+        voice_character_id: char_yui
+      - text: 「さっき、急に倒れたから本当に怖かった」
+        voice_character_id: char_yui
+      - text: 「すぐ行かなくてもいいよ。少し息を整えよう」
+        voice_character_id: char_yui
+    clickable_areas:
+      - id: area_ch2_gate_maze_retry
+        x: 284
+        "y": 314
+        width: 240
+        height: 200
+        label: ゲート
+        next_scene: scene_ch2_maze_gameover
+        condition: null
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_talk_ichibangai_maze_yui
+  - id: scene_ichibangai_boss_return
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    flags_set:
+      - flag: flag_boss_return_yui_seen
+        value: true
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: sad
+    messages:
+      - text: 「ケン……戻ってきた。よかった、声が聞こえる」
+        voice_character_id: char_yui
+      - text: 「あいつ、強かったね。もう少しだったのに」
+        voice_character_id: char_yui
+      - text: 「今は一回、息をしよう。次に行くなら、それからでいい」
+        voice_character_id: char_yui
+    clickable_areas:
+      - id: area_ch2_gate_boss_retry
+        x: 284
+        "y": 314
+        width: 240
+        height: 200
+        label: ゲート
+        next_scene: scene_ch2_boss_gameover
+        condition: null
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_talk_ichibangai_boss_yui
+  - id: scene_ichibangai_maze_ready
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages: []
+    clickable_areas:
+      - id: area_ch2_gate_maze_retry_ready
+        x: 284
+        "y": 314
+        width: 240
+        height: 200
+        label: ゲート
+        next_scene: scene_ch2_maze_gameover
+        condition: null
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_talk_ichibangai_maze_ready_yui
+  - id: scene_ichibangai_boss_ready
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages: []
+    clickable_areas:
+      - id: area_ch2_gate_boss_retry_ready
+        x: 284
+        "y": 314
+        width: 240
+        height: 200
+        label: ゲート
+        next_scene: scene_ch2_boss_gameover
+        condition: null
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_talk_ichibangai_boss_ready_yui
+  - id: scene_talk_ichibangai_first_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 「いつもの一番街なら、もっと人の声がするのに」
+        voice_character_id: char_yui
+      - text: 「ねえケン、奥に行く前に、ちゃんと準備してね」
+        voice_character_id: char_yui
+    next_scene: null
+  - id: scene_talk_ichibangai_maze_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: sad
+    messages:
+      - text: 「本当に、戻ってきてくれてよかった」
+        voice_character_id: char_yui
+      - text: 「怖かったら、少し休んでもいいよ。ケンが決めて」
+        voice_character_id: char_yui
+    next_scene: null
+  - id: scene_talk_ichibangai_boss_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: sad
+    messages:
+      - text: 「あの瞬間、心臓が止まるかと思った」
+        voice_character_id: char_yui
+      - text: 「でも戻ってきた。だから、次はちゃんと立て直せる」
+        voice_character_id: char_yui
+    next_scene: null
+  - id: scene_talk_ichibangai_maze_ready_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 「準備できたら、ゲートを調べて」
+        voice_character_id: char_yui
+      - text: 「今度は焦らず行こう」
+        voice_character_id: char_yui
+    next_scene: null
+  - id: scene_talk_ichibangai_boss_ready_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 「あの奥に行くなら、ちゃんと準備してからね」
+        voice_character_id: char_yui
+      - text: 「次は、最後まで一緒に立っていよう」
+        voice_character_id: char_yui
+    next_scene: null
   - id: scene_ch2_building_approach
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -305,6 +511,7 @@ scenes:
       return_scene: scene_ch2_after_maze
       gameover_scene: scene_ch2_maze_gameover
       gameover_boss_scene: scene_ch2_boss_gameover
+      gameover_landing_scene: scene_ichibangai_default
   - id: scene_ch2_maze_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -316,9 +523,9 @@ scenes:
         position: right
         expression: sad
     messages:
-      - text: ——気がつくと、外に出ていた。
+      - text: ゲートに手をかけた瞬間、さっきの冷たい通路が脳裏によみがえった。
         voice_character_id: null
-      - text: 「ケン！　大丈夫？　急に倒れて——」
+      - text: 「ケン……大丈夫？　顔色、まだ悪いよ」
         voice_character_id: char_yui
       - text: ……なんとか。あの迷路、思ったより手強い。
         voice_character_id: char_hero
@@ -326,15 +533,9 @@ scenes:
         voice_character_id: char_yui
       - text: 平気。……でも、まだあの奥が気になる。
         voice_character_id: char_hero
-      - text: 「無理しないでよ。……また行くの？」
+      - text: 「無理しないでよ。……でも、行くなら一緒に行く」
         voice_character_id: char_yui
-    branches:
-      type: choice
-      choices:
-        - label: もう一度挑戦する
-          next_scene: scene_ch2_maze_retry
-        - label: 少し休んでから考える
-          next_scene: scene_ch2_ichibangai_post
+    next_scene: scene_ch2_maze_retry
   - id: scene_ch2_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -360,9 +561,9 @@ scenes:
         position: right
         expression: sad
     messages:
-      - text: ——気がつくと、外に出ていた。
+      - text: ゲートの奥を見た瞬間、あの強敵の気配が胸の奥を締めつけた。
         voice_character_id: null
-      - text: 「ケン！　もう少しだったのに……あと一歩で」
+      - text: 「ケン……もう少しだったよね。あと一歩で」
         voice_character_id: char_yui
       - text: ……あいつ、強かった。あんな奴が最後に待ってるなんて。
         voice_character_id: char_hero
@@ -372,13 +573,7 @@ scenes:
         voice_character_id: char_hero
       - text: 「うん。今度こそ一緒に倒そう」
         voice_character_id: char_yui
-    branches:
-      type: choice
-      choices:
-        - label: ボスのところまで戻る
-          next_scene: scene_ch2_boss_maze_retry
-        - label: 少し休んでから考える
-          next_scene: scene_ch2_ichibangai_post
+    next_scene: scene_ch2_boss_maze_retry
   - id: scene_ch2_boss_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -457,8 +652,6 @@ scenes:
         position: left
       - src: cg/dog.jpg
         position: center
-
-  # ── アイテム利用シーン ──────────────────────────────
   - id: scene_use_candy
     overlay_image: cg/candy_happy.jpg
     messages:

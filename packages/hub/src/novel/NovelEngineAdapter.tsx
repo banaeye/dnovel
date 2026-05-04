@@ -52,6 +52,7 @@ function NovelEngineComponent({
         exitSceneId:          spec.return_scene,
         gameoverSceneId:      spec.gameover_scene,
         gameoverBossSceneId:  spec.gameover_boss_scene,
+        gameoverLandingSceneId: spec.gameover_landing_scene,
       };
       const transition: EngineTransition = {
         engineId: spec.id,

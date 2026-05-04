@@ -83,3 +83,13 @@ flags:
     type: boolean
     default: false
     description: "ボス（迷宮の主）に一度でも敗北した"
+
+  - id: flag_maze_return_yui_seen
+    type: boolean
+    default: false
+    description: "迷路敗北後に一番街へ戻った直後のユイ会話を見た"
+
+  - id: flag_boss_return_yui_seen
+    type: boolean
+    default: false
+    description: "ボス敗北後に一番街へ戻った直後のユイ会話を見た"
