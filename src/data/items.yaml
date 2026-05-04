@@ -38,6 +38,36 @@ items:
     stackable: false
     category: consumable
 
+  - id: item_milktea
+    name: "ミルクティー"
+    description: "CoderDojoの机に置いてあったミルクティー。まだ温かい。"
+    icon: null
+    usable: true
+    use_scene: scene_use_milktea
+    use_condition: null
+    stackable: false
+    category: consumable
+
+  - id: item_fushigi_candy
+    name: "不思議なアメ"
+    description: "暗い迷路の中で、どこからか現れたアメ。ひんやりしているのに甘い。"
+    icon: null
+    usable: true
+    use_scene: scene_use_fushigi_candy
+    use_condition: null
+    stackable: false
+    category: consumable
+
+  - id: item_kinchu_hikari
+    name: "禁酒の光"
+    description: "田中メンターから受け取った、不思議な光が宿るアイテム。迷宮の番人に大ダメージを与えられるらしい。"
+    icon: null
+    usable: true
+    use_scene: scene_use_kinchu_hikari
+    use_condition: null
+    stackable: false
+    category: key_item
+
   - id: item_gummy
     name: "新発売のグミ"
     description: "おばちゃんのポケットから出てきたグミ。大学生が探していたやつだ。"

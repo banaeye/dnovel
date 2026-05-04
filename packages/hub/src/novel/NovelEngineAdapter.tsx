@@ -32,18 +32,34 @@ function NovelEngineComponent({
         inventory,
         playerStats: context.playerStats,
       };
-      // 遷移先エンジンに assetsBaseUrl とアイテム一覧を自動注入
+      // '__return__' は迷路内イベントからの帰還専用センチネル
+      if (spec.id === '__return__') {
+        onExit(updatedContext);
+        return;
+      }
+      // 遷移先エンジンに assetsBaseUrl・アイテム一覧・_novelReturn を自動注入
       const itemDefs = Object.values(config.masterData.items).map(item => ({
         id: item.id,
         name: item.name,
         usable: item.usable,
       }));
+      const _novelReturn = {
+        masterData:        config.masterData,
+        assetsBaseUrl:     config.assetsBaseUrl,
+        chapterId,
+        initialLocationId: config.initialLocationId,
+        chapters:          config.chapters,
+        exitSceneId:          spec.return_scene,
+        gameoverSceneId:      spec.gameover_scene,
+        gameoverBossSceneId:  spec.gameover_boss_scene,
+      };
       const transition: EngineTransition = {
         engineId: spec.id,
         config: {
           assetsBaseUrl: config.assetsBaseUrl,
           items: itemDefs,
           ...(spec.config as object ?? {}),
+          _novelReturn,
         },
         returnEngineId: spec.return_scene ? 'novel' : undefined,
         returnConfig: spec.return_scene

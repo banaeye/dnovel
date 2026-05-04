@@ -1,7 +1,7 @@
 import type { Dir, Vec2, MazeState } from './types.js';
 import { BUILT_IN_MAPS } from './maps.js';
 import { MAP_ENEMIES } from './enemies.js';
-import { startBattle, handleBattleKey } from './battleEngine.js';
+import { startBattle, startBossBattle, handleBattleKey } from './battleEngine.js';
 
 const ENCOUNTER_RATE = 0.2;
 
@@ -37,20 +37,35 @@ export function findStart(map: string[]): Vec2 {
   return { x: 1, y: 1 };
 }
 
+export interface InitMazeOptions {
+  initialPos?: Vec2;
+  initialDir?: Dir;
+  initialVisited?: string[];
+  initialTriggeredEvents?: string[];
+}
+
 export function initMaze(
   mapId: string,
   playerStats?: Record<string, number>,
   inventory?: string[],
+  options?: InitMazeOptions,
 ): MazeState {
   const map = BUILT_IN_MAPS[mapId] ?? BUILT_IN_MAPS['dungeon_01']!;
-  const pos = findStart(map);
+  const pos = options?.initialPos ?? findStart(map);
+  const dir: Dir = options?.initialDir ?? 'N';
   const playerMaxHp = playerStats?.maxHp ?? 20;
+  const visited = options?.initialVisited
+    ? new Set(options.initialVisited)
+    : new Set([`${pos.x},${pos.y}`]);
+  const triggeredEvents = options?.initialTriggeredEvents
+    ? new Set(options.initialTriggeredEvents)
+    : new Set<string>();
   return {
     pos,
-    dir: 'N',
+    dir,
     map,
     mapId,
-    visited: new Set([`${pos.x},${pos.y}`]),
+    visited,
     atExit: false,
     steps: 0,
     playerHp: playerMaxHp,
@@ -59,30 +74,94 @@ export function initMaze(
     playerDef: playerStats?.def ?? 2,
     battle: null,
     inventory: inventory ?? [],
+    pendingEvent: null,
+    triggeredEvents,
+    pendingDeath: false,
+    pendingBossTilePos: null,
   };
 }
 
-export function useItemInMaze(state: MazeState, itemId: string, itemName: string): MazeState {
+export interface ItemEffect {
+  healHp?: 'full' | number;
+  /** バトル中に敵へ与えるダメージ（バトル外では使用不可） */
+  attackEnemy?: number;
+}
+
+export function useItemInMaze(
+  state: MazeState,
+  itemId: string,
+  itemName: string,
+  effect?: ItemEffect,
+): MazeState {
   const idx = state.inventory.indexOf(itemId);
   if (idx === -1) return state;
+
+  // 敵攻撃専用アイテムはバトル外では使えない
+  if (effect?.attackEnemy !== undefined && !state.battle) return state;
+
   const inventory = [...state.inventory.slice(0, idx), ...state.inventory.slice(idx + 1)];
-  const msg = `${itemName}を使った！`;
-  if (state.battle) {
-    const log = [...state.battle.log, msg];
-    return { ...state, inventory, battle: { ...state.battle, log } };
+  const msgs = [`${itemName}を使った！`];
+  let playerHp = state.playerHp;
+
+  if (effect?.healHp === 'full') {
+    playerHp = state.playerMaxHp;
+    msgs.push('HPが全回復した！');
+  } else if (typeof effect?.healHp === 'number') {
+    playerHp = Math.min(state.playerMaxHp, state.playerHp + effect.healHp);
+    msgs.push(`HPが ${effect.healHp} 回復した！`);
   }
-  return { ...state, inventory };
+
+  // 敵へのダメージ（バトル中のみ）
+  if (state.battle && effect?.attackEnemy !== undefined) {
+    const enemy = state.battle.enemy;
+    const dmg = Math.min(effect.attackEnemy, enemy.hp);
+    const newEnemyHp = Math.max(0, enemy.hp - effect.attackEnemy);
+    msgs.push(`${enemy.name} に ${dmg} の大ダメージ！`);
+    const newEnemy = { ...enemy, hp: newEnemyHp };
+    if (newEnemyHp <= 0) {
+      msgs.push(`${enemy.name} を倒した！`);
+      return {
+        ...state,
+        inventory,
+        playerHp,
+        battle: { ...state.battle, enemy: newEnemy, phase: 'win', log: [...state.battle.log, ...msgs] },
+      };
+    }
+    return {
+      ...state,
+      inventory,
+      playerHp,
+      battle: { ...state.battle, enemy: newEnemy, log: [...state.battle.log, ...msgs] },
+    };
+  }
+
+  if (state.battle) {
+    const log = [...state.battle.log, ...msgs];
+    return { ...state, inventory, playerHp, battle: { ...state.battle, log } };
+  }
+  return { ...state, inventory, playerHp };
 }
+
+const EVENT_PASSTHROUGH = new Set(['.', 'S', 'X', '#']);
 
 function step(state: MazeState, delta: Vec2): MazeState {
   const next = add(state.pos, delta);
-  if (getCell(state.map, next.x, next.y) === '#') return state;
-  const key = `${next.x},${next.y}`;
+  const cell = getCell(state.map, next.x, next.y);
+  if (cell === '#') return state;
+  const posKey = `${next.x},${next.y}`;
   const visited = new Set(state.visited);
-  visited.add(key);
-  const atExit = getCell(state.map, next.x, next.y) === 'X';
+  visited.add(posKey);
+  const atExit = cell === 'X';
   const moved: MazeState = { ...state, pos: next, visited, atExit, steps: state.steps + 1 };
-  if (!atExit && MAP_ENEMIES[state.mapId] && Math.random() < ENCOUNTER_RATE) {
+  // ボスタイル検出（one-shot: 未撃破座標のみ）
+  if (!atExit && cell === 'B' && !state.triggeredEvents.has(posKey)) {
+    return startBossBattle({ ...moved, pendingBossTilePos: posKey });
+  }
+  // イベントタイル検出（one-shot: 未発火座標のみ。Bタイルは除外）
+  if (!atExit && !EVENT_PASSTHROUGH.has(cell) && cell !== 'B' && !state.triggeredEvents.has(posKey)) {
+    return { ...moved, pendingEvent: cell };
+  }
+  if (!atExit && cell !== 'B' && MAP_ENEMIES[state.mapId] && Math.random() < ENCOUNTER_RATE) {
     return startBattle(moved);
   }
   return moved;
@@ -105,7 +184,9 @@ export function turnRight(state: MazeState): MazeState {
 }
 
 export function handleKey(state: MazeState, key: string): MazeState {
+  if (state.pendingDeath) return state;           // 全滅遷移待ち中は入力無視
   if (state.battle) return handleBattleKey(state, key);
+  if (state.pendingEvent !== null) return state;  // イベント待機中は入力無視
   if (state.atExit) return state;
   switch (key) {
     case 'ArrowUp':    case 'w': case 'W': return moveForward(state);

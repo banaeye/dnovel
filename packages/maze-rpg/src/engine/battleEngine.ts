@@ -1,6 +1,5 @@
 import type { MazeState, BattleState } from './types.js';
-import { findStart } from './mazeEngine.js';
-import { randomEnemy } from './enemies.js';
+import { randomEnemy, bossEnemy } from './enemies.js';
 
 export function startBattle(state: MazeState): MazeState {
   const enemy = randomEnemy(state.mapId);
@@ -9,6 +8,19 @@ export function startBattle(state: MazeState): MazeState {
     enemy,
     phase: 'select',
     log: [`${enemy.name} が現れた！`],
+    cursorIndex: 0,
+    guarding: false,
+  };
+  return { ...state, battle };
+}
+
+export function startBossBattle(state: MazeState): MazeState {
+  const enemy = bossEnemy(state.mapId);
+  if (!enemy) return state;
+  const battle: BattleState = {
+    enemy,
+    phase: 'select',
+    log: [`${enemy.name} が立ちはだかった！　逃げられない！`],
     cursorIndex: 0,
     guarding: false,
   };
@@ -40,6 +52,10 @@ function executeCommand(state: MazeState): MazeState {
   if (!battle) return state;
 
   if (battle.cursorIndex === 2) {
+    if (state.pendingBossTilePos) {
+      const log = [...battle.log, '逃げることはできない！'];
+      return enemyAttack({ ...state, battle: { ...battle, log, guarding: false } });
+    }
     if (Math.random() < 0.5) {
       return { ...state, battle: null };
     }
@@ -68,20 +84,6 @@ function executeCommand(state: MazeState): MazeState {
   return enemyAttack({ ...state, battle: { ...battle, enemy, log, guarding: false } });
 }
 
-function resetMaze(state: MazeState): MazeState {
-  const pos = findStart(state.map);
-  return {
-    ...state,
-    pos,
-    dir: 'N',
-    visited: new Set([`${pos.x},${pos.y}`]),
-    atExit: false,
-    steps: 0,
-    playerHp: state.playerMaxHp,
-    battle: null,
-  };
-}
-
 export function handleBattleKey(state: MazeState, key: string): MazeState {
   const { battle } = state;
   if (!battle) return state;
@@ -100,7 +102,14 @@ export function handleBattleKey(state: MazeState, key: string): MazeState {
   if (!confirm) return state;
 
   if (battle.phase === 'log')  return { ...state, battle: { ...battle, phase: 'select', log: [] } };
-  if (battle.phase === 'win')  return { ...state, battle: null };
-  if (battle.phase === 'lose') return resetMaze(state);
+  if (battle.phase === 'win') {
+    if (state.pendingBossTilePos) {
+      const triggeredEvents = new Set(state.triggeredEvents);
+      triggeredEvents.add(state.pendingBossTilePos);
+      return { ...state, battle: null, pendingBossTilePos: null, triggeredEvents };
+    }
+    return { ...state, battle: null };
+  }
+  if (battle.phase === 'lose') return { ...state, pendingDeath: true };
   return state;
 }

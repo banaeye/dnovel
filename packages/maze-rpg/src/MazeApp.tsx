@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { IGameEngine, EngineProps, GameContext } from '@novel-engine/hub';
+import type { IGameEngine, EngineProps, GameContext, EngineTransition } from '@novel-engine/hub';
 import { initMaze, handleKey, useItemInMaze } from './engine/mazeEngine.js';
+import type { ItemEffect } from './engine/mazeEngine.js';
+import type { Vec2, Dir } from './engine/types.js';
 import { MazeView } from './components/MazeView.js';
 import { MiniMap } from './components/MiniMap.js';
 import { BattleView } from './components/BattleView.js';
@@ -57,6 +59,17 @@ export interface MazeRpgConfig {
   assetsBaseUrl?: string;
   /** インベントリに表示するアイテム情報（NovelEngineAdapter が自動注入） */
   items?: MazeItemDef[];
+  /** イベントタイル文字 → novel scene ID（例: { E: 'scene_maze_event_01' }） */
+  events?: Record<string, string>;
+  /** resume 用: 再開座標・向き・探索済みセット・発火済みイベント */
+  initialPos?: Vec2;
+  initialDir?: Dir;
+  initialVisited?: string[];
+  initialTriggeredEvents?: string[];
+  /** アイテム効果定義（例: { item_candy: { healHp: 'full' } }） */
+  itemEffects?: Record<string, ItemEffect>;
+  /** NovelEngineAdapter が注入するオペーク型。出口帰還・イベント遷移に使用 */
+  _novelReturn?: unknown;
 }
 
 const DIR_LABEL: Record<string, string> = { N: '北', E: '東', S: '南', W: '西' };
@@ -74,12 +87,12 @@ function useGameScale() {
 
 function navBtnStyle(theme: Required<MazeTheme>): React.CSSProperties {
   return {
-    background: theme.uiBg,
+    background: '#1a1008',
     border: `1px solid ${theme.uiBorder}`,
-    color: theme.uiBorder,
+    color: theme.uiAccent,
     fontFamily: 'monospace',
-    fontSize: 11,
-    padding: '4px 8px',
+    fontSize: 12,
+    padding: '6px 8px',
     cursor: 'pointer',
     borderRadius: 2,
     userSelect: 'none',
@@ -91,7 +104,12 @@ function navBtnStyle(theme: Required<MazeTheme>): React.CSSProperties {
 function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig>) {
   const scale = useGameScale();
   const [state, setState] = useState(() =>
-    initMaze(config.map, context.playerStats, context.inventory),
+    initMaze(config.map, context.playerStats, context.inventory, {
+      initialPos:             config.initialPos,
+      initialDir:             config.initialDir,
+      initialVisited:         config.initialVisited,
+      initialTriggeredEvents: config.initialTriggeredEvents,
+    }),
   );
   const theme = mergeTheme(config.theme);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
@@ -105,13 +123,21 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   }, []);
 
   const handleUseItem = useCallback((itemId: string, itemName: string) => {
-    setState(prev => useItemInMaze(prev, itemId, itemName));
+    const effect = config.itemEffects?.[itemId];
+    // 敵攻撃専用アイテムはバトル外では使えない
+    if (effect?.attackEnemy !== undefined && !state.battle) return;
+    setState(prev => useItemInMaze(prev, itemId, itemName, effect));
     if (!state.battle) {
       if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
-      setItemNotice(`${itemName}を使った！`);
+      const notice = effect?.healHp === 'full'
+        ? `${itemName}を使った！ HP全回復！`
+        : typeof effect?.healHp === 'number'
+          ? `${itemName}を使った！ HP+${effect.healHp}！`
+          : `${itemName}を使った！`;
+      setItemNotice(notice);
       noticeTimerRef.current = setTimeout(() => setItemNotice(null), 2500);
     }
-  }, [state.battle]);
+  }, [config.itemEffects, state.battle]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -124,21 +150,119 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  const buildUpdatedContext = useCallback((): GameContext => ({
+    ...context,
+    flags: { ...context.flags, [`explored_${config.map}`]: true },
+    inventory: state.inventory,
+    playerStats: {
+      ...context.playerStats,
+      hp: state.playerHp,
+      maxHp: state.playerMaxHp,
+      atk: state.playerAtk,
+      def: state.playerDef,
+    },
+  }), [context, config.map, state.inventory, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef]);
+
   const triggerExit = useCallback(() => {
+    const updatedContext = buildUpdatedContext();
+    const nr = config._novelReturn as Record<string, unknown> | undefined;
+    if (nr?.exitSceneId) {
+      onExit(updatedContext, {
+        engineId: 'novel',
+        config: { ...nr, initialSceneId: nr.exitSceneId, autoStart: true },
+      } as EngineTransition);
+    } else {
+      onExit(updatedContext);
+    }
+  }, [buildUpdatedContext, config._novelReturn, onExit]);
+
+  // 全滅時にノベルの gameover シーンへ遷移（ボス死亡と通常死亡で分岐）
+  useEffect(() => {
+    if (!state.pendingDeath) return;
+    const nr = config._novelReturn as Record<string, unknown> | undefined;
+    if (!nr) return;
+
     const updatedContext: GameContext = {
       ...context,
-      flags: { ...context.flags, [`explored_${config.map}`]: true },
       inventory: state.inventory,
       playerStats: {
         ...context.playerStats,
-        hp: state.playerHp,
+        hp: 0,
         maxHp: state.playerMaxHp,
         atk: state.playerAtk,
         def: state.playerDef,
       },
     };
-    onExit(updatedContext);
-  }, [context, config.map, state.inventory, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef, onExit]);
+
+    if (state.pendingBossTilePos && nr.gameoverBossSceneId) {
+      // ボス戦死亡 → ボスの直前座標から再開できる retry config
+      const [bx, by] = state.pendingBossTilePos.split(',').map(Number);
+      const bossRetryConfig: MazeRpgConfig = {
+        map:          config.map,
+        name:         config.name,
+        theme:        config.theme,
+        assetsBaseUrl: config.assetsBaseUrl,
+        items:        config.items,
+        events:       config.events,
+        itemEffects:  config.itemEffects,
+        _novelReturn: config._novelReturn,
+        initialPos:             { x: (bx ?? 0) - 1, y: by ?? 0 },
+        initialDir:             'E',
+        initialVisited:         [...state.visited],
+        initialTriggeredEvents: [...state.triggeredEvents],
+      };
+      onExit(updatedContext, {
+        engineId: 'novel',
+        config: { ...nr, initialSceneId: nr.gameoverBossSceneId, autoStart: true },
+        returnEngineId: 'maze_rpg',
+        returnConfig: bossRetryConfig,
+      } as EngineTransition);
+    } else if (nr.gameoverSceneId) {
+      // 通常死亡 → 最初からの retry config
+      const retryConfig: MazeRpgConfig = {
+        map:          config.map,
+        name:         config.name,
+        theme:        config.theme,
+        assetsBaseUrl: config.assetsBaseUrl,
+        items:        config.items,
+        events:       config.events,
+        itemEffects:  config.itemEffects,
+        _novelReturn: config._novelReturn,
+      };
+      onExit(updatedContext, {
+        engineId: 'novel',
+        config: { ...nr, initialSceneId: nr.gameoverSceneId, autoStart: true },
+        returnEngineId: 'maze_rpg',
+        returnConfig: retryConfig,
+      } as EngineTransition);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.pendingDeath]);
+
+  // イベントタイルを踏んだときにノベルシーンへ遷移
+  useEffect(() => {
+    if (!state.pendingEvent) return;
+    const sceneId = config.events?.[state.pendingEvent];
+    const nr = config._novelReturn as Record<string, unknown> | undefined;
+    if (!sceneId || !nr) return;
+
+    const updatedContext = buildUpdatedContext();
+    const posKey = `${state.pos.x},${state.pos.y}`;
+    const resumeConfig: MazeRpgConfig = {
+      ...config,
+      initialPos:             state.pos,
+      initialDir:             state.dir,
+      initialVisited:         [...state.visited],
+      initialTriggeredEvents: [...state.triggeredEvents, posKey],
+    };
+    onExit(updatedContext, {
+      engineId: 'novel',
+      config: { ...nr, initialSceneId: sceneId, autoStart: true },
+      returnEngineId: 'maze_rpg',
+      returnConfig: resumeConfig,
+    } as EngineTransition);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.pendingEvent]);
 
   const handleExitKey = useCallback(
     (e: KeyboardEvent) => {

@@ -71,6 +71,10 @@ export interface EngineTransitionSpec {
   id: string;
   config?: unknown;
   return_scene?: string;
+  /** 死亡時に遷移するノベルシーン ID */
+  gameover_scene?: string;
+  /** ボス戦死亡時に遷移するノベルシーン ID */
+  gameover_boss_scene?: string;
 }
 
 export interface Scene {

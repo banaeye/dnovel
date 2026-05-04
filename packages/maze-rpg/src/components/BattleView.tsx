@@ -80,14 +80,15 @@ export function BattleView({
               style={{
                 flex: 1,
                 fontSize: 13,
-                padding: '5px 0',
-                background: battle.cursorIndex === i ? theme.uiBorder : 'transparent',
-                color: battle.cursorIndex === i ? theme.uiAccent : theme.uiBorder,
+                padding: '6px 0',
+                background: battle.cursorIndex === i ? theme.uiBorder : '#1a1008',
+                color: theme.uiAccent,
                 border: `1px solid ${battle.cursorIndex === i ? theme.uiAccent : theme.uiBorder}`,
                 borderRadius: 3,
                 cursor: 'pointer',
                 userSelect: 'none',
                 textAlign: 'center' as const,
+                opacity: battle.cursorIndex === i ? 1 : 0.65,
               }}
             >
               {cmd}
@@ -97,7 +98,7 @@ export function BattleView({
       ) : (
         <div
           onClick={() => onAdvance?.()}
-          style={{ fontSize: 12, color: theme.uiBorder, cursor: 'pointer', userSelect: 'none' }}
+          style={{ fontSize: 12, color: theme.uiAccent, opacity: 0.75, cursor: 'pointer', userSelect: 'none' }}
         >
           {battle.phase === 'win' || battle.phase === 'lose'
             ? '▶ クリック / [Enter] で続ける'

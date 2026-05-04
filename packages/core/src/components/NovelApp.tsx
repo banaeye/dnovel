@@ -238,7 +238,12 @@ export function NovelApp({
   const [storeEntry, setStoreEntry] = useState(() => ({
     key: 0,
     chapter: defaultChapter,
-    store: createStoreForChapter(defaultChapter, initialFlags, initialInventory),
+    // config.initialSceneId で上書き（return_scene から戻る場合に chapter の default と異なる）
+    store: createStoreForChapter(
+      { ...defaultChapter, initialSceneId: config.initialSceneId },
+      initialFlags,
+      initialInventory,
+    ),
   }));
 
   function startChapter(chapter: ChapterConfig) {

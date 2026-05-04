@@ -38,4 +38,12 @@ export interface MazeState {
   playerDef: number;
   battle: BattleState | null;
   inventory: string[];
+  /** 踏んだイベントタイルの文字（'E'等）。null = イベントなし */
+  pendingEvent: string | null;
+  /** one-shot 制御: 発火済み座標を "x,y" 形式で保持 */
+  triggeredEvents: Set<string>;
+  /** true のとき全滅 → ノベルへ遷移待ち */
+  pendingDeath: boolean;
+  /** ボスタイルを踏んだ座標 "x,y"。勝利後に triggeredEvents へ追加して null に戻す */
+  pendingBossTilePos: string | null;
 }

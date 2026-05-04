@@ -73,3 +73,13 @@ flags:
     type: boolean
     default: false
     description: "第2章クリア済み"
+
+  - id: flag_maze_defeated
+    type: boolean
+    default: false
+    description: "迷路で一度でも全滅した"
+
+  - id: flag_boss_challenged
+    type: boolean
+    default: false
+    description: "ボス（迷宮の主）に一度でも敗北した"
