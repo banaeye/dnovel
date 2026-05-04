@@ -17,8 +17,8 @@ interface ItemPanelProps {
 }
 
 function ItemRow({
-  itemId, name, usable, count, theme, font, onUse,
-}: { itemId: string; name: string; usable: boolean; count: number; theme: Required<MazeTheme>; font: string; onUse: () => void }) {
+  name, usable, count, theme, font, onUse,
+}: { name: string; usable: boolean; count: number; theme: Required<MazeTheme>; font: string; onUse: () => void }) {
   const [hover, setHover] = useState(false);
   return (
     <div
@@ -93,7 +93,6 @@ export function ItemPanel({ inventory, itemDefs, theme, onUse, notification, fon
             return (
               <ItemRow
                 key={itemId}
-                itemId={itemId}
                 name={def?.name ?? itemId}
                 usable={def?.usable ?? false}
                 count={counts.get(itemId) ?? 1}
