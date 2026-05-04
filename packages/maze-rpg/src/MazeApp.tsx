@@ -72,6 +72,8 @@ export interface MazeRpgConfig {
   _novelReturn?: unknown;
 }
 
+const FONT = "'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif";
+
 const DIR_LABEL: Record<string, string> = { N: '北', E: '東', S: '南', W: '西' };
 
 function useGameScale() {
@@ -85,20 +87,47 @@ function useGameScale() {
   return scale;
 }
 
-function navBtnStyle(theme: Required<MazeTheme>): React.CSSProperties {
-  return {
-    background: '#1a1008',
-    border: `1px solid ${theme.uiBorder}`,
-    color: theme.uiAccent,
-    fontFamily: 'monospace',
-    fontSize: 12,
-    padding: '6px 8px',
-    cursor: 'pointer',
-    borderRadius: 2,
-    userSelect: 'none',
-    flex: 1,
-    textAlign: 'center',
-  };
+function HpRow({ hp, maxHp, theme }: { hp: number; maxHp: number; theme: Required<MazeTheme> }) {
+  const pct = Math.max(0, Math.min(1, maxHp > 0 ? hp / maxHp : 0));
+  const barColor = pct > 0.5 ? '#50c050' : pct > 0.25 ? '#c0a020' : '#e03030';
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4, color: theme.uiAccent }}>
+        <span style={{ letterSpacing: '0.06em' }}>HP</span>
+        <span style={{ opacity: 0.8 }}>{hp} / {maxHp}</span>
+      </div>
+      <div style={{ height: 6, background: '#2a2020', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ width: `${pct * 100}%`, height: '100%', background: barColor, transition: 'width 0.3s', borderRadius: 3 }} />
+      </div>
+    </div>
+  );
+}
+
+function NavButton({ label, theme, onClick }: { label: string; theme: Required<MazeTheme>; onClick: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={onClick}
+      style={{
+        flex: 1,
+        background: hover ? theme.uiBorder : '#1a1008',
+        border: `1px solid ${hover ? theme.uiAccent : theme.uiBorder}`,
+        color: theme.uiAccent,
+        fontFamily: FONT,
+        fontSize: 12,
+        padding: '8px 4px',
+        cursor: 'pointer',
+        borderRadius: 3,
+        userSelect: 'none',
+        textAlign: 'center',
+        transition: 'background 0.1s, border-color 0.1s',
+      }}
+    >
+      {label}
+    </button>
+  );
 }
 
 function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig>) {
@@ -114,7 +143,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const theme = mergeTheme(config.theme);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
 
-  // アイテム使用時の探索モード通知（バトル中は battle.log に入るので不要）
   const [itemNotice, setItemNotice] = useState<string | null>(null);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -124,7 +152,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
 
   const handleUseItem = useCallback((itemId: string, itemName: string) => {
     const effect = config.itemEffects?.[itemId];
-    // 敵攻撃専用アイテムはバトル外では使えない
     if (effect?.attackEnemy !== undefined && !state.battle) return;
     setState(prev => useItemInMaze(prev, itemId, itemName, effect));
     if (!state.battle) {
@@ -176,7 +203,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     }
   }, [buildUpdatedContext, config._novelReturn, onExit]);
 
-  // 全滅時にノベルの gameover シーンへ遷移（ボス死亡と通常死亡で分岐）
   useEffect(() => {
     if (!state.pendingDeath) return;
     const nr = config._novelReturn as Record<string, unknown> | undefined;
@@ -195,7 +221,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     };
 
     if (state.pendingBossTilePos && nr.gameoverBossSceneId) {
-      // ボス戦死亡 → ボスの直前座標から再開できる retry config
       const [bx, by] = state.pendingBossTilePos.split(',').map(Number);
       const bossRetryConfig: MazeRpgConfig = {
         map:          config.map,
@@ -218,7 +243,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         returnConfig: bossRetryConfig,
       } as EngineTransition);
     } else if (nr.gameoverSceneId) {
-      // 通常死亡 → 最初からの retry config
       const retryConfig: MazeRpgConfig = {
         map:          config.map,
         name:         config.name,
@@ -239,7 +263,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.pendingDeath]);
 
-  // イベントタイルを踏んだときにノベルシーンへ遷移
   useEffect(() => {
     if (!state.pendingEvent) return;
     const sceneId = config.events?.[state.pendingEvent];
@@ -300,7 +323,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           background: theme.uiBg,
           display: 'flex',
           flexDirection: 'column',
-          fontFamily: 'monospace',
+          fontFamily: FONT,
           color: theme.uiAccent,
           userSelect: 'none',
           overflow: 'hidden',
@@ -318,6 +341,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             justifyContent: 'space-between',
             alignItems: 'center',
             flexShrink: 0,
+            letterSpacing: '0.06em',
           }}
         >
           <span>⚔ {config.name ?? config.map}</span>
@@ -337,7 +361,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             }}
           >
             <div style={{ position: 'relative' }}>
-              {/* 3D ビュー — 常に表示 */}
+              {/* 3D ビュー */}
               <div
                 style={{
                   border: `2px solid ${theme.uiBorder}`,
@@ -347,10 +371,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               >
                 <MazeView state={state} theme={theme} />
 
-                {/* 敵グラフィックオーバーレイ（バトル中） */}
                 {state.battle && <EnemySprite enemy={state.battle.enemy} assetsBaseUrl={assetsBaseUrl} />}
 
-                {/* クリックゾーン（探索中のみ） */}
                 {!state.battle && !state.atExit && (
                   <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gridTemplateRows: '1fr 1fr' }}>
                     <div title="左回転" style={{ cursor: 'w-resize' }} onClick={() => dispatch('ArrowLeft')} />
@@ -377,6 +399,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                     fontSize: 14,
                     textAlign: 'center',
                     cursor: 'pointer',
+                    fontFamily: FONT,
+                    letterSpacing: '0.04em',
                   }}
                 >
                   階段を見つけた！ [Enter] / クリックで地上へ戻る
@@ -397,44 +421,47 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               overflow: 'hidden',
             }}
           >
-            {/* コンパス */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '24px 24px 24px',
-                  gridTemplateRows: '24px 24px 24px',
-                  gap: 2,
-                  textAlign: 'center',
-                }}
-              >
-                {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
-                {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
-                {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
-              </div>
-              <div style={{ fontSize: 11, color: theme.uiAccent }}>
-                向き: {DIR_LABEL[state.dir]}
-              </div>
-            </div>
+            {/* HP バー — 常時表示 */}
+            <HpRow hp={state.playerHp} maxHp={state.playerMaxHp} theme={theme} />
 
-            {/* ミニマップ */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
+
+            {/* ミニマップ + コンパス — 横並び */}
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', justifyContent: 'center' }}>
               <div style={{ border: `1px solid ${theme.uiBorder}` }}>
                 <MiniMap state={state} />
               </div>
-              <div style={{ fontSize: 10, opacity: 0.5 }}>
-                ({state.pos.x}, {state.pos.y})
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '24px 24px 24px',
+                    gridTemplateRows: '24px 24px 24px',
+                    gap: 2,
+                    textAlign: 'center',
+                  }}
+                >
+                  {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
+                  {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
+                  {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
+                </div>
+                <div style={{ fontSize: 11, color: theme.uiAccent, letterSpacing: '0.05em' }}>
+                  {DIR_LABEL[state.dir]}
+                </div>
+                <div style={{ fontSize: 9, color: theme.uiBorder, letterSpacing: '0.04em' }}>
+                  ({state.pos.x},{state.pos.y})
+                </div>
               </div>
             </div>
 
-            {/* セパレーター */}
             <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
 
-            {/* コマンド: バトル中 = バトルパネル / 探索中 = 方向ボタン */}
+            {/* バトル中 → BattleView / 探索中 → 方向ボタン */}
             {state.battle ? (
               <BattleView
                 state={state}
                 theme={theme}
+                font={FONT}
                 onSelectCommand={i => setState(prev => {
                   if (!prev.battle || prev.battle.phase !== 'select') return prev;
                   return { ...prev, battle: { ...prev.battle, cursorIndex: i } };
@@ -449,12 +476,12 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ display: 'flex' }}>
-                  <button onClick={() => dispatch('ArrowUp')} style={{ ...navBtnStyle(theme) }}>↑ 前進</button>
+                  <NavButton label="↑ 前進" theme={theme} onClick={() => dispatch('ArrowUp')} />
                 </div>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <button onClick={() => dispatch('ArrowLeft')}  style={navBtnStyle(theme)}>← 左</button>
-                  <button onClick={() => dispatch('ArrowDown')}  style={navBtnStyle(theme)}>↓ 後退</button>
-                  <button onClick={() => dispatch('ArrowRight')} style={navBtnStyle(theme)}>→ 右</button>
+                  <NavButton label="← 左"  theme={theme} onClick={() => dispatch('ArrowLeft')} />
+                  <NavButton label="↓ 後退" theme={theme} onClick={() => dispatch('ArrowDown')} />
+                  <NavButton label="→ 右"  theme={theme} onClick={() => dispatch('ArrowRight')} />
                 </div>
               </div>
             )}
@@ -466,6 +493,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               theme={theme}
               onUse={handleUseItem}
               notification={itemNotice ?? undefined}
+              font={FONT}
             />
           </div>
         </div>
@@ -488,6 +516,7 @@ function CompassCell({ label, dir, theme }: { label: string; dir: string; theme:
         color: active ? theme.uiAccent : theme.uiBorder,
         fontWeight: active ? 'bold' : 'normal',
         fontSize: 10,
+        fontFamily: FONT,
       }}
     >
       {label}

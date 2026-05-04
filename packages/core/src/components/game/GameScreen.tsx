@@ -74,6 +74,18 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
     }
   }, [state.phase]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (state.phase === 'message') {
+        e.preventDefault();
+        advanceMessage();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [state.phase, advanceMessage]);
+
   return (
     <div className={styles.root}>
       <SceneBackground

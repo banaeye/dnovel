@@ -84,128 +84,116 @@ scenes:
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
-    messages:
-      - text: CoderDojo赤羽の会場は、今日は静かだった。
-        voice_character_id: null
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            and:
+              - flag: flag_maze_defeated
+                value: true
+              - has_item: item_kinchu_hikari
+                negate: true
+          next_scene: scene_coderdojo_mentor_arrive
+        - condition: null
+          next_scene: scene_coderdojo_base
     child_scenes:
-      - id: scene_coderdojo_examine_juice
-        messages: []
-        branches:
-          type: auto
-          choices:
-            - condition:
-                has_item: item_drink
-                negate: true
-              next_scene: scene_coderdojo_juice_get
-            - condition: null
-              next_scene: scene_coderdojo_juice_have
+      - id: scene_coderdojo_mentor_arrive
+        characters:
+          - character_id: char_mentor
+            position: center
+            expression: smile
+        messages:
+          - text: CoderDojo赤羽の会場に入ると、田中メンターが立っていた。
+            voice_character_id: null
+          - text: 「あれ、ケン君。なんか思い詰めた顔してるね」
+            voice_character_id: char_mentor
+          - text: 迷宮のボスに負けました。どうしても勝てなくて。
+            voice_character_id: char_hero
+          - text: 「ボス、か。……実はね、前に似たような話を聞いたことがあるんだ」
+            voice_character_id: char_mentor
+          - text: 「これ、持っていきな。困ったときに使うといい」
+            voice_character_id: char_mentor
+          - text: 手渡されたそれは、かすかに光を帯びていた。
+            voice_character_id: null
+        item_give:
+          - item_id: item_kinchu_hikari
+            condition: null
+        next_scene: scene_coderdojo_base
+      - id: scene_coderdojo_base
+        messages:
+          - text: CoderDojo赤羽の会場は、今日は静かだった。
+            voice_character_id: null
         child_scenes:
-          - id: scene_coderdojo_juice_get
-            messages:
-              - text: 机の隅に、缶のジュースが置いてある。
-                voice_character_id: null
-              - text: ……誰のだろう。手をつけずに置いてある。もらっていいかな。
-                voice_character_id: char_hero
-              - text: ポケットに入れた。
-                voice_character_id: null
-            item_give:
-              - item_id: item_drink
-                condition: null
-          - id: scene_coderdojo_juice_have
-            messages:
-              - text: 机の隅にジュースがある。もう持っているからいいか。
-                voice_character_id: char_hero
-      - id: scene_coderdojo_examine_milktea
-        messages: []
-        branches:
-          type: auto
-          choices:
-            - condition:
-                has_item: item_milktea
-                negate: true
-              next_scene: scene_coderdojo_milktea_get
-            - condition: null
-              next_scene: scene_coderdojo_milktea_have
-        child_scenes:
-          - id: scene_coderdojo_milktea_get
-            messages:
-              - text: 窓際のテーブルに、紙コップのミルクティーが置いてある。まだ湯気が立っている。
-                voice_character_id: null
-              - text: 誰かが来ていたのかな。ひとくちもらっていこう。
-                voice_character_id: char_hero
-            item_give:
-              - item_id: item_milktea
-                condition: null
-          - id: scene_coderdojo_milktea_have
-            messages:
-              - text: 窓際にミルクティーがある。もう持っているからいいか。
-                voice_character_id: char_hero
-      - id: scene_coderdojo_mentor_talk
-        messages: []
-        branches:
-          type: auto
-          choices:
-            - condition:
-                has_item: item_kinchu_hikari
-                negate: true
-              next_scene: scene_coderdojo_mentor_give
-            - condition: null
-              next_scene: scene_coderdojo_mentor_have
-        child_scenes:
-          - id: scene_coderdojo_mentor_give
-            characters:
-              - character_id: char_mentor
-                position: center
-                expression: smile
-            messages:
-              - text: 「あれ、ケン君。なんか思い詰めた顔してるね」
-                voice_character_id: char_mentor
-              - text: 迷宮のボスに負けました。どうしても勝てなくて。
-                voice_character_id: char_hero
-              - text: 「ボス、か。……実はね、前に似たような話を聞いたことがあるんだ」
-                voice_character_id: char_mentor
-              - text: 「これ、持っていきな。困ったときに使うといい」
-                voice_character_id: char_mentor
-              - text: 手渡されたそれは、かすかに光を帯びていた。
-                voice_character_id: null
-            item_give:
-              - item_id: item_kinchu_hikari
-                condition: null
-          - id: scene_coderdojo_mentor_have
-            characters:
-              - character_id: char_mentor
-                position: center
-                expression: smile
-            messages:
-              - text: 「もう渡したやつ、持ってるじゃないか。うまく使いなよ」
-                voice_character_id: char_mentor
-    clickable_areas:
-      - id: area_coderdojo_juice
-        x: 120
-        "y": 260
-        width: 160
-        height: 140
-        label: 机の隅
-        next_scene: scene_coderdojo_examine_juice
-        condition: null
-      - id: area_coderdojo_milktea
-        x: 520
-        "y": 220
-        width: 180
-        height: 150
-        label: 窓際のテーブル
-        next_scene: scene_coderdojo_examine_milktea
-        condition: null
-      - id: area_coderdojo_mentor
-        x: 320
-        "y": 100
-        width: 140
-        height: 260
-        label: 田中メンター
-        next_scene: scene_coderdojo_mentor_talk
-        condition:
-          flag: flag_maze_defeated
-          value: true
+          - id: scene_coderdojo_examine_juice
+            messages: []
+            branches:
+              type: auto
+              choices:
+                - condition:
+                    has_item: item_drink
+                    negate: true
+                  next_scene: scene_coderdojo_juice_get
+                - condition: null
+                  next_scene: scene_coderdojo_juice_have
+            child_scenes:
+              - id: scene_coderdojo_juice_get
+                messages:
+                  - text: 机の隅に、缶のジュースが置いてある。
+                    voice_character_id: null
+                  - text: ……誰のだろう。手をつけずに置いてある。もらっていいかな。
+                    voice_character_id: char_hero
+                  - text: ポケットに入れた。
+                    voice_character_id: null
+                item_give:
+                  - item_id: item_drink
+                    condition: null
+              - id: scene_coderdojo_juice_have
+                messages:
+                  - text: 机の隅にジュースがある。もう持っているからいいか。
+                    voice_character_id: char_hero
+          - id: scene_coderdojo_examine_milktea
+            messages: []
+            branches:
+              type: auto
+              choices:
+                - condition:
+                    has_item: item_milktea
+                    negate: true
+                  next_scene: scene_coderdojo_milktea_get
+                - condition: null
+                  next_scene: scene_coderdojo_milktea_have
+            child_scenes:
+              - id: scene_coderdojo_milktea_get
+                messages:
+                  - text: 窓際のテーブルに、紙コップのミルクティーが置いてある。まだ湯気が立っている。
+                    voice_character_id: null
+                  - text: 誰かが来ていたのかな。ひとくちもらっていこう。
+                    voice_character_id: char_hero
+                item_give:
+                  - item_id: item_milktea
+                    condition: null
+              - id: scene_coderdojo_milktea_have
+                messages:
+                  - text: 窓際にミルクティーがある。もう持っているからいいか。
+                    voice_character_id: char_hero
+        clickable_areas:
+          - id: area_coderdojo_juice
+            x: 120
+            "y": 260
+            width: 160
+            height: 140
+            label: 机の隅
+            next_scene: scene_coderdojo_examine_juice
+            condition: null
+          - id: area_coderdojo_milktea
+            x: 520
+            "y": 220
+            width: 180
+            height: 150
+            label: 窓際のテーブル
+            next_scene: scene_coderdojo_examine_milktea
+            condition: null
   - id: scene_slope_default
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -244,82 +232,28 @@ scenes:
   - id: scene_ichibangai_default
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
-    messages: []
-    branches:
-      type: auto
-      choices:
-        - condition:
-            flag: flag_ch2_cleared
-            value: true
-          next_scene: scene_ch2_ichibangai_post
-        - condition:
-            flag: flag_boss_challenged
-            value: true
-          next_scene: scene_ichibangai_boss_return
-        - condition:
-            flag: flag_maze_defeated
-            value: true
-          next_scene: scene_ichibangai_regular_return
-        - condition: null
-          next_scene: scene_ichibangai_first_visit
-    child_scenes:
-      - id: scene_ichibangai_first_visit
-        characters:
-          - character_id: char_yui
-            position: left
-            expression: normal
-        messages:
-          - text: 昼間なのに、アーケードに人がいない。シャッターが下りたお店が続いている。
-            voice_character_id: null
-          - text: 「ケン、来てくれた！　あのビル——あの前だけ、空気がおかしいの」
-            voice_character_id: char_yui
-          - text: 「地下から変な音が聞こえてくるって、周りの人みんな怖がってて」
-            voice_character_id: char_yui
-          - text: 言われてみれば確かに、あの雑居ビルの前だけ空気が重い。
-            voice_character_id: null
-        clickable_areas:
-          - id: area_ch2_building_strange
-            x: 280
-            "y": 180
-            width: 240
-            height: 200
-            label: 雑居ビル（飲み屋街）
-            next_scene: scene_ch2_building_approach
-            condition: null
-      - id: scene_ichibangai_regular_return
-        characters:
-          - character_id: char_yui
-            position: left
-            expression: normal
-        messages:
-          - text: 「ケン……また来たね。もう一回、行く？」
-            voice_character_id: char_yui
-          - text: ……うん。まだ諦めたくない。
-            voice_character_id: char_hero
-        branches:
-          type: choice
-          choices:
-            - label: もう一度挑戦する
-              next_scene: scene_ch2_building_approach
-            - label: まだいい
-              next_scene: scene_ch2_ichibangai_post
-      - id: scene_ichibangai_boss_return
-        characters:
-          - character_id: char_yui
-            position: left
-            expression: normal
-        messages:
-          - text: 「ケン。また来てくれた。ボス、もう一回行く？」
-            voice_character_id: char_yui
-          - text: ……最初からになるけど、また挑戦する。
-            voice_character_id: char_hero
-        branches:
-          type: choice
-          choices:
-            - label: 一番街に入る
-              next_scene: scene_ch2_building_approach
-            - label: まだいい
-              next_scene: scene_ch2_ichibangai_post
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+    messages:
+      - text: 昼間なのに、アーケードに人がいない。シャッターが下りたお店が続いている。
+        voice_character_id: null
+      - text: 「ケン、来てくれた！　あのビル——あの前だけ、空気がおかしいの」
+        voice_character_id: char_yui
+      - text: 「地下から変な音が聞こえてくるって、周りの人みんな怖がってて」
+        voice_character_id: char_yui
+      - text: 言われてみれば確かに、あの雑居ビルの前だけ空気が重い。
+        voice_character_id: null
+    clickable_areas:
+      - id: area_ch2_building_strange
+        x: 280
+        "y": 180
+        width: 240
+        height: 200
+        label: 雑居ビル（飲み屋街）
+        next_scene: scene_ch2_building_approach
+        condition: null
   - id: scene_ch2_building_approach
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg

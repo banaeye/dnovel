@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import type { MazeState } from '../engine/types.js';
 
-const CELL = 14;
-const PAD = 4;
+const CELL = 10;
+const PAD = 3;
 
 const DIR_ARROW: Record<string, [number, number][]> = {
   N: [[0, -5], [-4, 4], [4, 4]],
