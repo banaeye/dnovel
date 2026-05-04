@@ -1,0 +1,137 @@
+scenes:
+  - id: scene_ch3_start
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    flags_set:
+      - flag: flag_chapter
+        value: 3
+      - flag: flag_chapter1_cleared
+        value: true
+      - flag: flag_ch2_cleared
+        value: true
+    messages:
+      - text: 第3章　アーケード街の死闘
+        voice_character_id: null
+      - text: 一番街の異変が収まってから、赤羽駅前には少しだけ日常が戻っていた。
+        voice_character_id: null
+      - text: それでも、駅前のアーケード街だけは様子が違っていた。
+        voice_character_id: null
+      - text: ひとの流れが、そこだけ避けるように曲がっている。
+        voice_character_id: null
+      - text: ……アーケード街へ行ってみよう。
+        voice_character_id: char_hero
+
+  - id: scene_station_default
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    messages:
+      - text: 赤羽駅前にいる。アーケード街の入り口が、いつもより暗く見える。
+        voice_character_id: null
+
+  - id: scene_arcade_default
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケード街に足を踏み入れた瞬間、シャッターの奥から金属音が響いた。
+        voice_character_id: null
+      - text: 「ケン、ここ……一番街のときと違う。誰かが、まだ中にいる感じがする」
+        voice_character_id: char_yui
+      - text: 通りの入り口で、田村のおばあさんが買い物袋を抱えたまま立っていた。
+        voice_character_id: null
+      - text: 「あらケンちゃん。こっちへ来たらあかんよ。今日はこの商店街、走らな抜けられへん」
+        voice_character_id: char_obachan
+      - text: 通りの奥で、蛍光灯がひとつ、またひとつと消えていく。
+        voice_character_id: null
+    talkable:
+      - character_id: char_obachan
+        scene_id: scene_talk_arcade_obachan
+
+  - id: scene_talk_arcade_obachan
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: 「おばちゃん、走らな抜けられへんって、どういうこと？」
+        voice_character_id: char_hero
+      - text: 「この先のアーケード、止まったら影に追いつかれるんよ」
+        voice_character_id: char_obachan
+      - text: 「ケン、行くならわたしも見る。絶対、戻ってきて」
+        voice_character_id: char_yui
+      - text: 「ほな、足元だけ見て走り。商店街は、まっすぐ抜けた子をちゃんと帰してくれるから」
+        voice_character_id: char_obachan
+    next_engine:
+      id: runner_action
+      config:
+        stageId: arcade_deathmatch
+        name: アーケード街の死闘
+        durationMs: 30000
+        theme:
+          sky: "#151827"
+          ground: "#2a2d32"
+          accent: "#f2d16b"
+      return_scene: scene_ch3_after_runner
+
+  - id: scene_ch3_after_runner
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    characters:
+      - character_id: char_yui
+        position: left
+        expression: happy
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケードの端まで走り抜けると、背中の冷たい気配がふっと消えた。
+        voice_character_id: null
+      - text: 「ケン！　戻ってきた……よかった」
+        voice_character_id: char_yui
+      - text: 「よう走ったねえ。これで今日は、商店街も少し眠れるやろ」
+        voice_character_id: char_obachan
+      - text: まだ何が起きているのかは分からない。でも、アーケード街の死闘は始まったばかりだ。
+        voice_character_id: null
+    game_end: true
+    flags_set:
+      - flag: flag_ch3_cleared
+        value: true
+
+  - id: scene_danchi_morning
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: 団地に戻ってきた。駅前のアーケード街のことが頭から離れない。
+        voice_character_id: null
+
+  - id: scene_coderdojo_default
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    messages:
+      - text: CoderDojo赤羽の会場は静かだ。今日は駅前へ戻ったほうがよさそうだ。
+        voice_character_id: null
+
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    messages:
+      - text: 一番街の入口に来た。今は別の場所が気にかかる。
+        voice_character_id: null
+
+  - id: scene_slope_default
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    messages:
+      - text: 団地への坂に来た。駅前のざわめきが、ここまで届いている気がする。
+        voice_character_id: null

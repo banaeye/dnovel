@@ -74,6 +74,11 @@ flags:
     default: false
     description: "第2章クリア済み"
 
+  - id: flag_ch3_cleared
+    type: boolean
+    default: false
+    description: "第3章クリア済み"
+
   - id: flag_maze_defeated
     type: boolean
     default: false

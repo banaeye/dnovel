@@ -34,7 +34,15 @@ locations:
         condition: null
       - location_id: loc_ichibangai
         label: "一番街入口へ"
-        condition: null
+        condition:
+          flag: flag_chapter
+          value: 3
+          negate: true
+      - location_id: loc_arcade
+        label: "アーケード街へ"
+        condition:
+          flag: flag_chapter
+          value: 3
       - location_id: loc_coderdojo
         label: "CoderDojo赤羽へ"
         condition:
@@ -81,6 +89,21 @@ locations:
         label: "駅前へ戻る"
         condition: null
     entry_scene: scene_ichibangai_default
+
+  - id: loc_arcade
+    name: "アーケード街"
+    description: "駅前から続く古いアーケード街。昼でも照明がちらつき、通りの奥が見えない。"
+    background_default: backgrounds/intersection.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_station
+        label: "駅前へ戻る"
+        condition: null
+    entry_scene: scene_arcade_default
 
   - id: loc_slope
     name: "団地への坂"

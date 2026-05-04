@@ -1,10 +1,12 @@
 import { getMasterData } from './loaders/demoLoader';
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 import { MazeRpgEngine } from '@novel-engine/maze-rpg';
+import { RunnerActionEngine } from '@novel-engine/runner-action';
 import type { ChapterConfig } from '@novel-engine/core';
 
 const masterData = getMasterData();
 const chapter2MasterData = getMasterData('chapter2');
+const chapter3MasterData = getMasterData('chapter3');
 const ASSETS_BASE = `${import.meta.env.BASE_URL}assets`;
 
 const CHAPTERS: ChapterConfig[] = [
@@ -32,6 +34,20 @@ const CHAPTERS: ChapterConfig[] = [
       flag_chapter1_cleared: true,
     },
   },
+  {
+    id: 'chapter3',
+    title: '第3章へ',
+    chapterTitle: 'アーケード街の死闘',
+    masterData: chapter3MasterData,
+    initialSceneId: 'scene_ch3_start',
+    initialLocationId: 'loc_station',
+    unlockFlag: 'flag_ch2_cleared',
+    initialFlags: {
+      flag_chapter: 3,
+      flag_chapter1_cleared: true,
+      flag_ch2_cleared: true,
+    },
+  },
 ];
 
 export default function App() {
@@ -40,6 +56,7 @@ export default function App() {
       engines={{
         novel: NovelEngineAdapter,
         maze_rpg: MazeRpgEngine,
+        runner_action: RunnerActionEngine,
       }}
       initial={{
         engineId: 'novel',

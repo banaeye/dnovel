@@ -25,8 +25,9 @@
     "paths": {
       "@novel-engine/core": ["./packages/core/src/index.ts"],
       "@novel-engine/hub": ["./packages/hub/src/index.ts"],
-      "@novel-engine/maze-rpg": ["./packages/maze-rpg/src/index.ts"]
+      "@novel-engine/maze-rpg": ["./packages/maze-rpg/src/index.ts"],
+      "@novel-engine/runner-action": ["./packages/runner-action/src/index.ts"]
     }
   },
-  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src"]
+  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src", "packages/runner-action/src"]
 }
