@@ -23,12 +23,14 @@ export interface RunnerActionConfig {
 
 interface RunnerState {
   elapsedMs: number;
+  worldElapsedMs: number;
   y: number;
   velocityY: number;
   grounded: boolean;
   score: number;
   penaltyCount: number;
   penaltyUntilMs: number;
+  scrollFreezeUntilMs: number;
   collectedIds: string[];
   hitIds: string[];
 }
@@ -53,6 +55,7 @@ const PLAYER_H = 72;
 const GRAVITY = 0.0017;
 const JUMP_VELOCITY = -0.82;
 const DEFAULT_DURATION_MS = 30000;
+const POT_HIT_SCROLL_FREEZE_MS = 420;
 const FONT = "'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif";
 
 const OBJECTS: FlyingObject[] = [
@@ -231,7 +234,7 @@ function drawRunner(
   },
 ) {
   const progress = Math.min(1, state.elapsedMs / config.durationMs);
-  const scroll = state.elapsedMs * 0.18;
+  const scroll = state.worldElapsedMs * 0.18;
   const isPenalized = state.elapsedMs < state.penaltyUntilMs;
 
   ctx.fillStyle = '#000';
@@ -307,7 +310,7 @@ function drawRunner(
 
   for (const object of OBJECTS) {
     if (state.collectedIds.includes(object.id) || state.hitIds.includes(object.id)) continue;
-    const x = objectX(object, state.elapsedMs);
+    const x = objectX(object, state.worldElapsedMs);
     if (x < -100 || x > WIDTH + 120) continue;
     if (object.type === 'candy') {
       drawCandy(ctx, x, object.laneY, object.size, state.elapsedMs);
@@ -357,12 +360,14 @@ function RunnerActionAppComponent({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<RunnerState>({
     elapsedMs: 0,
+    worldElapsedMs: 0,
     y: GROUND_Y - PLAYER_H,
     velocityY: 0,
     grounded: true,
     score: 0,
     penaltyCount: 0,
     penaltyUntilMs: 0,
+    scrollFreezeUntilMs: 0,
     collectedIds: [],
     hitIds: [],
   });
@@ -430,6 +435,8 @@ function RunnerActionAppComponent({
 
       const prev = stateRef.current;
       const elapsed = Math.min(durationMs, prev.elapsedMs + delta);
+      const worldDelta = prev.elapsedMs < prev.scrollFreezeUntilMs ? 0 : delta;
+      const worldElapsed = Math.min(durationMs, prev.worldElapsedMs + worldDelta);
       let velocityY = prev.velocityY + GRAVITY * delta;
       let y = prev.y + velocityY * delta;
       let grounded = false;
@@ -439,7 +446,14 @@ function RunnerActionAppComponent({
         velocityY = 0;
         grounded = true;
       }
-      let next: RunnerState = { ...prev, elapsedMs: elapsed, y, velocityY, grounded };
+      let next: RunnerState = {
+        ...prev,
+        elapsedMs: elapsed,
+        worldElapsedMs: worldElapsed,
+        y,
+        velocityY,
+        grounded,
+      };
       const isCurrentlyPenalized = elapsed < next.penaltyUntilMs;
       const hitboxWidth = Math.max(24, Math.min(playerWidth, 74) - 12);
       const hitboxHeight = Math.max(48, Math.min(playerHeight, 104) - 8);
@@ -451,7 +465,7 @@ function RunnerActionAppComponent({
       };
       for (const object of OBJECTS) {
         if (next.collectedIds.includes(object.id) || next.hitIds.includes(object.id)) continue;
-        const x = objectX(object, elapsed);
+        const x = objectX(object, worldElapsed);
         if (x < -100 || x > WIDTH + 120) continue;
         const objectRect = {
           x,
@@ -472,6 +486,7 @@ function RunnerActionAppComponent({
             score: Math.max(0, next.score - 2),
             penaltyCount: next.penaltyCount + 1,
             penaltyUntilMs: elapsed + 900,
+            scrollFreezeUntilMs: elapsed + POT_HIT_SCROLL_FREEZE_MS,
             hitIds: [...next.hitIds, object.id],
           };
         }

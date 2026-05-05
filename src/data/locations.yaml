@@ -108,7 +108,30 @@ locations:
       - location_id: loc_station
         label: "駅前へ戻る"
         condition: null
+      - location_id: loc_park
+        label: "公園へ"
+        condition:
+          flag: flag_ch3_ticket_stolen
+          value: true
     entry_scene: scene_arcade_default
+
+  - id: loc_park
+    name: "赤羽公園"
+    description: "駅前から少し歩いたところにある公園。ベンチと遊具のまわりに子どもたちの声が響く。"
+    background_default: backgrounds/danchimae.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_arcade
+        label: "アーケード街へ戻る"
+        condition: null
+      - location_id: loc_station
+        label: "駅前へ"
+        condition: null
+    entry_scene: scene_park_default
 
   - id: loc_museum
     name: "団地のミュージアム"

@@ -58,3 +58,12 @@ characters:
       normal: characters/mentor/mentor_nomal.png
       talking: characters/mentor/talking.png
 
+  - id: char_oyaji
+    name: "おじさん"
+    name_flag: null
+    voicevox_speaker_id: 3
+    y_offset: -150
+    sprites:
+      normal: characters/obachan/obachan_nomal.png
+      talking: characters/obachan/obachan_talking.png
+

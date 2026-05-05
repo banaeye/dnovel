@@ -116,14 +116,38 @@ scenes:
             voice_character_id: char_hero
           - text: 「ボス、か。……実はね、前に似たような話を聞いたことがあるんだ」
             voice_character_id: char_mentor
-          - text: 「これ、持っていきな。困ったときに使うといい」
+          - text: 「ちょっと待ってて。棚の奥に何かあったはずだから」
             voice_character_id: char_mentor
-          - text: 手渡されたそれは、かすかに光を帯びていた。
+        next_scene: scene_coderdojo_mentor_standby
+      - id: scene_coderdojo_mentor_standby
+        characters:
+          - character_id: char_mentor
+            position: center
+            expression: smile
+        messages:
+          - text: 田中メンターが棚を探りながら、こちらを向いた。
             voice_character_id: null
-        item_give:
-          - item_id: item_kinchu_hikari
-            condition: null
-        next_scene: scene_coderdojo_base
+        talkable:
+          - character_id: char_mentor
+            scene_id: scene_ch2_get_ofuda
+        child_scenes:
+          - id: scene_ch2_get_ofuda
+            overlay_image: cg/get_superitem.jpg
+            characters:
+              - character_id: char_mentor
+                position: center
+                expression: smile
+            messages:
+              - text: 「あった。これ、持っていきな。困ったときに使うといい」
+                voice_character_id: char_mentor
+              - text: 手渡されたそれは、かすかに光を帯びていた。
+                voice_character_id: null
+              - text: 悪霊退散のおふだ　を手に入れた。
+                voice_character_id: null
+            item_give:
+              - item_id: item_kinchu_hikari
+                condition: null
+            next_scene: scene_coderdojo_base
       - id: scene_coderdojo_base
         messages:
           - text: CoderDojo赤羽の会場は、今日は静かだった。
@@ -670,6 +694,37 @@ scenes:
         voice_character_id: char_yui
       - text: ぼくも、そう思う。
         voice_character_id: char_hero
+    next_scene: scene_ch2_drunk_uncle
+  - id: scene_ch2_drunk_uncle
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_yui
+        position: right
+        expression: normal
+      - character_id: char_oyaji
+        position: left
+        expression: normal
+    messages:
+      - text: そのとき、一番街の入り口の柱にもたれたよれよれのジャンパーのおじさんが目に入った。
+        voice_character_id: null
+      - text: 「……いやあ、すまんかったのう。わし、飲みすぎてしもうたんじゃ」
+        voice_character_id: char_oyaji
+      - text: 「え……このおじさん、誰？」
+        voice_character_id: char_yui
+      - text: 「なんかこう、グビグビッとやったら……商店街がおかしくなってしもうて。ほんまにすまんかった」
+        voice_character_id: char_oyaji
+      - text: ……もしかして、この人が原因？
+        voice_character_id: char_hero
+      - text: 「いや、さすがにそれはないでしょ」
+        voice_character_id: char_yui
+      - text: 「次からはちゃんと家で飲みます。迷惑かけてすまんかったのう……」
+        voice_character_id: char_oyaji
+      - text: おじさんはふらふらと商店街の奥へ消えていった。
+        voice_character_id: null
+      - text: ケンとユイは顔を見合わせて、それから同時に笑った。
+        voice_character_id: null
     next_scene: scene_ch2_ending_credits
   - id: scene_ch2_ending_credits
     location_id: loc_ichibangai
@@ -738,3 +793,9 @@ scenes:
       - text: ……これは、戦いのときに使おう。
         voice_character_id: char_hero
     next_scene: null
+  - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: 公園に来た。今日はここでやることはなさそうだ。
+        voice_character_id: null

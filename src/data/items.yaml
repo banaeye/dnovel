@@ -59,8 +59,8 @@ items:
     category: consumable
 
   - id: item_kinchu_hikari
-    name: "禁酒の光"
-    description: "田中メンターから受け取った、不思議な光が宿るアイテム。迷宮の番人に大ダメージを与えられるらしい。"
+    name: "悪霊退散のおふだ"
+    description: "田中メンターから受け取った御札。かすかに光を帯びていて、迷宮の番人に大ダメージを与えられるらしい。"
     icon: null
     usable: true
     use_scene: scene_use_kinchu_hikari

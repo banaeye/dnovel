@@ -100,6 +100,36 @@ scenes:
     messages:
       - text: 団地への坂に来た。駅前のざわめきが、ここまで届いている気がする。
         voice_character_id: null
+  - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/station.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch3_ticket_stolen
+            value: true
+          next_scene: scene_ch3_park_after_ticket_stolen
+        - condition: null
+          next_scene: scene_ch3_park_idle
+  - id: scene_ch3_park_idle
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 公園に来た。子どもたちの声が遠くで弾んでいる。
+        voice_character_id: null
+  - id: scene_ch3_park_after_ticket_stolen
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 公園に駆け込むと、さっきの悪ガキたちの笑い声が遊具のほうから聞こえた。
+        voice_character_id: null
+      - text: チケットを取り返す手がかりを探そう。
+        voice_character_id: null
   - id: scene_ch3_obachan_intro
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -258,7 +288,7 @@ scenes:
         position: right
         expression: normal
     messages:
-      - text: ミュージアムの受付に、スタッフの方が立っていた。
+      - text: 受付に立っていたのは、黒いエプロン姿の若い女性だった。どこか遠くを見るような目をしていた。
         voice_character_id: null
     talkable:
       - character_id: char_museum_staff
@@ -272,13 +302,15 @@ scenes:
         position: right
         expression: talking
     messages:
-      - text: 「あのう、アメちゃんゲットのチケットをお持ちって聞いたんですが……」
+      - text: 「あのう、チケットをお持ちって聞いたんですが……」
         voice_character_id: char_hero
-      - text: 「まあ、おばあさまのために。でも、簡単にはお渡しできませんよ」
+      - text: 「……ほう。わたしを探り当てるとは。なかなかの直感力だな」
         voice_character_id: char_museum_staff
-      - text: 「わたしと神経衰弱で勝負していただけますか？　あなたのほうが多くペアを取れたら差し上げます」
+      - text: 「チケット……確かに持っている。だが、易々とは渡せぬ」
         voice_character_id: char_museum_staff
-      - text: 「神経衰弱……わかりました、やります！」
+      - text: 「わたしと神経衰弱で勝負しろ。汝がわたしのペア数を超えたなら……チケットを賜わせてやろう」
+        voice_character_id: char_museum_staff
+      - text: 「神経衰弱……受けて立ちます！」
         voice_character_id: char_hero
     next_engine:
       id: memory_game
@@ -290,15 +322,18 @@ scenes:
         playerCharacterId: char_hero
         opponentCharacterId: char_museum_staff
         opponentDialogue:
-          - どれかしら……
-          - ふふ、覚えてるかな
-          - 少し考えさせてね
+          - 封じられし記憶よ……開示せよ
+          - ……我が眼は、すべてを記憶している
+          - この程度の試練……
+          - 運命のカードよ、応えろ
         opponentMatchDialogue:
-          - いただきますね
-          - ふふ、そろいましたよ
+          - くっくっく……運命は我に従う
+          - 封印解除……ペア成立だ
+          - 当然の結末
         opponentMissDialogue:
-          - おや……
-          - むむ、ちがいましたか
+          - ぐ……！　我としたことが……
+          - これは……わざとだ。作戦の一部だ
+          - 封印がまだ……解けきっていないのか……！
         playerMatchDialogue:
           - やった！
           - そろった！
@@ -335,12 +370,18 @@ scenes:
       - flag: flag_ch3_got_ticket
         value: true
     messages:
-      - text: 「見事です。わたしより多く取られてしまいましたね。お約束通り、チケットを差し上げます」
+      - text: 「く……！　まさか……わたしが……敗れるとは……！」
         voice_character_id: char_museum_staff
-      - text: 「ありがとうございます！　おばちゃん、喜ぶと思います」
+      - text: 「封印された記憶力が……こんなはずでは……！」
+        voice_character_id: char_museum_staff
+      - text: 「あの……チケット、お約束なので……」
         voice_character_id: char_hero
-      - text: 「イベント、楽しんでくださいね。おばあさまにもよろしく」
+      - text: 「……わかっている。約束は守る。これを持っていけ」
         voice_character_id: char_museum_staff
+      - text: 「だが……次は負けぬ。次こそ、この最強の記憶力を見せてやる……！」
+        voice_character_id: char_museum_staff
+      - text: 「ありがとうございます！」
+        voice_character_id: char_hero
       - text: チケットを手に入れた。おばちゃんのいる団地へ戻ろう。
         voice_character_id: null
   - id: scene_ch3_museum_lose
@@ -352,9 +393,11 @@ scenes:
         position: right
         expression: normal
     messages:
-      - text: 「惜しかったですね。今回はわたしの勝ちです。よろしければ、もう一度いらしてください」
+      - text: 「ふっ……当然の結末だ。我が封印された記憶力、容易に超えられると思ったか」
         voice_character_id: char_museum_staff
-      - text: 「……絶対に勝ちます。もう一度お願いします！」
+      - text: 「……もう一度来い。今度こそ、わたしの真の力を見せてやろう」
+        voice_character_id: char_museum_staff
+      - text: 「……もう一回、絶対勝ちます！」
         voice_character_id: char_hero
     talkable:
       - character_id: char_museum_staff
@@ -379,9 +422,54 @@ scenes:
         voice_character_id: null
       - text: 「おばちゃん、ここやな」
         voice_character_id: char_hero
-      - text: 「ケンちゃんのおかげや。ほな、全力で走るで！」
+      - text: 「ケンちゃんのおかげや。ほな、受付前に行こか」
         voice_character_id: char_obachan
-    next_scene: scene_ch3_arcade_event_start
+    talkable:
+      - character_id: char_obachan
+        scene_id: scene_ch3_talk_obachan_ticket_stolen
+        condition:
+          flag: flag_ch3_ticket_stolen
+          value: false
+  - id: scene_ch3_talk_obachan_ticket_stolen
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: talking
+    flags_set:
+      - flag: flag_ch3_ticket_stolen
+        value: true
+    messages:
+      - text: 「ケンちゃん、準備はええ？　チケット、受付に見せよか」
+        voice_character_id: char_obachan
+      - text: おばちゃんが巾着からチケットを出した、その瞬間だった。
+        voice_character_id: null
+      - text: 「へへっ、アメちゃん大会のチケットや！　もーらい！」
+        voice_character_id: null
+      - text: 悪ガキたちが横から飛び出し、チケットを奪って走り去った。
+        voice_character_id: null
+      - text: 「ちょ、ちょっと！　それ、おばちゃんの大事なチケットやで！」
+        voice_character_id: char_obachan
+      - text: 通りの人が「あいつら、公園のほうへ逃げたぞ！」と叫んだ。
+        voice_character_id: null
+      - text: 悪ガキは公園に向かったようだ。チケットを取り返さないと、イベントには出られない。
+        voice_character_id: null
+    next_scene: scene_ch3_arcade_ticket_stolen_hint
+  - id: scene_ch3_arcade_ticket_stolen_hint
+    location_id: loc_arcade
+    background: backgrounds/intersection.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: おばちゃんはアーケード街の入口で、心配そうに公園の方角を見ている。
+        voice_character_id: null
+      - text: まずは公園へ向かい、悪ガキからチケットを取り返そう。
+        voice_character_id: null
   - id: scene_ch3_arcade_event_start
     location_id: loc_arcade
     background: backgrounds/archade.jpg
@@ -536,6 +624,10 @@ scenes:
     branches:
       type: auto
       choices:
+        - condition:
+            flag: flag_ch3_ticket_stolen
+            value: true
+          next_scene: scene_ch3_arcade_ticket_stolen_hint
         - condition:
             flag: flag_ch3_ticket_given
             value: true

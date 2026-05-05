@@ -118,3 +118,8 @@ flags:
     type: boolean
     default: false
     description: "おばちゃんにチケットを渡した"
+
+  - id: flag_ch3_ticket_stolen
+    type: boolean
+    default: false
+    description: "アーケード街で悪ガキにチケットを奪われた"

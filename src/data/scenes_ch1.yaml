@@ -759,3 +759,9 @@ scenes:
         voice_character_id: null
       - text: アーケードの奥に商店が並んでいるが、今日は特に何もなさそうだ。
         voice_character_id: null
+  - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    messages:
+      - text: 公園に来た。今日はここでやることはなさそうだ。
+        voice_character_id: null
