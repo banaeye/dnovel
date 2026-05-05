@@ -86,6 +86,7 @@ export interface Scene {
   location_id?: string;
   background?: string;
   bgm?: string;
+  ending_title?: string;
   characters?: CharacterDisplay[];
   messages: SceneMessage[];
   commands?: string[];

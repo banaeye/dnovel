@@ -2,6 +2,7 @@ scenes:
   - id: scene_ch3_start
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     flags_set:
       - flag: flag_chapter
         value: 3
@@ -20,6 +21,7 @@ scenes:
   - id: scene_danchi_morning
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     messages: []
     branches:
       type: auto
@@ -49,6 +51,7 @@ scenes:
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
     messages: []
     branches:
       type: auto
@@ -65,6 +68,7 @@ scenes:
   - id: scene_museum_default
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     messages: []
     branches:
       type: auto
@@ -78,24 +82,28 @@ scenes:
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     messages:
       - text: CoderDojo赤羽の会場は静かだ。今日は駅前へ戻ったほうがよさそうだ。
         voice_character_id: null
   - id: scene_ichibangai_default
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     messages:
       - text: 一番街の入口に来た。今は別の場所が気にかかる。
         voice_character_id: null
   - id: scene_slope_default
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
+    bgm: audio/bgm/slope.mp3
     messages:
       - text: 団地への坂に来た。駅前のざわめきが、ここまで届いている気がする。
         voice_character_id: null
   - id: scene_ch3_obachan_intro
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -119,24 +127,28 @@ scenes:
   - id: scene_ch3_danchi_searching
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     messages:
       - text: おばちゃんのためにチケットを探している。まずは駅前で話を聞いてみよう。
         voice_character_id: null
   - id: scene_ch3_danchi_go_museum
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     messages:
       - text: ミュージアムの受付がチケットを持っているらしい。団地のミュージアムへ行ってみよう。
         voice_character_id: null
   - id: scene_ch3_danchi_idle
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     messages:
       - text: 団地に戻ってきた。
         voice_character_id: null
   - id: scene_ch3_ready_to_give_ticket
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -150,6 +162,7 @@ scenes:
   - id: scene_ch3_give_ticket_to_obachan
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -172,18 +185,20 @@ scenes:
   - id: scene_ch3_station_idle
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
     messages:
       - text: 赤羽駅前にいる。おばちゃんのことが気になる。
         voice_character_id: null
   - id: scene_ch3_station_college
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_college_student
         position: right
         expression: normal
     messages:
-      - text: 駅前に出ると、大学生らしい人が立ち止まってスマホをいじっていた。
+      - text: 駅前に出ると、見たことがある大学生が立ち止まってスマホをいじっていた。
         voice_character_id: null
     talkable:
       - character_id: char_college_student
@@ -191,27 +206,53 @@ scenes:
   - id: scene_ch3_talk_college_student
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_college_student
         position: right
         expression: normal
     messages:
-      - text: 「あ、もしかしてアメちゃんゲットのチケット探してます？」
-        voice_character_id: char_college_student
-      - text: 「そう！　知ってる？」
-        voice_character_id: char_hero
-      - text: 「噂ですけど、団地の中のミュージアム、あそこの受付さんが余分に持ってるらしいですよ」
-        voice_character_id: char_college_student
-      - text: 「ありがとう！　行ってみる！」
-        voice_character_id: char_hero
-      - text: ミュージアムの受付の人がチケットを持っているらしい。行ってみよう。
+      - text: 大学生が顔を上げてこちらを見た。
         voice_character_id: null
-    flags_set:
-      - flag: flag_ch3_museum_unlocked
-        value: true
+      - text: 「あ、こんにちは。なんか困ってます？　この辺ならちょっと詳しいですよ」
+        voice_character_id: char_college_student
+    branches:
+      type: choice
+      choices:
+        - label: アメちゃんゲットのチケットについて聞く
+          next_scene: scene_ch3_college_ticket
+        - label: グミのことを聞く
+          next_scene: scene_ch3_college_gumi
+    child_scenes:
+      - id: scene_ch3_college_ticket
+        messages:
+          - text: 「あ、もしかしてアメちゃんゲットのチケット探してます？」
+            voice_character_id: char_college_student
+          - text: 「そう！　知ってる？」
+            voice_character_id: char_hero
+          - text: 「噂ですけど、団地の中のミュージアム、あそこの受付さんが余分に持ってるらしいですよ」
+            voice_character_id: char_college_student
+          - text: 「ありがとう！　行ってみる！」
+            voice_character_id: char_hero
+          - text: ミュージアムの受付の人がチケットを持っているらしい。行ってみよう。
+            voice_character_id: null
+        flags_set:
+          - flag: flag_ch3_museum_unlocked
+            value: true
+      - id: scene_ch3_college_gumi
+        messages:
+          - text: 「グミ？　ああ、最近ここの駅ビルのコンビニに限定グミが入ってるみたいですよ」
+            voice_character_id: char_college_student
+          - text: 「限定？　どんなやつ？」
+            voice_character_id: char_hero
+          - text: 「ソーダ味の激酸っぱいやつです。SNSで話題になってて、すぐ売り切れるらしいんですよね」
+            voice_character_id: char_college_student
+          - text: 「へえ……機会があったら探してみよ」
+            voice_character_id: char_hero
   - id: scene_ch3_museum_receptionist
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_staff
         position: right
@@ -225,6 +266,7 @@ scenes:
   - id: scene_ch3_talk_museum_staff
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_staff
         position: right
@@ -245,14 +287,29 @@ scenes:
         mode: duel
         pairs: 6
         title: チケット争奪 神経衰弱
-        playerName: ケン
-        opponentName: ミュージアムの受付
-        playerFaceImage: characters/hero/hero_normal.png
-        opponentFaceImage: characters/mentor/mentor_nomal.png
+        playerCharacterId: char_hero
+        opponentCharacterId: char_museum_staff
+        opponentDialogue:
+          - どれかしら……
+          - ふふ、覚えてるかな
+          - 少し考えさせてね
+        opponentMatchDialogue:
+          - いただきますね
+          - ふふ、そろいましたよ
+        opponentMissDialogue:
+          - おや……
+          - むむ、ちがいましたか
+        playerMatchDialogue:
+          - やった！
+          - そろった！
+        playerMissDialogue:
+          - あれ……
+          - ちがった
       return_scene: scene_ch3_museum_game_result
   - id: scene_ch3_museum_game_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     messages: []
     branches:
       type: auto
@@ -266,6 +323,7 @@ scenes:
   - id: scene_ch3_museum_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_staff
         position: right
@@ -288,6 +346,7 @@ scenes:
   - id: scene_ch3_museum_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_staff
         position: right
@@ -303,12 +362,14 @@ scenes:
   - id: scene_ch3_museum_after_ticket
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/coderdojo.mp3
     messages:
       - text: もうチケットはもらった。おばちゃんのところへ戻ろう。
         voice_character_id: null
   - id: scene_ch3_goto_arcade
     location_id: loc_arcade
     background: backgrounds/intersection.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -324,6 +385,7 @@ scenes:
   - id: scene_ch3_arcade_event_start
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -352,6 +414,7 @@ scenes:
   - id: scene_ch3_after_runner
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
     messages: []
     branches:
       type: auto
@@ -369,6 +432,8 @@ scenes:
   - id: scene_ch3_after_runner_many_candy
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/ending.mp3
+    ending_title: 第3章　おばちゃんとアメちゃんゲーム
     characters:
       - character_id: char_obachan
         position: right
@@ -388,9 +453,20 @@ scenes:
     flags_set:
       - flag: flag_ch3_cleared
         value: true
+    cg_sequence:
+      - src: cg/candy_happy.jpg
+        position: center
+      - src: cg/gummy_joy.jpg
+        position: center
+      - src: cg/happy_dojo.jpg
+        position: center
+      - src: cg/mirai.jpg
+        position: center
   - id: scene_ch3_after_runner_some_candy
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/ending.mp3
+    ending_title: 第3章　おばちゃんとアメちゃんゲーム
     characters:
       - character_id: char_obachan
         position: right
@@ -410,9 +486,20 @@ scenes:
     flags_set:
       - flag: flag_ch3_cleared
         value: true
+    cg_sequence:
+      - src: cg/candy_happy.jpg
+        position: center
+      - src: cg/gummy_joy.jpg
+        position: center
+      - src: cg/happy_dojo.jpg
+        position: center
+      - src: cg/mirai.jpg
+        position: center
   - id: scene_ch3_after_runner_few_candy
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/ending.mp3
+    ending_title: 第3章　おばちゃんとアメちゃんゲーム
     characters:
       - character_id: char_obachan
         position: right
@@ -432,9 +519,40 @@ scenes:
     flags_set:
       - flag: flag_ch3_cleared
         value: true
+    cg_sequence:
+      - src: cg/candy_happy.jpg
+        position: center
+      - src: cg/gummy_joy.jpg
+        position: center
+      - src: cg/happy_dojo.jpg
+        position: center
+      - src: cg/mirai.jpg
+        position: center
   - id: scene_arcade_default
     location_id: loc_arcade
     background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch3_ticket_given
+            value: true
+          next_scene: scene_ch3_arcade_with_obachan
+        - condition: null
+          next_scene: scene_ch3_arcade_no_ticket
+  - id: scene_ch3_arcade_no_ticket
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: アーケード街の前に来た。ここがアメちゃんイベントの会場か
+        voice_character_id: null
+  - id: scene_ch3_arcade_with_obachan
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_obachan
         position: right
@@ -448,6 +566,7 @@ scenes:
   - id: scene_talk_arcade_obachan
     location_id: loc_arcade
     background: backgrounds/intersection.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_obachan
         position: right

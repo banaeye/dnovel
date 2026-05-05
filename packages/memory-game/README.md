@@ -24,24 +24,82 @@ next_engine:
   id: memory_game
   config:
     stageId: museum_challenge   # 必須 — 結果フラグのサフィックスになる
-    mode: solo                  # 省略可（solo | duel、デフォルト solo）
+    mode: duel                  # solo | duel（デフォルト solo）
     pairs: 6                    # 省略可（デフォルト 6）
     maxTurns: 20                # 省略可（デフォルト 20、0 = 無制限）
-    title: 神経衰弱              # 省略可（画面上部に表示するタイトル）
-    playerName: ケン             # duel 用プレイヤー名
-    opponentName: ミュージアムの受付
-    playerFaceImage: characters/hero/hero_normal.png
-    opponentFaceImage: characters/mentor/mentor_nomal.png
-    playerDialogue:             # プレイヤーのターン開始時のセリフ（duel 用、省略可）
+    title: 神経衰弱              # 省略可
+
+    # --- duel 用キャラクター設定（characters.yaml と共用） ---
+    # ID を指定すると name / faceImage / VoicevoxSpeakerId を自動解決
+    playerCharacterId: char_hero
+    opponentCharacterId: char_museum_staff
+    # 個別に上書きしたい場合のみ指定（省略可）
+    # playerName: ケン
+    # playerFaceImage: characters/hero/hero_normal.png
+    # playerVoicevoxSpeakerId: 2
+
+    # --- セリフ（省略時はデフォルト文言） ---
+    playerDialogue:             # ターン開始時
       - "どこだっけ……"
       - "えーと……"
-    opponentDialogue:           # 相手ターン開始時のセリフ（duel 用、省略時はデフォルト）
+    opponentDialogue:
       - "どれかしら……"
       - "ふふ、覚えてるかな"
       - "少し考えさせてね"
+    playerMatchDialogue:        # ペア成立時
+      - "やった！"
+      - "そろった！"
+    opponentMatchDialogue:
+      - "いただき"
+      - "ふふふ"
+    playerMissDialogue:         # 不一致時
+      - "あれ……"
+      - "ちがった"
+    opponentMissDialogue:
+      - "おや"
+      - "むむ……"
+
     backgroundImage: backgrounds/table.jpg  # テーブル背景画像（省略可）
   return_scene: scene_result    # ゲーム終了後に遷移するシーン
 ```
+
+---
+
+## セリフの仕組み（duel モード）
+
+ゲーム中のイベントに応じてセリフが自動で切り替わります。
+
+| イベント | 使われる設定キー |
+|---------|----------------|
+| ターン開始（思考中） | `playerDialogue` / `opponentDialogue` |
+| ペア成立 | `playerMatchDialogue` / `opponentMatchDialogue` |
+| 不一致（めくり失敗） | `playerMissDialogue` / `opponentMissDialogue` |
+
+- 各配列からランダムに 1 行選んで下部のセリフ欄に表示します
+- 省略した場合はデフォルト文言が表示されます
+- セリフ欄はノベルと同じ形式（話者名タブ＋本文）
+
+---
+
+## 画面レイアウト（duel モード）
+
+```
+┌────────────────────────────────────┐
+│         タイトルバー (36px)         │
+├──────┬─────────────────────┬───────┤
+│ プレイ│                     │  相手 │
+│ ヤー │   カードグリッド     │       │
+│  絵  │   4×3（120px高）    │  絵   │
+│      │                     │       │
+│ スコア│                     │ スコア│
+├──────┴─────────────────────┴───────┤
+│ 「話者名」                          │
+│  セリフテキスト（イベント別）        │
+└────────────────────────────────────┘
+```
+
+- 左右パネル：キャラクター画像大きめ表示、アクティブ時は明るく、非アクティブは暗く
+- 下部セリフ欄：ターン開始・成功・失敗で自動更新
 
 ---
 
@@ -49,8 +107,8 @@ next_engine:
 
 | フラグ名 | 値 | 意味 |
 |---------|-----|------|
-| `memory_game_result_{stageId}` | `'win'` | 全ペアを手数制限内に揃えた |
-| `memory_game_result_{stageId}` | `'lose'` | 手数を使い切った |
+| `memory_game_result_{stageId}` | `'win'` | 全ペアを揃えた（duel は取得数で判定） |
+| `memory_game_result_{stageId}` | `'lose'` | 手数切れ、または相手に負けた |
 | `memory_game_player_pairs_{stageId}` | 数値 | プレイヤーが取得したペア数 |
 | `memory_game_opponent_pairs_{stageId}` | 数値 | 対戦相手が取得したペア数 |
 
@@ -101,7 +159,6 @@ import { MemoryGameEngine } from '@novel-engine/memory-game';
   engines={{
     novel:        NovelEngineAdapter,
     memory_game:  MemoryGameEngine,
-    // ...
   }}
   ...
 />

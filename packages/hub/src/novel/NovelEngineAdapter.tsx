@@ -43,6 +43,22 @@ function NovelEngineComponent({
         name: item.name,
         usable: item.usable,
       }));
+
+      // playerCharacterId / opponentCharacterId をキャラクター定義から自動解決
+      const specConfig = (spec.config as Record<string, unknown>) ?? {};
+      const resolvedCharFields: Record<string, unknown> = {};
+      const resolveChar = (charId: unknown, prefix: 'player' | 'opponent') => {
+        if (typeof charId !== 'string') return;
+        const char = config.masterData.characters[charId];
+        if (!char) return;
+        resolvedCharFields[`${prefix}Name`] = char.name;
+        const sprite = char.sprites?.normal ?? (char.sprites ? Object.values(char.sprites)[0] : undefined);
+        if (sprite) resolvedCharFields[`${prefix}FaceImage`] = sprite;
+        if (char.voicevox_speaker_id) resolvedCharFields[`${prefix}VoicevoxSpeakerId`] = char.voicevox_speaker_id;
+      };
+      resolveChar(specConfig.playerCharacterId, 'player');
+      resolveChar(specConfig.opponentCharacterId, 'opponent');
+
       const _novelReturn = {
         masterData:        config.masterData,
         assetsBaseUrl:     config.assetsBaseUrl,
@@ -59,6 +75,7 @@ function NovelEngineComponent({
         config: {
           assetsBaseUrl: config.assetsBaseUrl,
           items: itemDefs,
+          ...resolvedCharFields,          // キャラ定義から解決した値（YAMLで明示すれば上書き可）
           ...(spec.config as object ?? {}),
           _novelReturn,
         },

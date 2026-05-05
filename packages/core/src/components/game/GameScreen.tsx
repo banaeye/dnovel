@@ -202,7 +202,11 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
       )}
 
       {state.phase === 'ending' && (
-        <EndingSequence frames={scene?.cg_sequence ?? []} onTitle={onTitle ?? goToTitle} />
+        <EndingSequence
+          frames={scene?.cg_sequence ?? []}
+          title={scene?.ending_title}
+          onTitle={onTitle ?? goToTitle}
+        />
       )}
     </div>
   );

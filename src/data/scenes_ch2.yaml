@@ -2,6 +2,7 @@ scenes:
   - id: scene_danchi_morning
     location_id: loc_danchi
     background: backgrounds/danchi_day.jpg
+    bgm: audio/bgm/danchi.mp3
     messages: []
     branches:
       type: auto
@@ -44,10 +45,10 @@ scenes:
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
     messages:
       - text: 赤羽駅前に来た。
         voice_character_id: null
-    bgm: audio/bgm/station.mp3
     child_scenes:
       - id: scene_examine_hatena
         messages:
@@ -86,6 +87,7 @@ scenes:
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
     messages: []
     branches:
       type: auto
@@ -126,7 +128,28 @@ scenes:
         messages:
           - text: CoderDojo赤羽の会場は、今日は静かだった。
             voice_character_id: null
+        next_scene: scene_coderdojo_examine_area
         child_scenes:
+          - id: scene_coderdojo_examine_area
+            messages: []
+            clickable_areas:
+              - id: area_coderdojo_juice
+                x: 89
+                "y": 394
+                width: 52
+                height: 70
+                label: ジュース
+                next_scene: scene_coderdojo_examine_juice
+                condition: null
+              - id: area_coderdojo_milktea
+                x: 704
+                "y": 390
+                width: 87
+                height: 69
+                label: ティー
+                next_scene: scene_coderdojo_examine_milktea
+                condition: null
+            background: backgrounds/coderdojo.jpg
           - id: scene_coderdojo_examine_juice
             messages: []
             branches:
@@ -150,10 +173,12 @@ scenes:
                 item_give:
                   - item_id: item_drink
                     condition: null
+                next_scene: scene_coderdojo_examine_area
               - id: scene_coderdojo_juice_have
                 messages:
                   - text: 机の隅にジュースがある。もう持っているからいいか。
                     voice_character_id: char_hero
+                next_scene: scene_coderdojo_examine_area
           - id: scene_coderdojo_examine_milktea
             messages: []
             branches:
@@ -175,36 +200,23 @@ scenes:
                 item_give:
                   - item_id: item_milktea
                     condition: null
+                next_scene: scene_coderdojo_examine_area
               - id: scene_coderdojo_milktea_have
                 messages:
                   - text: ミルクティーがある。もう持っているからいいか。
                     voice_character_id: char_hero
-        clickable_areas:
-          - id: area_coderdojo_juice
-            x: 102
-            "y": 357
-            width: 70
-            height: 68
-            label: 机の隅
-            next_scene: scene_coderdojo_examine_juice
-            condition: null
-          - id: area_coderdojo_milktea
-            x: 618
-            "y": 367
-            width: 87
-            height: 69
-            label: テーブル
-            next_scene: scene_coderdojo_examine_milktea
-            condition: null
+                next_scene: scene_coderdojo_examine_area
   - id: scene_slope_default
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
+    bgm: audio/bgm/slope.mp3
     messages:
       - text: 団地への坂に来た。
         voice_character_id: null
   - id: scene_ch2_start
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
     flags_set:
       - flag: flag_chapter
         value: 2
@@ -228,12 +240,14 @@ scenes:
   - id: scene_ch2_ichibangai_post
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     messages:
       - text: 一番街の入り口。あの夜以来、この通りにはまた少しだけ光が戻ってきた気がする。
         voice_character_id: null
   - id: scene_ichibangai_default
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -278,6 +292,7 @@ scenes:
   - id: scene_ichibangai_first_visit
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -302,6 +317,7 @@ scenes:
   - id: scene_ichibangai_maze_return
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     flags_set:
       - flag: flag_maze_return_yui_seen
         value: true
@@ -331,6 +347,7 @@ scenes:
   - id: scene_ichibangai_boss_return
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     flags_set:
       - flag: flag_boss_return_yui_seen
         value: true
@@ -360,6 +377,7 @@ scenes:
   - id: scene_ichibangai_maze_ready
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -380,6 +398,7 @@ scenes:
   - id: scene_ichibangai_boss_ready
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -400,6 +419,7 @@ scenes:
   - id: scene_talk_ichibangai_first_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -413,6 +433,7 @@ scenes:
   - id: scene_talk_ichibangai_maze_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -426,6 +447,7 @@ scenes:
   - id: scene_talk_ichibangai_boss_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -439,6 +461,7 @@ scenes:
   - id: scene_talk_ichibangai_maze_ready_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -452,6 +475,7 @@ scenes:
   - id: scene_talk_ichibangai_boss_ready_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -465,6 +489,7 @@ scenes:
   - id: scene_ch2_building_approach
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: left
@@ -517,6 +542,7 @@ scenes:
   - id: scene_ch2_maze_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     flags_set:
       - flag: flag_maze_defeated
         value: true
@@ -541,6 +567,7 @@ scenes:
   - id: scene_ch2_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: right
@@ -555,6 +582,7 @@ scenes:
   - id: scene_ch2_boss_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     flags_set:
       - flag: flag_boss_challenged
         value: true
@@ -579,6 +607,7 @@ scenes:
   - id: scene_ch2_boss_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: right
@@ -595,6 +624,7 @@ scenes:
   - id: scene_maze_event_01
     location_id: loc_ichibangai
     background: backgrounds/inner_ichibangai_dark.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_obachan
         position: left
@@ -622,6 +652,7 @@ scenes:
   - id: scene_ch2_after_maze
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_yui
         position: right
@@ -642,6 +673,8 @@ scenes:
     next_scene: scene_ch2_ending_credits
   - id: scene_ch2_ending_credits
     location_id: loc_ichibangai
+    bgm: audio/bgm/ending.mp3
+    ending_title: 第2章　一番街の異空間
     messages: []
     game_end: true
     flags_set:
@@ -649,10 +682,12 @@ scenes:
         value: true
     cg_sequence:
       - src: cg/happy_dojo.jpg
-        position: right
-      - src: cg/mirai.jpg
-        position: left
-      - src: cg/dog.jpg
+        position: center
+      - src: cg/obachan_ghost.jpg
+        position: center
+      - src: cg/get_superitem.jpg
+        position: center
+      - src: cg/buttle_ichibangai.jpg
         position: center
   - id: scene_use_candy
     overlay_image: cg/candy_happy.jpg

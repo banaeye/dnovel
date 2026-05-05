@@ -7,12 +7,24 @@ export interface MemoryGameConfig {
   pairs?: number;
   maxTurns?: number;
   title?: string;
+  /** キャラクター ID を指定すると NovelEngineAdapter が name/faceImage/VoicevoxSpeakerId を自動解決 */
+  playerCharacterId?: string;
+  opponentCharacterId?: string;
   playerName?: string;
   opponentName?: string;
   playerFaceImage?: string;
   opponentFaceImage?: string;
+  playerVoicevoxSpeakerId?: number;
+  opponentVoicevoxSpeakerId?: number;
+  /** ターン開始時のセリフ */
   playerDialogue?: string[];
   opponentDialogue?: string[];
+  /** ペア成立時のセリフ */
+  playerMatchDialogue?: string[];
+  opponentMatchDialogue?: string[];
+  /** 不一致時のセリフ */
+  playerMissDialogue?: string[];
+  opponentMissDialogue?: string[];
   backgroundImage?: string;
   assetsBaseUrl?: string;
   _novelReturn?: unknown;
@@ -22,12 +34,11 @@ const FONT = "'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif";
 const W = 800;
 const H = 600;
 
-// Layout constants (duel mode)
-const SIDE_W = 148;       // left/right character panel width
-const HEADER_H = 36;      // top title bar
-const DIALOGUE_H = 130;   // bottom dialogue box
-const CARD_AREA_H = H - HEADER_H - DIALOGUE_H; // 434px available for cards
-const CARD_H_DUEL = 120;  // reduced card height in duel to fit 3 rows in CARD_AREA_H
+const SIDE_W = 148;
+const HEADER_H = 36;
+const DIALOGUE_H = 130;
+const CARD_AREA_H = H - HEADER_H - DIALOGUE_H; // 434
+const CARD_H_DUEL = 120;
 
 const PAIR_DEFS = [
   { symbol: '飴', color: '#f4a260' },
@@ -40,8 +51,15 @@ const PAIR_DEFS = [
   { symbol: '波', color: '#64b5f6' },
 ];
 
-const DEFAULT_PLAYER_DIALOGUE = ['どれかな……', 'えーと……', 'うーん……'];
-const DEFAULT_OPPONENT_DIALOGUE = ['……', 'ふむ……', 'どれかな'];
+// Default dialogue per event type
+const DEF_PLAYER_START   = ['どれかな……', 'えーと……', 'うーん……'];
+const DEF_OPPONENT_START = ['……', 'ふむ……', 'どれかな'];
+const DEF_PLAYER_MATCH   = ['やった！', 'そろった！', 'ふふ'];
+const DEF_OPPONENT_MATCH = ['いただき', 'ふふふ', 'そうそう'];
+const DEF_PLAYER_MISS    = ['あれ……', 'ちがった', 'うーん'];
+const DEF_OPPONENT_MISS  = ['おや', 'むむ……', 'ちがったか'];
+
+type GameEvent = 'turn_start' | 'match' | 'mismatch';
 
 interface Card {
   id: number;
@@ -59,6 +77,60 @@ interface GameState {
   opponentPairs: number;
   turns: number;
   phase: 'playing' | 'win' | 'lose';
+  lastEvent: GameEvent;
+  eventId: number; // increments on every event to trigger speech effect
+}
+
+async function sha1Hex(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest('SHA-1', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function useGameVoice(assetsBaseUrl: string | undefined) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const speak = useCallback(async (text: string, speakerId: number) => {
+    const hash = await sha1Hex(`${text}_${speakerId}`);
+    const base = (assetsBaseUrl ?? '/assets').replace(/\/$/, '');
+
+    // 事前生成 WAV を優先して試みる
+    const prebuiltUrl = `${base}/voicevox/${hash}.wav`;
+    const res = await fetch(prebuiltUrl, { method: 'HEAD' }).catch(() => null);
+    let url: string | null = res?.ok ? prebuiltUrl : null;
+
+    // 見つからなければ VOICEVOX エンジンに問い合わせ
+    if (!url) {
+      try {
+        const query = await fetch(
+          `http://localhost:50021/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
+          { method: 'POST' },
+        ).then(r => r.json());
+        const wav = await fetch(`http://localhost:50021/synthesis?speaker=${speakerId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(query),
+        }).then(r => r.arrayBuffer()).catch(() => null);
+        if (wav) {
+          url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+        }
+      } catch {
+        // VOICEVOX 未起動時はスキップ
+      }
+    }
+
+    if (!url) return;
+    if (audioRef.current) audioRef.current.pause();
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.play().catch(() => {});
+  }, [assetsBaseUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const stop = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+  }, []);
+
+  return { speak, stop };
 }
 
 function useGameScale() {
@@ -98,6 +170,8 @@ function buildInitialState(pairs: number): GameState {
     opponentPairs: 0,
     turns: 0,
     phase: 'playing',
+    lastEvent: 'turn_start',
+    eventId: 0,
   };
 }
 
@@ -143,7 +217,6 @@ function pickOpponentCard(state: GameState): number | null {
   return pickRandom(available)?.id ?? null;
 }
 
-// Left/right character panel shown in duel mode
 function SideCharacterPanel({
   side, name, faceSrc, score, active,
 }: {
@@ -154,7 +227,7 @@ function SideCharacterPanel({
   active: boolean;
 }) {
   const accent = side === 'left' ? '#fff176' : '#80deea';
-  const imageAreaH = CARD_AREA_H - 96; // leave 96px at bottom for score
+  const imageAreaH = CARD_AREA_H - 96;
 
   return (
     <div style={{
@@ -164,13 +237,14 @@ function SideCharacterPanel({
       width: SIDE_W,
       height: CARD_AREA_H,
       overflow: 'hidden',
-      background: active ? `rgba(${side === 'left' ? '255,241,118' : '128,222,234'},0.06)` : 'rgba(6,6,18,0.65)',
+      background: active
+        ? `rgba(${side === 'left' ? '255,241,118' : '128,222,234'},0.06)`
+        : 'rgba(6,6,18,0.65)',
       borderRight: side === 'left' ? `1px solid ${active ? `${accent}55` : 'rgba(38,42,72,0.5)'}` : 'none',
       borderLeft: side === 'right' ? `1px solid ${active ? `${accent}55` : 'rgba(38,42,72,0.5)'}` : 'none',
       transition: 'background 0.4s, border-color 0.4s',
       zIndex: 3,
     }}>
-
       {/* Character image */}
       <div style={{
         position: 'absolute',
@@ -205,18 +279,21 @@ function SideCharacterPanel({
             {side === 'left' ? '🎮' : '🤖'}
           </div>
         )}
-
-        {/* Gradient fade into score area */}
+        {/* Gradient fade */}
         <div style={{
           position: 'absolute',
           bottom: 0, left: 0, right: 0,
           height: 60,
-          background: `linear-gradient(to top, ${active ? (side === 'left' ? 'rgba(18,16,2,0.96)' : 'rgba(2,16,18,0.96)') : 'rgba(6,6,18,0.96)'} 0%, transparent 100%)`,
+          background: `linear-gradient(to top, ${
+            active
+              ? (side === 'left' ? 'rgba(18,16,2,0.96)' : 'rgba(2,16,18,0.96)')
+              : 'rgba(6,6,18,0.96)'
+          } 0%, transparent 100%)`,
           pointerEvents: 'none',
         }} />
       </div>
 
-      {/* Score + name bar */}
+      {/* Score + name */}
       <div style={{
         position: 'absolute',
         bottom: 0, left: 0, right: 0,
@@ -233,8 +310,7 @@ function SideCharacterPanel({
         transition: 'background 0.4s, border-color 0.4s',
       }}>
         <div style={{
-          fontSize: 48,
-          lineHeight: 1,
+          fontSize: 48, lineHeight: 1,
           color: active ? accent : '#4a5090',
           fontVariantNumeric: 'tabular-nums',
           textShadow: active ? `0 0 24px ${accent}55` : 'none',
@@ -258,7 +334,7 @@ function SideCharacterPanel({
         </div>
       </div>
 
-      {/* Active turn arrow indicator */}
+      {/* Turn arrow */}
       {active && (
         <div style={{
           position: 'absolute',
@@ -275,7 +351,6 @@ function SideCharacterPanel({
   );
 }
 
-// Novel-style dialogue box at the bottom
 function GameDialogueBox({
   speakerName, speakerSide, text,
 }: {
@@ -286,21 +361,17 @@ function GameDialogueBox({
   return (
     <div style={{
       position: 'absolute',
-      left: 0, right: 0,
-      bottom: 0,
+      left: 0, right: 0, bottom: 0,
       height: DIALOGUE_H,
       background: 'rgba(6,6,20,0.92)',
       borderTop: '1px solid rgba(46,50,88,0.7)',
       zIndex: 10,
     }}>
-      {/* Speaker name tab */}
       {speakerName && (
         <div style={{
           position: 'absolute',
           top: -30,
-          ...(speakerSide === 'right'
-            ? { right: SIDE_W + 20 }
-            : { left: SIDE_W + 20 }),
+          ...(speakerSide === 'right' ? { right: SIDE_W + 20 } : { left: SIDE_W + 20 }),
           background: 'rgba(6,6,20,0.94)',
           border: '1px solid rgba(46,50,88,0.7)',
           borderBottom: 'none',
@@ -312,8 +383,6 @@ function GameDialogueBox({
           {speakerName}
         </div>
       )}
-
-      {/* Dialogue text */}
       <div style={{
         position: 'absolute',
         top: 18,
@@ -342,23 +411,23 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
   const effectiveCardH = isDuel ? CARD_H_DUEL : CARD_H;
   const gridW = COLS * CARD_W + (COLS - 1) * GAP_X;
   const gridH = rows * effectiveCardH + (rows - 1) * GAP_Y;
-  // gridX is mathematically identical for both duel and solo given our constants
   const gridX = Math.round((W - gridW) / 2);
   const gridY = isDuel
     ? HEADER_H + Math.round((CARD_AREA_H - gridH) / 2)
     : Math.round((H - gridH) / 2) + 16;
 
   const scale = useGameScale();
+  const { speak, stop } = useGameVoice(config.assetsBaseUrl);
   const [state, setState] = useState<GameState>(() => buildInitialState(pairs));
   const lockRef = useRef(false);
 
-  const initPlayerLine = () => {
-    if (!isDuel) return null;
-    const lines = config.playerDialogue?.length ? config.playerDialogue : DEFAULT_PLAYER_DIALOGUE;
-    return pickRandom(lines);
-  };
-  const [playerSpeech, setPlayerSpeech] = useState<string | null>(initPlayerLine);
-  const [opponentSpeech, setOpponentSpeech] = useState<string | null>(null);
+  type SpeechState = { speaker: 'player' | 'opponent'; text: string } | null;
+  const [speech, setSpeech] = useState<SpeechState>(() => {
+    if (mode !== 'duel') return null;
+    const lines = config.playerDialogue?.length ? config.playerDialogue : DEF_PLAYER_START;
+    const text = pickRandom(lines);
+    return text ? { speaker: 'player', text } : null;
+  });
 
   // Exit after result overlay
   useEffect(() => {
@@ -379,25 +448,46 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.phase]);
 
-  // Pick a new dialogue line at each turn start
+  // VOICEVOX 再生: speech が切り替わるたびにキャラの声を再生
   useEffect(() => {
-    if (!isDuel || state.phase !== 'playing') {
-      setOpponentSpeech(null);
-      setPlayerSpeech(null);
-      return;
-    }
-    if (state.flipped.length !== 0) return;
-    if (state.currentTurn === 'opponent') {
-      const lines = config.opponentDialogue?.length ? config.opponentDialogue : DEFAULT_OPPONENT_DIALOGUE;
-      setOpponentSpeech(pickRandom(lines));
-      setPlayerSpeech(null);
-    } else {
-      const lines = config.playerDialogue?.length ? config.playerDialogue : DEFAULT_PLAYER_DIALOGUE;
-      setPlayerSpeech(pickRandom(lines));
-      setOpponentSpeech(null);
-    }
+    if (!speech || !isDuel) return;
+    const speakerId = speech.speaker === 'player'
+      ? config.playerVoicevoxSpeakerId
+      : config.opponentVoicevoxSpeakerId;
+    if (speakerId == null) return;
+    speak(speech.text, speakerId);
+    return stop;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.currentTurn, isDuel, state.phase, state.flipped.length]);
+  }, [speech]);
+
+  // Speech: fires on every game event via eventId
+  useEffect(() => {
+    if (!isDuel || state.phase !== 'playing') { setSpeech(null); return; }
+
+    const speaker = state.currentTurn;
+    let pool: string[];
+
+    switch (state.lastEvent) {
+      case 'match':
+        pool = speaker === 'opponent'
+          ? (config.opponentMatchDialogue?.length ? config.opponentMatchDialogue : DEF_OPPONENT_MATCH)
+          : (config.playerMatchDialogue?.length   ? config.playerMatchDialogue   : DEF_PLAYER_MATCH);
+        break;
+      case 'mismatch':
+        pool = speaker === 'opponent'
+          ? (config.opponentMissDialogue?.length ? config.opponentMissDialogue : DEF_OPPONENT_MISS)
+          : (config.playerMissDialogue?.length   ? config.playerMissDialogue   : DEF_PLAYER_MISS);
+        break;
+      default: // turn_start
+        pool = speaker === 'opponent'
+          ? (config.opponentDialogue?.length ? config.opponentDialogue : DEF_OPPONENT_START)
+          : (config.playerDialogue?.length   ? config.playerDialogue   : DEF_PLAYER_START);
+    }
+
+    const text = pickRandom(pool);
+    setSpeech(text ? { speaker, text } : null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.eventId, isDuel, state.phase]);
 
   const selectCard = useCallback((cardId: number) => {
     if (lockRef.current) return;
@@ -439,10 +529,20 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           opponentPairs,
           turns: newTurns,
           phase: finished ? (won ? 'win' : 'lose') : 'playing',
+          lastEvent: 'match',
+          eventId: prev.eventId + 1,
         };
       }
 
-      return { ...prev, flipped: newFlipped, seen: newSeen, turns: newTurns };
+      // Mismatch: show both cards; flip-back handled by useEffect
+      return {
+        ...prev,
+        flipped: newFlipped,
+        seen: newSeen,
+        turns: newTurns,
+        lastEvent: 'mismatch',
+        eventId: prev.eventId + 1,
+      };
     });
   }, [isDuel, pairs, maxTurns]);
 
@@ -451,7 +551,7 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
     selectCard(cardId);
   }, [isDuel, selectCard, state.currentTurn]);
 
-  // Mismatch flip-back: in useEffect to avoid StrictMode double-timer bug
+  // Mismatch flip-back
   useEffect(() => {
     if (state.flipped.length !== 2) return;
     const [id1, id2] = state.flipped;
@@ -467,6 +567,8 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           ? (s.currentTurn === 'player' ? 'opponent' : 'player')
           : s.currentTurn,
         phase: !isDuel && maxTurns > 0 && s.turns >= maxTurns ? 'lose' : s.phase,
+        lastEvent: 'turn_start',
+        eventId: s.eventId + 1,
       }));
       lockRef.current = false;
     }, 900);
@@ -496,15 +598,8 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
   const opponentName = config.opponentName ?? '相手';
   const bgImageSrc = resolveAsset(config.assetsBaseUrl, config.backgroundImage);
 
-  const activeSpeech = isDuel
-    ? (state.currentTurn === 'player' ? playerSpeech : opponentSpeech)
-    : null;
-  const activeSpeakerName = isDuel
-    ? (state.currentTurn === 'player' ? playerName : opponentName)
-    : null;
-  const activeSpeakerSide = isDuel
-    ? (state.currentTurn === 'player' ? 'left' : 'right') as 'left' | 'right'
-    : null;
+  const activeSpeakerName = speech ? (speech.speaker === 'player' ? playerName : opponentName) : null;
+  const activeSpeakerSide = speech ? (speech.speaker === 'player' ? 'left' : 'right') as 'left' | 'right' : null;
 
   return (
     <div style={{
@@ -527,7 +622,6 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
         ),
       }}>
 
-        {/* Background dim overlay */}
         {bgImageSrc && (
           <div style={{
             position: 'absolute', inset: 0,
@@ -536,7 +630,7 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           }} />
         )}
 
-        {/* Header bar */}
+        {/* Header */}
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0,
@@ -551,14 +645,9 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           <span style={{ color: '#c5cae9', fontSize: 15, letterSpacing: '0.14em' }}>
             {config.title ?? '神経衰弱'}
           </span>
-
-          {/* Solo mode counts */}
           {!isDuel && (
             <>
-              <span style={{
-                position: 'absolute', left: 20,
-                color: '#8bc34a', fontSize: 13,
-              }}>
+              <span style={{ position: 'absolute', left: 20, color: '#8bc34a', fontSize: 13 }}>
                 {state.matched.length} / {pairs} ペア
               </span>
               <span style={{
@@ -572,7 +661,7 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           )}
         </div>
 
-        {/* Duel: side character panels */}
+        {/* Side character panels (duel only) */}
         {isDuel && (
           <>
             <SideCharacterPanel
@@ -640,12 +729,12 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
           );
         })}
 
-        {/* Duel: bottom novel-style dialogue box */}
+        {/* Bottom dialogue (duel only) */}
         {isDuel && state.phase === 'playing' && (
           <GameDialogueBox
             speakerName={activeSpeakerName}
             speakerSide={activeSpeakerSide}
-            text={activeSpeech}
+            text={speech?.text ?? null}
           />
         )}
 

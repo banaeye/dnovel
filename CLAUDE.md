@@ -205,6 +205,7 @@ scenes:
     location_id: loc_xxx       # 場所ID（child_scenes では親から継承）
     background: backgrounds/xxx.jpg   # 背景画像パス（省略可）
     bgm: audio/bgm/xxx.mp3            # BGMパス（省略可）
+    ending_title: "第1章　赤羽の一日"  # エンディングロール先頭タイトル（省略時は赤羽の一日）
     overlay_image: cg/xxx.jpg         # 一枚絵オーバーレイ（message フェーズ中に全面表示）
     characters:                        # シーン開始時の表示キャラ（省略可）
       - character_id: char_xxx
@@ -415,11 +416,12 @@ condition: null           # 常に真
 
 ### エンディングを作る
 1. 最後のシーンに `game_end: true` を設定
-2. 同シーンに `cg_sequence` を定義すると EndingSequence で演出される
-   - frames[0–2] → Phase1 右パネル（クレジット前半が左）
-   - frames[3–4] → Phase2 左パネル（クレジット後半が右）
-   - frames[最後] → Phase3 フルスクリーン（Fin）
-3. `packages/core/src/components/game/EndingSequence.tsx` の `PART1` / `PART2` でクレジット内容を編集する
+2. 章タイトルを変える場合は `ending_title` を設定する
+3. 同シーンに `cg_sequence` を定義すると EndingSequence で演出される
+   - 使う画像は先頭4枚のみ
+   - frames[0–3] → 横長CGとして全画面モンタージュ表示
+   - frames[3] → 表示したままFinを重ねる
+4. `packages/core/src/components/game/EndingSequence.tsx` の `CREDIT_ITEMS` でクレジット内容を編集する
 
 ### 新しいコマンドタイプを追加する
 1. `src/data/commands.yaml` に新コマンド追加（`action_type` を定義）
@@ -854,4 +856,4 @@ const MyEngine: IGameEngine<{ level: number }> = {
 
 ソースエイリアスで開発する場合は `vite.config.ts` に `resolve.dedupe` と `server.fs.allow` を追加すること（「demo/ ローカル統合デモ」節参照）。
 
-クレジット内容は `packages/core/src/components/game/EndingSequence.tsx` の `PART1` / `PART2` で編集する。
+クレジット内容は `packages/core/src/components/game/EndingSequence.tsx` の `CREDIT_ITEMS` で編集する。

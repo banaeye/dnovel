@@ -4,8 +4,7 @@ import { useAssets } from '../../context/AssetContext';
 import styles from './EndingSequence.module.css';
 
 const PHASE1_MS = 12000;
-const PHASE2_MS = 12000;
-const PHASE3_MS = 5000;
+const PHASE2_MS = 6000;
 
 type CreditItem =
   | { kind: 'mainTitle'; text: string }
@@ -13,8 +12,7 @@ type CreditItem =
   | { kind: 'name'; text: string }
   | { kind: 'spacer' };
 
-const PART1: CreditItem[] = [
-  { kind: 'mainTitle', text: '赤羽の一日' },
+const CREDIT_ITEMS: CreditItem[] = [
   { kind: 'spacer' },
   { kind: 'section', text: 'STORY & SCRIPT' },
   { kind: 'name', text: 'Anonymous' },
@@ -24,9 +22,7 @@ const PART1: CreditItem[] = [
   { kind: 'spacer' },
   { kind: 'section', text: 'VOICE ACTING' },
   { kind: 'name', text: 'VOICEVOX' },
-];
-
-const PART2: CreditItem[] = [
+  { kind: 'spacer' },
   { kind: 'section', text: 'MUSIC' },
   { kind: 'name', text: 'Anonymous' },
   { kind: 'spacer' },
@@ -39,10 +35,10 @@ const PART2: CreditItem[] = [
   { kind: 'name', text: 'Thank you for playing.' },
 ];
 
-function ScrollCredits({ items, durationSec }: { items: CreditItem[]; durationSec: number }) {
+function ScrollCredits({ title, items, durationSec }: { title: string; items: CreditItem[]; durationSec: number }) {
   return (
     <div className={styles.scrollWrap} style={{ animationDuration: `${durationSec}s` }}>
-      {items.map((item, i) => {
+      {[{ kind: 'mainTitle' as const, text: title }, ...items].map((item, i) => {
         if (item.kind === 'mainTitle') return <div key={i} className={styles.creditMainTitle}>{item.text}</div>;
         if (item.kind === 'section') return <div key={i} className={styles.creditSection}>{item.text}</div>;
         if (item.kind === 'name') return <div key={i} className={styles.creditName}>{item.text}</div>;
@@ -52,73 +48,57 @@ function ScrollCredits({ items, durationSec }: { items: CreditItem[]; durationSe
   );
 }
 
-function CgStack({ frames }: { frames: CgFrame[] }) {
+function CgMontage({ frames }: { frames: CgFrame[] }) {
   const { resolveAsset } = useAssets();
+  const displayFrames = frames.slice(0, 4);
+  const frameDuration = PHASE1_MS / Math.max(displayFrames.length, 1);
+
   return (
-    <div className={styles.cgPanel}>
-      {frames.map((frame, i) => (
-        <img
-          key={frame.src}
-          className={styles.cgPanelImg}
-          src={resolveAsset(frame.src)}
-          alt=""
-          style={{ animationDelay: `${i * 3}s` }}
-        />
-      ))}
+    <div className={styles.imageStage}>
+      {displayFrames.map((frame, i) => {
+        const src = resolveAsset(frame.src);
+        return (
+          <div
+            key={`${frame.src}-${i}`}
+            className={`${styles.cgFrame} ${i === displayFrames.length - 1 ? styles.cgFrameLast : ''}`}
+            style={{
+              animationDelay: `${i * frameDuration}ms`,
+              animationDuration: `${PHASE1_MS}ms`,
+            }}
+          >
+            <img className={styles.backdropImg} src={src} alt="" />
+            <img className={styles.wideImg} src={src} alt="" />
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 interface Props {
   frames: CgFrame[];
+  title?: string;
   onTitle: () => void;
 }
 
-export function EndingSequence({ frames, onTitle }: Props) {
-  const { resolveAsset } = useAssets();
-  const [phase, setPhase] = useState<1 | 2 | 3>(1);
+export function EndingSequence({ frames, title = '赤羽の一日', onTitle }: Props) {
+  const [phase, setPhase] = useState<1 | 2>(1);
+  const displayFrames = frames.slice(0, 4);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(2), PHASE1_MS);
-    const t2 = setTimeout(() => setPhase(3), PHASE1_MS + PHASE2_MS);
-    const t3 = setTimeout(onTitle, PHASE1_MS + PHASE2_MS + PHASE3_MS);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    const t2 = setTimeout(onTitle, PHASE1_MS + PHASE2_MS);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const rightFrames = frames.slice(0, 3);
-  const leftFrames = frames.slice(3, 5);
-  const finFrame = frames[frames.length - 1] ?? null;
-
-  if (phase === 3) {
-    return (
-      <div className={styles.finRoot}>
-        {finFrame && (
-          <img
-            className={styles.finImg}
-            src={resolveAsset(finFrame.src)}
-            alt=""
-          />
-        )}
-        <div className={styles.finText}>Fin</div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.root}>
-      <div className={styles.leftPanel}>
-        {phase === 1
-          ? <ScrollCredits items={PART1} durationSec={PHASE1_MS / 1000} />
-          : <CgStack frames={leftFrames} />
-        }
+      <CgMontage frames={displayFrames} />
+      <div className={styles.vignette} />
+      <div className={styles.creditsLayer}>
+        <ScrollCredits title={title} items={CREDIT_ITEMS} durationSec={PHASE1_MS / 1000} />
       </div>
-      <div className={styles.divider} />
-      <div className={styles.rightPanel}>
-        {phase === 1
-          ? <CgStack frames={rightFrames} />
-          : <ScrollCredits items={PART2} durationSec={PHASE2_MS / 1000} />
-        }
-      </div>
+      {phase === 2 && <div className={styles.finText}>Fin</div>}
     </div>
   );
 }

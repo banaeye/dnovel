@@ -417,6 +417,8 @@ scenes:
             voice_character_id: char_hero
         next_scene: scene_ending_credits
       - id: scene_ending_credits
+        bgm: audio/bgm/ending.mp3
+        ending_title: 第1章　赤羽の一日
         messages: []
         game_end: true
         flags_set:
@@ -424,32 +426,26 @@ scenes:
             value: true
         cg_sequence:
           - src: cg/juice.jpg
-            position: right
+            position: center
           - src: cg/game_man.jpg
-            position: right
+            position: center
           - src: cg/happy_dojo.jpg
-            position: right
-          - src: cg/mirai.jpg
-            position: left
-          - src: cg/dog.jpg
-            position: left
+            position: center
           - src: cg/dog.jpg
             position: center
       - id: scene_ending_cg_sequence
+        bgm: audio/bgm/ending.mp3
+        ending_title: 第1章　赤羽の一日
         messages: []
         game_end: true
         cg_sequence:
-          - src: cg/ending_01.jpg
-            position: right
-          - src: cg/ending_02.jpg
-            position: right
-          - src: cg/ending_03.jpg
-            position: right
-          - src: cg/ending_04.jpg
-            position: left
-          - src: cg/ending_05.jpg
-            position: left
-          - src: cg/ending_fin.jpg
+          - src: cg/juice.jpg
+            position: center
+          - src: cg/game_man.jpg
+            position: center
+          - src: cg/happy_dojo.jpg
+            position: center
+          - src: cg/dog.jpg
             position: center
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
