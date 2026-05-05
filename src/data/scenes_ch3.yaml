@@ -105,7 +105,7 @@ scenes:
         voice_character_id: char_hero
       - text: 「あらケンちゃん。実はな……アーケード街でアメちゃんゲットのイベントがあるんやけど」
         voice_character_id: char_obachan
-      - text: 「チケット取り損ねてしもうてな。もう今から申し込みは無理らしいわ」
+      - text: 「行きたかったんやけど、出遅れてしもうてな。チケット、もう取れへんかったんよ」
         voice_character_id: char_obachan
       - text: 「そのイベント、走りながらアメちゃんを拾うやつやんな。おばちゃんが参加したら絶対楽しいのに」
         voice_character_id: char_hero
@@ -200,11 +200,11 @@ scenes:
         voice_character_id: char_college_student
       - text: 「そう！　知ってる？」
         voice_character_id: char_hero
-      - text: 「団地の中にミュージアムってあるじゃないですか。あそこの受付さんが余分に持ってるって聞きましたよ」
+      - text: 「噂ですけど、団地の中のミュージアム、あそこの受付さんが余分に持ってるらしいですよ」
         voice_character_id: char_college_student
       - text: 「ありがとう！　行ってみる！」
         voice_character_id: char_hero
-      - text: 団地の中にミュージアムがあるらしい。行ってみよう。
+      - text: ミュージアムの受付の人がチケットを持っているらしい。行ってみよう。
         voice_character_id: null
     flags_set:
       - flag: flag_ch3_museum_unlocked
@@ -234,7 +234,7 @@ scenes:
         voice_character_id: char_hero
       - text: 「まあ、おばあさまのために。でも、簡単にはお渡しできませんよ」
         voice_character_id: char_museum_staff
-      - text: 「わたしと神経衰弱で勝負していただけますか？　勝ったら差し上げます」
+      - text: 「わたしと神経衰弱で勝負していただけますか？　あなたのほうが多くペアを取れたら差し上げます」
         voice_character_id: char_museum_staff
       - text: 「神経衰弱……わかりました、やります！」
         voice_character_id: char_hero
@@ -242,9 +242,13 @@ scenes:
       id: memory_game
       config:
         stageId: museum_challenge
+        mode: duel
         pairs: 6
-        maxTurns: 20
-        title: 神経衰弱
+        title: チケット争奪 神経衰弱
+        playerName: ケン
+        opponentName: ミュージアムの受付
+        playerFaceImage: characters/hero/hero_normal.png
+        opponentFaceImage: characters/mentor/mentor_nomal.png
       return_scene: scene_ch3_museum_game_result
   - id: scene_ch3_museum_game_result
     location_id: loc_museum
@@ -273,7 +277,7 @@ scenes:
       - flag: flag_ch3_got_ticket
         value: true
     messages:
-      - text: 「見事！　お約束通り、チケットを差し上げます」
+      - text: 「見事です。わたしより多く取られてしまいましたね。お約束通り、チケットを差し上げます」
         voice_character_id: char_museum_staff
       - text: 「ありがとうございます！　おばちゃん、喜ぶと思います」
         voice_character_id: char_hero
@@ -289,7 +293,7 @@ scenes:
         position: right
         expression: normal
     messages:
-      - text: 「惜しかったですね。よろしければ、もう一度いらしてください」
+      - text: 「惜しかったですね。今回はわたしの勝ちです。よろしければ、もう一度いらしてください」
         voice_character_id: char_museum_staff
       - text: 「……絶対に勝ちます。もう一度お願いします！」
         voice_character_id: char_hero
@@ -430,7 +434,7 @@ scenes:
         value: true
   - id: scene_arcade_default
     location_id: loc_arcade
-    background: backgroundsarchade.jpg
+    background: backgrounds/archade.jpg
     characters:
       - character_id: char_obachan
         position: right

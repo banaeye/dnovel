@@ -12,6 +12,7 @@
 | グリッド | 4 列 × 3 行（6 ペア・12 枚）デフォルト |
 | ペア数 | `pairs` で変更可（最大 8 ペアまで）|
 | 手数制限 | `maxTurns` 手以内に全ペアを揃えると勝利（0 = 無制限） |
+| 対戦 | `mode: duel` で相手と取得ペア数を競う |
 | カード絵柄 | 飴・花・星・月・家・鐘・鳥・波（漢字） |
 
 ---
@@ -23,9 +24,22 @@ next_engine:
   id: memory_game
   config:
     stageId: museum_challenge   # 必須 — 結果フラグのサフィックスになる
+    mode: solo                  # 省略可（solo | duel、デフォルト solo）
     pairs: 6                    # 省略可（デフォルト 6）
     maxTurns: 20                # 省略可（デフォルト 20、0 = 無制限）
     title: 神経衰弱              # 省略可（画面上部に表示するタイトル）
+    playerName: ケン             # duel 用プレイヤー名
+    opponentName: ミュージアムの受付
+    playerFaceImage: characters/hero/hero_normal.png
+    opponentFaceImage: characters/mentor/mentor_nomal.png
+    playerDialogue:             # プレイヤーのターン開始時のセリフ（duel 用、省略可）
+      - "どこだっけ……"
+      - "えーと……"
+    opponentDialogue:           # 相手ターン開始時のセリフ（duel 用、省略時はデフォルト）
+      - "どれかしら……"
+      - "ふふ、覚えてるかな"
+      - "少し考えさせてね"
+    backgroundImage: backgrounds/table.jpg  # テーブル背景画像（省略可）
   return_scene: scene_result    # ゲーム終了後に遷移するシーン
 ```
 
@@ -37,6 +51,10 @@ next_engine:
 |---------|-----|------|
 | `memory_game_result_{stageId}` | `'win'` | 全ペアを手数制限内に揃えた |
 | `memory_game_result_{stageId}` | `'lose'` | 手数を使い切った |
+| `memory_game_player_pairs_{stageId}` | 数値 | プレイヤーが取得したペア数 |
+| `memory_game_opponent_pairs_{stageId}` | 数値 | 対戦相手が取得したペア数 |
+
+`mode: duel` では全ペア取得後、プレイヤーの取得数が相手より多い場合に `win`、同点以下は `lose` になります。
 
 ---
 
