@@ -51,7 +51,7 @@ export function useVoicevox() {
       }
 
       console.log('[Voicevox] playing synthesized audio');
-      const blob = new Blob([buffer], { type: 'audio/wav' });
+      const blob = new Blob([buffer], { type: 'audio/mp3' });
       const blobUrl = URL.createObjectURL(blob);
       memoryCache.set(hashKey, blobUrl);
       await audioManager.playVoice(blobUrl, 0.9, onEnd);
