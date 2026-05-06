@@ -27,8 +27,9 @@
       "@novel-engine/hub": ["./packages/hub/src/index.ts"],
       "@novel-engine/maze-rpg": ["./packages/maze-rpg/src/index.ts"],
       "@novel-engine/runner-action": ["./packages/runner-action/src/index.ts"],
-      "@novel-engine/memory-game": ["./packages/memory-game/src/index.ts"]
+      "@novel-engine/memory-game": ["./packages/memory-game/src/index.ts"],
+      "@novel-engine/flash-calc": ["./packages/flash-calc/src/index.ts"]
     }
   },
-  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src", "packages/runner-action/src", "packages/memory-game/src"]
+  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src", "packages/runner-action/src", "packages/memory-game/src", "packages/flash-calc/src"]
 }
