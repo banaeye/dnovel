@@ -138,3 +138,8 @@ flags:
     type: boolean
     default: false
     description: "公園イベント後に美術館員から再度チケットを入手した"
+
+  - id: flag_ch3_second_ticket_given_to_obachan
+    type: boolean
+    default: false
+    description: "再取得したチケットをアーケード街でおばちゃんに渡した"

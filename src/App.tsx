@@ -38,7 +38,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter3',
     title: '第3章へ',
-    chapterTitle: 'おばちゃんとアメちゃんゲーム',
+    chapterTitle: 'アーケード街の死闘',
     masterData: chapter3MasterData,
     initialSceneId: 'scene_ch3_start',
     initialLocationId: 'loc_danchi',

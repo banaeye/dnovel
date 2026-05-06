@@ -536,6 +536,8 @@ scenes:
       config:
         map: dungeon_02
         name: 一番街の異空間
+        bgm: audio/bgm/dungeon.mp3
+        battleBgm: audio/bgm/buttle.mp3
         theme:
           wallFront: "#584060"
           wallSide: "#2e1e38"

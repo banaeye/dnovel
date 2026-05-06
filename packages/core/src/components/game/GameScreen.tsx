@@ -75,6 +75,18 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
   }, [state.phase]);
 
   useEffect(() => {
+    if (state.phase !== 'engine_transition') return;
+    audioManager.stopBgm();
+    audioManager.stopVoice();
+    currentBgmRef.current = null;
+  }, [state.phase]);
+
+  useEffect(() => () => {
+    audioManager.stopBgm();
+    audioManager.stopVoice();
+  }, []);
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       if (state.phase === 'message') {

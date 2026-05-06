@@ -265,6 +265,22 @@ scenes:
 本体ゲームでは `scenes_ch1.yaml` / `scenes_ch2.yaml` のように章別ファイルを使う。
 ライブラリとしては `parseMasterData({ scenes: scenesRaw, ... })` に渡された scenes 文字列をそのまま読むだけなので、ファイル名はアプリ側の責務。
 
+### BGM 指定の注意
+
+`bgm` は現在表示中のシーンで明示されたときに再生される。
+`messages: []` + `branches.type: auto` のディスパッチャーシーンにだけ `bgm` を書いても、
+すぐ次のシーンへ遷移するため、実際に画面へ表示されるシーンでは前のBGMが残ることがある。
+ロケーション専用BGMを確実に鳴らしたい場合は、入口ディスパッチャーだけでなく、
+そのロケーションで実際に表示される会話・結果・再挑戦シーンにも同じ `bgm` を明示する。
+
+例: `scene_museum_default` が `scene_ch3_museum_receptionist` へ即分岐する場合、
+`scene_museum_default` だけでなく `scene_ch3_museum_receptionist` 以降にも
+`bgm: audio/bgm/museum.mp3` を指定する。
+
+別エンジンへ遷移するとき、ノベル側のBGMは `engine_transition` で停止する。
+遷移先エンジンで専用BGMを鳴らす場合は、`next_engine.config` にそのエンジンが読むBGM設定を渡す。
+たとえば `maze_rpg` は `bgm` / `battleBgm`、`runner_action` は `bgm` / `bgmVolume` を受け取る。
+
 ### locations.yaml
 
 ```yaml
@@ -677,6 +693,8 @@ next_engine:
   id: maze_rpg
   config:
     map: dungeon_01        # BUILT_IN_MAPS のキー
+    bgm: audio/bgm/dungeon.mp3       # 探索中BGM（assetsBaseUrl 相対）
+    battleBgm: audio/bgm/buttle.mp3  # 戦闘中BGM（省略時は bgm を継続）
   return_scene: scene_xxx  # クリア後に戻るシーン
 
 // 脱出時に GameContext へ追加されるフラグ

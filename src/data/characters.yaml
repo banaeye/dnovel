@@ -71,7 +71,7 @@ characters:
     name: "女子大生バイト"
     name_flag: null
     voicevox_speaker_id: 3
-    y_offset: -180
+    y_offset: -250
     sprites:
       normal: characters/bite/bite.png
       talking: characters/bite/bite_talking.png
@@ -79,7 +79,7 @@ characters:
     name: "おじさん"
     name_flag: null
     voicevox_speaker_id: 53
-    y_offset: -150
+    y_offset: -400
     sprites:
       normal: characters/yopparai/yopparai.png
       talking: characters/yopparai/yopparai.png

@@ -28,6 +28,20 @@ scenes:
       choices:
         - condition:
             and:
+              - flag: flag_ch3_second_ticket_got
+                value: true
+              - flag: flag_ch3_second_ticket_given_to_obachan
+                value: false
+          next_scene: scene_ch3_danchi_go_arcade_with_second_ticket
+        - condition:
+            and:
+              - flag: flag_ch3_ticket_given_to_bad_kids
+                value: true
+              - flag: flag_ch3_second_ticket_got
+                value: false
+          next_scene: scene_ch3_danchi_go_museum_again
+        - condition:
+            and:
               - flag: flag_ch3_got_ticket
                 value: true
               - flag: flag_ch3_ticket_given
@@ -58,6 +72,20 @@ scenes:
       choices:
         - condition:
             and:
+              - flag: flag_ch3_second_ticket_got
+                value: true
+              - flag: flag_ch3_second_ticket_given_to_obachan
+                value: false
+          next_scene: scene_ch3_station_go_arcade_with_second_ticket
+        - condition:
+            and:
+              - flag: flag_ch3_ticket_given_to_bad_kids
+                value: true
+              - flag: flag_ch3_second_ticket_got
+                value: false
+          next_scene: scene_ch3_station_go_museum_again
+        - condition:
+            and:
               - flag: flag_ch3_helping_obachan
                 value: true
               - flag: flag_ch3_museum_unlocked
@@ -68,7 +96,7 @@ scenes:
   - id: scene_museum_default
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/musium.mp3
+    bgm: audio/bgm/museum.mp3
     messages: []
     branches:
       type: auto
@@ -120,6 +148,20 @@ scenes:
       type: auto
       choices:
         - condition:
+            and:
+              - flag: flag_ch3_second_ticket_got
+                value: true
+              - flag: flag_ch3_second_ticket_given_to_obachan
+                value: false
+          next_scene: scene_ch3_park_go_arcade_with_second_ticket
+        - condition:
+            and:
+              - flag: flag_ch3_ticket_given_to_bad_kids
+                value: true
+              - flag: flag_ch3_second_ticket_got
+                value: false
+          next_scene: scene_ch3_park_after_ticket_given
+        - condition:
             flag: flag_ch3_ticket_recovered
             value: true
           next_scene: scene_ch3_park_idle
@@ -135,6 +177,24 @@ scenes:
     bgm: audio/bgm/station.mp3
     messages:
       - text: 公園に来た。子どもたちの声が遠くで弾んでいる。
+        voice_character_id: null
+  - id: scene_ch3_park_after_ticket_given
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: アメ好きっ子の姿はもうない。公園には、さっきまでの足音だけが残っている気がした。
+        voice_character_id: null
+      - text: おばちゃんを大会に出すために、もう一枚のチケットを探そう。ミュージアムでもう一度相談できるかもしれない。
+        voice_character_id: null
+  - id: scene_ch3_park_go_arcade_with_second_ticket
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 公園はすっかり落ち着いている。手の中には、もう一枚のチケットがある。
+        voice_character_id: null
+      - text: おばちゃんが待つアーケード街へ戻ろう。
         voice_character_id: null
   - id: scene_ch3_park_after_ticket_stolen
     location_id: loc_park
@@ -246,7 +306,7 @@ scenes:
         voice_character_id: char_obachan
       - text: アメ好きっ子は何度も頭を下げて、公園の出口へ走っていった。
         voice_character_id: null
-      - text: 「ケンちゃん、もう一回ミュージアムに行ってみよか。なんとかなる気がするわ」
+      - text: 「ケンちゃん、あの子には楽しんでもらお。うちらは、もう一枚ないかミュージアムで相談してみよか」
         voice_character_id: char_obachan
   - id: scene_ch3_park_chase_retry
     location_id: loc_park
@@ -360,6 +420,20 @@ scenes:
     messages:
       - text: ミュージアムの受付がチケットを持っているらしい。団地のミュージアムへ行ってみよう。
         voice_character_id: null
+  - id: scene_ch3_danchi_go_museum_again
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages:
+      - text: 最初のチケットはアメ好きっ子に譲った。おばちゃんを大会に出すため、もう一度ミュージアムへ相談しに行こう。
+        voice_character_id: null
+  - id: scene_ch3_danchi_go_arcade_with_second_ticket
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages:
+      - text: もう一枚のチケットは手に入った。おばちゃんが待つアーケード街へ急ごう。
+        voice_character_id: null
   - id: scene_ch3_danchi_idle
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -410,6 +484,24 @@ scenes:
     bgm: audio/bgm/station.mp3
     messages:
       - text: 赤羽駅前にいる。おばちゃんのことが気になる。
+        voice_character_id: null
+  - id: scene_ch3_station_go_museum_again
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 駅前のざわめきの向こうに、団地のミュージアムへ続く道が見える。
+        voice_character_id: null
+      - text: おばちゃんのために、もう一枚のチケットを頼みに行こう。
+        voice_character_id: null
+  - id: scene_ch3_station_go_arcade_with_second_ticket
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 駅前の人波を抜けると、アーケード街の垂れ幕が見えた。
+        voice_character_id: null
+      - text: もう一枚のチケットを、おばちゃんに早く渡そう。
         voice_character_id: null
   - id: scene_ch3_station_college
     location_id: loc_station
@@ -481,6 +573,7 @@ scenes:
   - id: scene_ch3_museum_receptionist
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -496,6 +589,7 @@ scenes:
   - id: scene_ch3_talk_museum_staff
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -540,6 +634,7 @@ scenes:
   - id: scene_ch3_museum_game_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     messages: []
     branches:
       type: auto
@@ -553,6 +648,7 @@ scenes:
   - id: scene_ch3_museum_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -577,6 +673,7 @@ scenes:
   - id: scene_ch3_museum_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -594,12 +691,14 @@ scenes:
   - id: scene_ch3_museum_after_ticket
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     messages:
       - text: もうチケットはもらった。おばちゃんのところへ戻ろう。
         voice_character_id: null
   - id: scene_ch3_museum_second_visit
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -608,20 +707,23 @@ scenes:
         position: right
         expression: talking
     messages:
-      - text: 公園から戻ると、受付には女子大生バイトと美術館員の二人が並んでいた。
+      - text: ミュージアムへ戻ると、受付には女子大生バイトと美術館員の二人が並んでいた。
         voice_character_id: null
-      - text: 「あっ、さっきのチケットの人！　その……大変だったみたいですね」
+      - text: 「あっ、さっきのチケットの人！　チケット、見つかりましたか？」
         voice_character_id: char_museum_part_timer
-      - text: 「話は聞いた。アメちゃんを愛する子にチケットを譲ったそうだな」
-        voice_character_id: char_museum_staff
-      - text: 「でも、おばちゃんのぶんがまだ必要なんです」
+      - text: 「見つかったんですけど……アメちゃんが大好きな子に、おばちゃんが譲ったんです」
         voice_character_id: char_hero
-      - text: 「ならば再び勝負だ。今度はわたしが相手をしよう」
+      - text: 「話は分かった。アメちゃんを愛する子に譲ったのなら、悪い使い道ではない」
+        voice_character_id: char_museum_staff
+      - text: 「でも、おばちゃんも大会に出したいんです。もう一枚、お願いできませんか」
+        voice_character_id: char_hero
+      - text: 「ならば再び勝負だ。今度はわたしが相手をしよう。勝てば、もう一枚を渡す」
         voice_character_id: char_museum_staff
     next_scene: scene_ch3_talk_museum_staff_second
   - id: scene_ch3_talk_museum_staff_second
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -665,6 +767,7 @@ scenes:
   - id: scene_ch3_museum_second_game_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     messages: []
     branches:
       type: auto
@@ -678,6 +781,7 @@ scenes:
   - id: scene_ch3_museum_second_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -705,6 +809,7 @@ scenes:
   - id: scene_ch3_museum_second_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -748,9 +853,6 @@ scenes:
     background: backgrounds/archade.jpg
     bgm: audio/bgm/station.mp3
     characters:
-      - character_id: char_candy_kid
-        position: left
-        expression: talking
       - character_id: char_obachan
         position: right
         expression: talking
@@ -764,10 +866,28 @@ scenes:
         voice_character_id: null
       - text: 「へへっ、アメちゃん大会のチケットや！　もーらい！」
         voice_character_id: char_candy_kid
+        characters:
+          - character_id: char_candy_kid
+            position: left
+            expression: talking
+          - character_id: char_obachan
+            position: right
+            expression: talking
       - text: アメ好きっ子が横から飛び出し、チケットを奪って走り去った。
         voice_character_id: null
+        characters:
+          - character_id: char_candy_kid
+            position: left
+            expression: talking
+          - character_id: char_obachan
+            position: right
+            expression: talking
       - text: 「ちょ、ちょっと！　それ、おばちゃんの大事なチケットやで！」
         voice_character_id: char_obachan
+        characters:
+          - character_id: char_obachan
+            position: right
+            expression: talking
       - text: 通りの人が「あの子、公園のほうへ逃げたぞ！」と叫んだ。
         voice_character_id: null
       - text: アメ好きっ子は公園に向かったようだ。チケットを取り返さないと、イベントには出られない。
@@ -938,9 +1058,23 @@ scenes:
       type: auto
       choices:
         - condition:
-            flag: flag_ch3_second_ticket_got
+            flag: flag_ch3_second_ticket_given_to_obachan
             value: true
           next_scene: scene_ch3_arcade_event_start
+        - condition:
+            and:
+              - flag: flag_ch3_second_ticket_got
+                value: true
+              - flag: flag_ch3_second_ticket_given_to_obachan
+                value: false
+          next_scene: scene_ch3_arcade_give_second_ticket
+        - condition:
+            and:
+              - flag: flag_ch3_ticket_given_to_bad_kids
+                value: true
+              - flag: flag_ch3_second_ticket_got
+                value: false
+          next_scene: scene_ch3_arcade_need_second_ticket
         - condition:
             flag: flag_ch3_ticket_stolen
             value: true
@@ -958,6 +1092,46 @@ scenes:
     messages:
       - text: アーケード街の前に来た。ここがアメちゃんイベントの会場か
         voice_character_id: null
+  - id: scene_ch3_arcade_need_second_ticket
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: アーケード街の入口では、イベントの受付が始まっていた。
+        voice_character_id: null
+      - text: 「アメ好きっ子はきっと楽しんどるやろな。うちらも、もう一枚なんとかせな」
+        voice_character_id: char_obachan
+      - text: ミュージアムへ戻って、もう一度チケットのことを相談してみよう。
+        voice_character_id: null
+  - id: scene_ch3_arcade_give_second_ticket
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_obachan
+        position: right
+        expression: talking
+    item_remove:
+      - item_event_ticket
+    flags_set:
+      - flag: flag_ch3_second_ticket_given_to_obachan
+        value: true
+    messages:
+      - text: アーケード街へ戻ると、おばちゃんが受付の前で待っていた。
+        voice_character_id: null
+      - text: 「おばちゃん、もう一枚もらってきたで」
+        voice_character_id: char_hero
+      - text: 「ほんまに？　ケンちゃん、また走り回ってくれたんやね」
+        voice_character_id: char_obachan
+      - text: 「今度こそ受付に出そう」
+        voice_character_id: char_hero
+      - text: 「ありがとうな。アメちゃん、全力で取りに行くで！」
+        voice_character_id: char_obachan
+    next_scene: scene_ch3_arcade_event_start
   - id: scene_ch3_arcade_with_obachan
     location_id: loc_arcade
     background: backgrounds/archade.jpg
