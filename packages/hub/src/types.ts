@@ -11,6 +11,8 @@ export interface EngineTransition {
   config?: unknown;
   returnEngineId?: string;
   returnConfig?: unknown;
+  /** 遷移エフェクト: 'fade' | 'wipe' | 'flash' | 'none' */
+  transition?: string;
 }
 
 export interface EngineProps<TConfig = unknown> {

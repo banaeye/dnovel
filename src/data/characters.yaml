@@ -49,21 +49,38 @@ characters:
       normal: characters/college_student/daigakusei_normal.png
       talking: characters/college_student/daigakusei_normal.png
 
+  - id: char_candy_kid
+    name: "アメ好きっ子"
+    name_flag: null
+    voicevox_speaker_id: 8
+    y_offset: -190
+    sprites:
+      normal: characters/kozo/kozo.png
+      talking: characters/kozo/kozo.png
+
   - id: char_museum_staff
     name: "ミュージアムの受付"
     name_flag: null
-    voicevox_speaker_id: 11
+    voicevox_speaker_id: 49
     y_offset: -250
     sprites:
-      normal: characters/mentor/mentor_nomal.png
-      talking: characters/mentor/talking.png
+      normal: characters/muse/muse_onesan.png
+      talking: characters/muse/muse_onesan.png
+
+  - id: char_museum_part_timer
+    name: "女子大生バイト"
+    name_flag: null
+    voicevox_speaker_id: 3
+    y_offset: -180
+    sprites:
+      normal: characters/college_student/daigakusei_normal.png
+      talking: characters/college_student/daigakusei_normal.png
 
   - id: char_oyaji
     name: "おじさん"
     name_flag: null
-    voicevox_speaker_id: 3
+    voicevox_speaker_id: 53
     y_offset: -150
     sprites:
-      normal: characters/obachan/obachan_nomal.png
-      talking: characters/obachan/obachan_talking.png
-
+      normal: characters/yopparai/yopparai.png
+      talking: characters/yopparai/yopparai.png

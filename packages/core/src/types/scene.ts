@@ -73,6 +73,8 @@ export interface EngineTransitionSpec {
   id: string;
   config?: unknown;
   return_scene?: string;
+  /** 遷移時のエフェクト: 'fade' | 'wipe' | 'flash' | 'none' */
+  transition?: string;
   /** 死亡時に遷移するノベルシーン ID */
   gameover_scene?: string;
   /** ボス戦死亡時に遷移するノベルシーン ID */

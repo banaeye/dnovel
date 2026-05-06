@@ -127,10 +127,22 @@ locations:
     connections:
       - location_id: loc_arcade
         label: "アーケード街へ戻る"
-        condition: null
+        condition:
+          or:
+            - flag: flag_ch3_ticket_stolen
+              value: true
+              negate: true
+            - flag: flag_ch3_ticket_recovered
+              value: true
       - location_id: loc_station
         label: "駅前へ"
-        condition: null
+        condition:
+          or:
+            - flag: flag_ch3_ticket_stolen
+              value: true
+              negate: true
+            - flag: flag_ch3_ticket_recovered
+              value: true
     entry_scene: scene_park_default
 
   - id: loc_museum

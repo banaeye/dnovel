@@ -9,6 +9,7 @@ export function EnemySprite({ enemy, assetsBaseUrl }: EnemySpriteProps) {
   const hpRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 1;
   const opacity = 0.4 + hpRatio * 0.6;
   const src = `${assetsBaseUrl}/enemies/${enemy.id}.png`;
+  const isBoss = enemy.id === 'maze_boss';
 
   return (
     <div
@@ -25,10 +26,12 @@ export function EnemySprite({ enemy, assetsBaseUrl }: EnemySpriteProps) {
       <div
         style={{
           position: 'absolute',
-          width: 250,
-          height: 220,
+          width: isBoss ? 380 : 250,
+          height: isBoss ? 340 : 220,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(0,0,0,0.70) 0%, transparent 68%)',
+          background: isBoss
+            ? 'radial-gradient(circle, rgba(80,0,0,0.80) 0%, rgba(0,0,0,0.60) 40%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(0,0,0,0.70) 0%, transparent 68%)',
         }}
       />
       <img
@@ -36,12 +39,13 @@ export function EnemySprite({ enemy, assetsBaseUrl }: EnemySpriteProps) {
         alt={enemy.name}
         style={{
           position: 'relative',
-          maxHeight: 180,
-          maxWidth: 220,
+          maxHeight: isBoss ? 280 : 180,
+          maxWidth: isBoss ? 300 : 220,
           objectFit: 'contain',
           opacity,
           transition: 'opacity 0.5s',
           imageRendering: 'pixelated',
+          filter: isBoss ? `drop-shadow(0 0 18px rgba(200,0,0,${0.3 + hpRatio * 0.5}))` : undefined,
         }}
         onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
       />

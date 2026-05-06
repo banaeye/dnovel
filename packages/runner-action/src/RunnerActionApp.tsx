@@ -7,9 +7,12 @@ export interface RunnerActionTheme {
   accent?: string;
 }
 
+export type RunnerActionMode = 'collect' | 'chase';
+
 export interface RunnerActionConfig {
   stageId: string;
   durationMs: number;
+  mode?: RunnerActionMode;
   name?: string;
   assetsBaseUrl?: string;
   backgroundImage?: string;
@@ -17,6 +20,13 @@ export interface RunnerActionConfig {
   playerImage?: string;
   playerWidth?: number;
   playerHeight?: number;
+  opponentImage?: string;
+  opponentWidth?: number;
+  opponentHeight?: number;
+  objectSpeedMultiplier?: number;
+  chaseStartDistance?: number;
+  chaseCatchRate?: number;
+  chaseHitDistancePenalty?: number;
   theme?: RunnerActionTheme;
   _novelReturn?: unknown;
 }
@@ -31,13 +41,14 @@ interface RunnerState {
   penaltyCount: number;
   penaltyUntilMs: number;
   scrollFreezeUntilMs: number;
+  chaseDistance: number;
   collectedIds: string[];
   hitIds: string[];
 }
 
 interface FlyingObject {
   id: string;
-  type: 'candy' | 'pot';
+  type: 'candy' | 'pot' | 'dog' | 'bird';
   spawnMs: number;
   laneY: number;
   speed: number;
@@ -55,10 +66,13 @@ const PLAYER_H = 72;
 const GRAVITY = 0.0017;
 const JUMP_VELOCITY = -0.82;
 const DEFAULT_DURATION_MS = 30000;
-const POT_HIT_SCROLL_FREEZE_MS = 420;
+const OBSTACLE_HIT_SCROLL_FREEZE_MS = 420;
+const CHASE_START_DISTANCE = 100;
+const CHASE_CATCH_RATE = 0.0048;
+const CHASE_HIT_DISTANCE_PENALTY = 18;
 const FONT = "'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif";
 
-const OBJECTS: FlyingObject[] = [
+const COLLECT_OBJECTS: FlyingObject[] = [
   { id: 'candy_01', type: 'candy', spawnMs: 1600, laneY: 356, speed: 0.34, size: 28 },
   { id: 'pot_01', type: 'pot', spawnMs: 3300, laneY: 395, speed: 0.38, size: 46 },
   { id: 'candy_02', type: 'candy', spawnMs: 4700, laneY: 318, speed: 0.37, size: 28 },
@@ -74,6 +88,17 @@ const OBJECTS: FlyingObject[] = [
   { id: 'candy_09', type: 'candy', spawnMs: 23800, laneY: 305, speed: 0.5, size: 28 },
   { id: 'pot_05', type: 'pot', spawnMs: 26000, laneY: 390, speed: 0.56, size: 52 },
   { id: 'candy_10', type: 'candy', spawnMs: 27800, laneY: 346, speed: 0.58, size: 30 },
+];
+
+const CHASE_OBJECTS: FlyingObject[] = [
+  { id: 'dog_01', type: 'dog', spawnMs: 1800, laneY: 392, speed: 0.42, size: 48 },
+  { id: 'bird_01', type: 'bird', spawnMs: 3800, laneY: 300, speed: 0.46, size: 42 },
+  { id: 'dog_02', type: 'dog', spawnMs: 6200, laneY: 394, speed: 0.5, size: 50 },
+  { id: 'bird_02', type: 'bird', spawnMs: 8400, laneY: 292, speed: 0.52, size: 44 },
+  { id: 'dog_03', type: 'dog', spawnMs: 11100, laneY: 396, speed: 0.56, size: 52 },
+  { id: 'bird_03', type: 'bird', spawnMs: 13600, laneY: 306, speed: 0.58, size: 42 },
+  { id: 'dog_04', type: 'dog', spawnMs: 16400, laneY: 390, speed: 0.62, size: 52 },
+  { id: 'bird_04', type: 'bird', spawnMs: 19000, laneY: 298, speed: 0.64, size: 44 },
 ];
 
 const DEFAULT_THEME: Required<RunnerActionTheme> = {
@@ -144,8 +169,12 @@ function useImage(src: string | undefined): LoadedImage {
   return { image, failed };
 }
 
-function objectX(object: FlyingObject, elapsedMs: number): number {
-  return WIDTH + 80 - Math.max(0, elapsedMs - object.spawnMs) * object.speed;
+function objectX(object: FlyingObject, elapsedMs: number, speedMultiplier = 1): number {
+  return WIDTH + 80 - Math.max(0, elapsedMs - object.spawnMs) * object.speed * speedMultiplier;
+}
+
+function objectY(object: FlyingObject): number {
+  return object.type === 'dog' ? GROUND_Y - object.size : object.laneY;
 }
 
 function rectsOverlap(
@@ -216,10 +245,108 @@ function drawPot(ctx: CanvasRenderingContext2D, x: number, y: number, size: numb
   ctx.restore();
 }
 
+function drawDog(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, time: number) {
+  const run = Math.sin(time * 0.02) * 3;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#8b5a3c';
+  ctx.fillRect(size * 0.16, size * 0.34, size * 0.58, size * 0.3);
+  ctx.fillStyle = '#a46a45';
+  ctx.beginPath();
+  ctx.arc(size * 0.74, size * 0.36, size * 0.18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#5b3928';
+  ctx.beginPath();
+  ctx.moveTo(size * 0.68, size * 0.22);
+  ctx.lineTo(size * 0.78, size * 0.02);
+  ctx.lineTo(size * 0.84, size * 0.26);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#5b3928';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(size * 0.15, size * 0.38);
+  ctx.quadraticCurveTo(-size * 0.05, size * 0.18, size * 0.1, size * 0.08);
+  ctx.stroke();
+  ctx.fillStyle = '#3b2319';
+  ctx.fillRect(size * 0.24, size * 0.62, size * 0.1, size * 0.24 + run);
+  ctx.fillRect(size * 0.56, size * 0.62, size * 0.1, size * 0.24 - run);
+  ctx.fillStyle = '#11131a';
+  ctx.beginPath();
+  ctx.arc(size * 0.8, size * 0.34, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBird(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, time: number) {
+  const flap = Math.sin(time * 0.024) * size * 0.16;
+  ctx.save();
+  ctx.translate(x + size / 2, y + size / 2);
+  ctx.fillStyle = '#3f78a8';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, size * 0.28, size * 0.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#72b7d2';
+  ctx.beginPath();
+  ctx.moveTo(-size * 0.08, -size * 0.06);
+  ctx.quadraticCurveTo(-size * 0.44, -size * 0.36 - flap, -size * 0.5, size * 0.02);
+  ctx.quadraticCurveTo(-size * 0.26, size * 0.06, -size * 0.08, size * 0.04);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(size * 0.08, -size * 0.06);
+  ctx.quadraticCurveTo(size * 0.44, -size * 0.36 + flap, size * 0.5, size * 0.02);
+  ctx.quadraticCurveTo(size * 0.26, size * 0.06, size * 0.08, size * 0.04);
+  ctx.fill();
+  ctx.fillStyle = '#f2d16b';
+  ctx.beginPath();
+  ctx.moveTo(size * 0.28, -size * 0.02);
+  ctx.lineTo(size * 0.44, size * 0.04);
+  ctx.lineTo(size * 0.28, size * 0.1);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#11131a';
+  ctx.beginPath();
+  ctx.arc(size * 0.16, -size * 0.06, 2.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBadKid(ctx: CanvasRenderingContext2D, distance: number, time: number) {
+  const x = Math.min(650, PLAYER_X + 95 + distance * 3.6);
+  const y = GROUND_Y - 74 + Math.sin(time * 0.02) * 3;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#f1d2b0';
+  ctx.fillRect(13, 0, 24, 22);
+  ctx.fillStyle = '#2b2f39';
+  ctx.fillRect(8, 20, 34, 36);
+  ctx.fillStyle = '#e6533f';
+  ctx.fillRect(4, 28, 42, 10);
+  ctx.fillStyle = '#151827';
+  ctx.fillRect(12, 54, 10, 24);
+  ctx.fillRect(30, 54, 10, 24);
+  ctx.fillStyle = '#f2d16b';
+  ctx.fillRect(17, 8, 4, 4);
+  ctx.fillRect(29, 8, 4, 4);
+  ctx.restore();
+}
+
+function drawFlyingObject(ctx: CanvasRenderingContext2D, object: FlyingObject, x: number, time: number) {
+  if (object.type === 'candy') {
+    drawCandy(ctx, x, objectY(object), object.size, time);
+  } else if (object.type === 'pot') {
+    drawPot(ctx, x, objectY(object), object.size, time);
+  } else if (object.type === 'dog') {
+    drawDog(ctx, x, objectY(object), object.size, time);
+  } else {
+    drawBird(ctx, x, objectY(object), object.size, time);
+  }
+}
+
 function drawRunner(
   ctx: CanvasRenderingContext2D,
   state: RunnerState,
-  config: Required<Pick<RunnerActionConfig, 'durationMs'>>,
+  config: Required<Pick<RunnerActionConfig, 'durationMs' | 'mode' | 'chaseStartDistance' | 'objectSpeedMultiplier'>>,
   theme: Required<RunnerActionTheme>,
   assets: {
     backgroundImage: HTMLImageElement | null;
@@ -229,11 +356,16 @@ function drawRunner(
     playerImageEnabled: boolean;
     playerImageConfigured: boolean;
     playerImageFailed: boolean;
+    opponentImageEnabled: boolean;
+    opponentImageConfigured: boolean;
+    opponentImageFailed: boolean;
     playerWidth: number;
     playerHeight: number;
   },
 ) {
   const progress = Math.min(1, state.elapsedMs / config.durationMs);
+  const isChase = config.mode === 'chase';
+  const objects = isChase ? CHASE_OBJECTS : COLLECT_OBJECTS;
   const scroll = state.worldElapsedMs * 0.18;
   const isPenalized = state.elapsedMs < state.penaltyUntilMs;
 
@@ -308,15 +440,15 @@ function drawRunner(
     ctx.fillRect(PLAYER_X + playerKnockbackX + PLAYER_W, playerY + 30, 20, 10);
   }
 
-  for (const object of OBJECTS) {
+  if (isChase && !assets.opponentImageEnabled) {
+    drawBadKid(ctx, state.chaseDistance, state.elapsedMs);
+  }
+
+  for (const object of objects) {
     if (state.collectedIds.includes(object.id) || state.hitIds.includes(object.id)) continue;
-    const x = objectX(object, state.worldElapsedMs);
+    const x = objectX(object, state.worldElapsedMs, config.objectSpeedMultiplier);
     if (x < -100 || x > WIDTH + 120) continue;
-    if (object.type === 'candy') {
-      drawCandy(ctx, x, object.laneY, object.size, state.elapsedMs);
-    } else {
-      drawPot(ctx, x, object.laneY, object.size, state.elapsedMs);
-    }
+    drawFlyingObject(ctx, object, x, state.elapsedMs);
   }
 
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
@@ -325,23 +457,31 @@ function drawRunner(
   ctx.fillRect(44, 58, 712, 8);
   ctx.fillStyle = theme.accent;
   ctx.fillRect(44, 58, 712 * progress, 8);
+  if (isChase) {
+    const distanceProgress = 1 - Math.min(1, Math.max(0, state.chaseDistance / config.chaseStartDistance));
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(44, 70, 712, 6);
+    ctx.fillStyle = '#ff8f70';
+    ctx.fillRect(44, 70, 712 * distanceProgress, 6);
+  }
   ctx.fillStyle = '#f7f2dc';
   ctx.font = `20px ${FONT}`;
-  ctx.fillText('アーケード街の死闘', 44, 48);
+  ctx.fillText(isChase ? '公園の追跡劇' : 'アーケード街の死闘', 44, 48);
   ctx.font = `14px ${FONT}`;
   ctx.fillText(`${Math.ceil((config.durationMs - state.elapsedMs) / 1000)}秒`, 708, 48);
-  ctx.fillText(`アメ ${state.score}`, 610, 48);
+  ctx.fillText(isChase ? `距離 ${Math.ceil(state.chaseDistance)}` : `アメ ${state.score}`, 610, 48);
   if (isPenalized) {
     ctx.fillStyle = 'rgba(120,0,0,0.7)';
     ctx.fillRect(300, 92, 200, 32);
     ctx.fillStyle = '#fff4e8';
     ctx.font = `16px ${FONT}`;
-    ctx.fillText('鍋に当たった！', 344, 114);
+    ctx.fillText(isChase ? '追いつけない！' : '鍋に当たった！', isChase ? 348 : 344, 114);
   }
 
   const warnings = [
     assets.backgroundImageConfigured && assets.backgroundImageFailed ? 'background image not found' : null,
     assets.playerImageConfigured && assets.playerImageFailed ? 'player image not found' : null,
+    assets.opponentImageConfigured && assets.opponentImageFailed ? 'opponent image not found' : null,
   ].filter(Boolean);
   if (warnings.length > 0) {
     ctx.fillStyle = 'rgba(120,0,0,0.72)';
@@ -358,6 +498,11 @@ function RunnerActionAppComponent({
   onExit,
 }: EngineProps<RunnerActionConfig>) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const mode: RunnerActionMode = config.mode ?? 'collect';
+  const durationMs = Math.max(1000, config.durationMs || DEFAULT_DURATION_MS);
+  const chaseStartDistance = Math.max(1, config.chaseStartDistance ?? CHASE_START_DISTANCE);
+  const chaseCatchRate = Math.max(0.001, config.chaseCatchRate ?? CHASE_CATCH_RATE);
+  const chaseHitDistancePenalty = Math.max(0, config.chaseHitDistancePenalty ?? CHASE_HIT_DISTANCE_PENALTY);
   const stateRef = useRef<RunnerState>({
     elapsedMs: 0,
     worldElapsedMs: 0,
@@ -368,6 +513,7 @@ function RunnerActionAppComponent({
     penaltyCount: 0,
     penaltyUntilMs: 0,
     scrollFreezeUntilMs: 0,
+    chaseDistance: chaseStartDistance,
     collectedIds: [],
     hitIds: [],
   });
@@ -376,15 +522,19 @@ function RunnerActionAppComponent({
   const [elapsedMs, setElapsedMs] = useState(0);
   const scale = useGameScale();
   const theme = useMemo(() => mergeTheme(config.theme), [config.theme]);
-  const durationMs = Math.max(1000, config.durationMs || DEFAULT_DURATION_MS);
   const stageId = config.stageId || 'default';
   const backgroundImageSrc = resolveAsset(config.assetsBaseUrl, config.backgroundImage);
   const playerImageSrc = resolveAsset(config.assetsBaseUrl, config.playerImage);
+  const opponentImageSrc = resolveAsset(config.assetsBaseUrl, config.opponentImage);
   const backgroundAsset = useImage(backgroundImageSrc);
   const playerAsset = useImage(playerImageSrc);
+  const opponentAsset = useImage(opponentImageSrc);
   const backgroundLoopWidth = Math.max(1, config.backgroundLoopWidth ?? WIDTH);
   const playerWidth = Math.max(1, config.playerWidth ?? 74);
   const playerHeight = Math.max(1, config.playerHeight ?? 104);
+  const opponentWidth = Math.max(1, config.opponentWidth ?? 58);
+  const opponentHeight = Math.max(1, config.opponentHeight ?? 84);
+  const objectSpeedMultiplier = Math.max(0.1, config.objectSpeedMultiplier ?? 1);
 
   const jump = useCallback(() => {
     const state = stateRef.current;
@@ -392,7 +542,7 @@ function RunnerActionAppComponent({
     stateRef.current = { ...state, velocityY: JUMP_VELOCITY, grounded: false };
   }, []);
 
-  const finish = useCallback(() => {
+  const finish = useCallback((result: 'complete' | 'win' | 'lose') => {
     if (completedRef.current) return;
     completedRef.current = true;
     const finalState = stateRef.current;
@@ -406,11 +556,16 @@ function RunnerActionAppComponent({
         [`runner_action_score_${stageId}`]: finalState.score,
         runner_action_penalties: finalState.penaltyCount,
         [`runner_action_penalties_${stageId}`]: finalState.penaltyCount,
+        runner_action_result: result,
+        [`runner_action_result_${stageId}`]: result,
+        runner_action_distance: Math.ceil(finalState.chaseDistance),
+        [`runner_action_distance_${stageId}`]: Math.ceil(finalState.chaseDistance),
       },
       playerStats: {
         ...context.playerStats,
         runnerScore: finalState.score,
         runnerPenalties: finalState.penaltyCount,
+        runnerDistance: Math.ceil(finalState.chaseDistance),
       },
     };
     onExit(updatedContext);
@@ -437,6 +592,10 @@ function RunnerActionAppComponent({
       const elapsed = Math.min(durationMs, prev.elapsedMs + delta);
       const worldDelta = prev.elapsedMs < prev.scrollFreezeUntilMs ? 0 : delta;
       const worldElapsed = Math.min(durationMs, prev.worldElapsedMs + worldDelta);
+      const chaseDistance =
+        mode === 'chase'
+          ? Math.max(0, prev.chaseDistance - worldDelta * chaseCatchRate)
+          : prev.chaseDistance;
       let velocityY = prev.velocityY + GRAVITY * delta;
       let y = prev.y + velocityY * delta;
       let grounded = false;
@@ -450,10 +609,12 @@ function RunnerActionAppComponent({
         ...prev,
         elapsedMs: elapsed,
         worldElapsedMs: worldElapsed,
+        chaseDistance,
         y,
         velocityY,
         grounded,
       };
+      const objects = mode === 'chase' ? CHASE_OBJECTS : COLLECT_OBJECTS;
       const isCurrentlyPenalized = elapsed < next.penaltyUntilMs;
       const hitboxWidth = Math.max(24, Math.min(playerWidth, 74) - 12);
       const hitboxHeight = Math.max(48, Math.min(playerHeight, 104) - 8);
@@ -463,13 +624,13 @@ function RunnerActionAppComponent({
         width: hitboxWidth,
         height: hitboxHeight,
       };
-      for (const object of OBJECTS) {
+      for (const object of objects) {
         if (next.collectedIds.includes(object.id) || next.hitIds.includes(object.id)) continue;
-        const x = objectX(object, worldElapsed);
+        const x = objectX(object, worldElapsed, objectSpeedMultiplier);
         if (x < -100 || x > WIDTH + 120) continue;
         const objectRect = {
           x,
-          y: object.laneY,
+          y: objectY(object),
           width: object.size,
           height: object.size,
         };
@@ -486,7 +647,11 @@ function RunnerActionAppComponent({
             score: Math.max(0, next.score - 2),
             penaltyCount: next.penaltyCount + 1,
             penaltyUntilMs: elapsed + 900,
-            scrollFreezeUntilMs: elapsed + POT_HIT_SCROLL_FREEZE_MS,
+            scrollFreezeUntilMs: elapsed + OBSTACLE_HIT_SCROLL_FREEZE_MS,
+            chaseDistance:
+              mode === 'chase'
+                ? Math.min(chaseStartDistance, next.chaseDistance + chaseHitDistancePenalty)
+                : next.chaseDistance,
             hitIds: [...next.hitIds, object.id],
           };
         }
@@ -496,7 +661,7 @@ function RunnerActionAppComponent({
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext('2d');
       if (ctx) {
-        drawRunner(ctx, next, { durationMs }, theme, {
+        drawRunner(ctx, next, { durationMs, mode, chaseStartDistance, objectSpeedMultiplier }, theme, {
           backgroundImage: backgroundAsset.image,
           backgroundImageConfigured: Boolean(backgroundImageSrc),
           backgroundImageFailed: backgroundAsset.failed,
@@ -504,14 +669,21 @@ function RunnerActionAppComponent({
           playerImageEnabled: Boolean(playerImageSrc) && !playerAsset.failed,
           playerImageConfigured: Boolean(playerImageSrc),
           playerImageFailed: playerAsset.failed,
+          opponentImageEnabled: Boolean(opponentImageSrc) && !opponentAsset.failed,
+          opponentImageConfigured: Boolean(opponentImageSrc),
+          opponentImageFailed: opponentAsset.failed,
           playerWidth,
           playerHeight,
         });
       }
 
       setElapsedMs(elapsed);
+      if (mode === 'chase' && next.chaseDistance <= 0) {
+        finish('win');
+        return;
+      }
       if (elapsed >= durationMs) {
-        finish();
+        finish(mode === 'chase' ? 'lose' : 'complete');
         return;
       }
       frameId = requestAnimationFrame(tick);
@@ -524,8 +696,16 @@ function RunnerActionAppComponent({
     backgroundAsset.image,
     backgroundImageSrc,
     backgroundLoopWidth,
+    chaseCatchRate,
+    chaseHitDistancePenalty,
+    chaseStartDistance,
     durationMs,
     finish,
+    mode,
+    opponentAsset.failed,
+    opponentAsset.image,
+    opponentImageSrc,
+    objectSpeedMultiplier,
     playerAsset.failed,
     playerAsset.image,
     playerHeight,
@@ -543,6 +723,9 @@ function RunnerActionAppComponent({
   const playerLeft = PLAYER_X + playerKnockbackX;
   const playerTopPx = playerTop(currentState, playerHeight) + playerBob;
   const showDomPlayer = Boolean(playerImageSrc) && !playerAsset.failed;
+  const opponentLeft = Math.min(650, PLAYER_X + 95 + currentState.chaseDistance * 3.6);
+  const opponentTop = GROUND_Y - opponentHeight + Math.sin(currentState.elapsedMs * 0.02) * 3;
+  const showDomOpponent = mode === 'chase' && Boolean(opponentImageSrc) && !opponentAsset.failed;
 
   return (
     <div
@@ -587,6 +770,22 @@ function RunnerActionAppComponent({
               top: playerTopPx,
               width: playerWidth,
               height: playerHeight,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+        )}
+        {showDomOpponent && (
+          <img
+            src={opponentImageSrc}
+            alt=""
+            draggable={false}
+            style={{
+              position: 'absolute',
+              left: opponentLeft,
+              top: opponentTop,
+              width: opponentWidth,
+              height: opponentHeight,
               pointerEvents: 'none',
               userSelect: 'none',
             }}

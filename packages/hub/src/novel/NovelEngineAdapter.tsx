@@ -72,6 +72,7 @@ function NovelEngineComponent({
       };
       const transition: EngineTransition = {
         engineId: spec.id,
+        transition: spec.transition,
         config: {
           assetsBaseUrl: config.assetsBaseUrl,
           items: itemDefs,

@@ -7,6 +7,7 @@ export interface MemoryGameConfig {
   pairs?: number;
   maxTurns?: number;
   title?: string;
+  opponentSkill?: 'weak' | 'normal';
   /** キャラクター ID を指定すると NovelEngineAdapter が name/faceImage/VoicevoxSpeakerId を自動解決 */
   playerCharacterId?: string;
   opponentCharacterId?: string;
@@ -193,7 +194,9 @@ function pickRandom<T>(items: T[]): T | null {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function pickOpponentCard(state: GameState): number | null {
+function pickOpponentCard(state: GameState, opponentSkill: MemoryGameConfig['opponentSkill'] = 'normal'): number | null {
+  const matchKnownChance = opponentSkill === 'weak' ? 0.18 : 0.45;
+  const pairKnownChance = opponentSkill === 'weak' ? 0.08 : 0.25;
   const available = state.cards.filter(card => (
     !state.matched.includes(card.pairId) && !state.flipped.includes(card.id)
   ));
@@ -202,7 +205,7 @@ function pickOpponentCard(state: GameState): number | null {
   if (state.flipped.length === 1) {
     const first = state.cards.find(card => card.id === state.flipped[0]);
     const knownMatch = available.find(card => first && card.pairId === first.pairId);
-    if (knownMatch && Math.random() < 0.45) return knownMatch.id;
+    if (knownMatch && Math.random() < matchKnownChance) return knownMatch.id;
     return pickRandom(available)?.id ?? null;
   }
 
@@ -212,7 +215,7 @@ function pickOpponentCard(state: GameState): number | null {
     knownByPair.set(card.pairId, [...(knownByPair.get(card.pairId) ?? []), card.id]);
   }
   const knownPair = [...knownByPair.values()].find(ids => ids.length >= 2);
-  if (knownPair && Math.random() < 0.25) return knownPair[0];
+  if (knownPair && Math.random() < pairKnownChance) return knownPair[0];
 
   return pickRandom(available)?.id ?? null;
 }
@@ -404,6 +407,7 @@ function GameDialogueBox({
 function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGameConfig>) {
   const mode = config.mode ?? 'solo';
   const isDuel = mode === 'duel';
+  const opponentSkill = config.opponentSkill ?? 'normal';
   const pairs = config.pairs ?? 6;
   const maxTurns = config.maxTurns ?? 20;
   const rows = Math.ceil((pairs * 2) / COLS);
@@ -584,11 +588,11 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
     if (!isDuel || state.phase !== 'playing' || state.currentTurn !== 'opponent' || lockRef.current) return;
     const delay = state.flipped.length === 0 ? 650 : 820;
     const timer = setTimeout(() => {
-      const cardId = pickOpponentCard(state);
+      const cardId = pickOpponentCard(state, opponentSkill);
       if (cardId !== null) selectCard(cardId);
     }, delay);
     return () => clearTimeout(timer);
-  }, [isDuel, selectCard, state]);
+  }, [isDuel, opponentSkill, selectCard, state]);
 
   const turnsLeft = maxTurns > 0 ? maxTurns - state.turns : null;
   const turnsWarning = turnsLeft !== null && turnsLeft <= 5;

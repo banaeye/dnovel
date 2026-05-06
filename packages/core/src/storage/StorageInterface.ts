@@ -1,5 +1,6 @@
 import type { FlagMap } from '../types/flag';
 import type { CharacterDisplay } from '../types/scene';
+import type { GamePhase } from '../types/gameState';
 
 export interface SaveData {
   version: number;
@@ -7,6 +8,8 @@ export interface SaveData {
   timestamp: number;
   currentSceneId: string;
   currentLocationId: string;
+  currentMessageIndex?: number;
+  phase?: GamePhase;
   flags: FlagMap;
   inventory: string[];
   sceneHistory: string[];

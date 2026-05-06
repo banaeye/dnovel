@@ -122,4 +122,19 @@ flags:
   - id: flag_ch3_ticket_stolen
     type: boolean
     default: false
-    description: "アーケード街で悪ガキにチケットを奪われた"
+    description: "アーケード街でアメ好きっ子にチケットを奪われた"
+
+  - id: flag_ch3_ticket_recovered
+    type: boolean
+    default: false
+    description: "公園でアメ好きっ子からチケットを取り返した"
+
+  - id: flag_ch3_ticket_given_to_bad_kids
+    type: boolean
+    default: false
+    description: "おばちゃんがアメ好きっ子にチケットを譲った"
+
+  - id: flag_ch3_second_ticket_got
+    type: boolean
+    default: false
+    description: "公園イベント後に美術館員から再度チケットを入手した"

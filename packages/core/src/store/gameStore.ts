@@ -18,6 +18,13 @@ import { executeCommand } from '../engine/CommandEngine';
 import { moveTo } from '../engine/LocationEngine';
 import { useItem } from '../engine/ItemEngine';
 import { evaluateCondition } from '../engine/ConditionEvaluator';
+import type { Scene } from '../types/scene';
+
+function loadPhase(saveData: SaveData, scene: Scene | undefined): GameState['phase'] {
+  if (!saveData.phase && scene?.next_engine) return 'message';
+  if (!saveData.phase || saveData.phase === 'title' || saveData.phase === 'ending') return 'command';
+  return saveData.phase;
+}
 
 export interface GameStore {
   state: GameState;
@@ -116,17 +123,20 @@ export function createGameStore(
     },
 
     loadGame: (saveData: SaveData) => {
+      const scene = get().masterData.scenes[saveData.currentSceneId];
+      const phase = loadPhase(saveData, scene);
       set({
         state: {
           currentSceneId: saveData.currentSceneId,
           currentLocationId: saveData.currentLocationId,
-          currentMessageIndex: 0,
+          currentMessageIndex: saveData.currentMessageIndex ?? 0,
           flags: saveData.flags,
           inventory: saveData.inventory,
           sceneHistory: saveData.sceneHistory,
-          phase: 'command',
+          phase,
           currentCharacters: saveData.currentCharacters ?? [],
           talkCandidates: [],
+          pendingEngineTransition: phase === 'engine_transition' ? scene?.next_engine : undefined,
         },
         playtimeStart: Date.now() - saveData.playtime * 1000,
       });
@@ -140,6 +150,8 @@ export function createGameStore(
         timestamp: Date.now(),
         currentSceneId: state.currentSceneId,
         currentLocationId: state.currentLocationId,
+        currentMessageIndex: state.currentMessageIndex,
+        phase: state.phase,
         flags: state.flags,
         inventory: state.inventory,
         sceneHistory: state.sceneHistory,

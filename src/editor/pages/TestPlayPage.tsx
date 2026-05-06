@@ -19,6 +19,153 @@ function sendCmd(cmd: Record<string, unknown>) {
 }
 
 // ────────────────────────────────────────────────
+// 章別プリセット定義
+// ────────────────────────────────────────────────
+interface TestPreset {
+  label: string;
+  chapter: string;
+  sceneId: string;
+  locationId: string;
+  flags?: Record<string, boolean | number | string>;
+  inventory?: string[];
+}
+
+const PRESETS: TestPreset[] = [
+  // ── 第1章 ──
+  {
+    label: '開始',
+    chapter: '第1章',
+    sceneId: 'scene_danchi_morning',
+    locationId: 'loc_danchi',
+    flags: { flag_chapter: 1 },
+  },
+  {
+    label: '駅前探索',
+    chapter: '第1章',
+    sceneId: 'scene_station_default',
+    locationId: 'loc_station',
+    flags: { flag_chapter: 1, flag_left_danchi: true, flag_station_explored: true },
+  },
+  {
+    label: 'CoderDojo',
+    chapter: '第1章',
+    sceneId: 'scene_coderdojo_default',
+    locationId: 'loc_coderdojo',
+    flags: {
+      flag_chapter: 1, flag_left_danchi: true,
+      flag_station_explored: true, flag_arrived_coderdojo: true, flag_met_mentor: true,
+    },
+  },
+  {
+    label: '一番街',
+    chapter: '第1章',
+    sceneId: 'scene_ichibangai_default',
+    locationId: 'loc_ichibangai',
+    flags: { flag_chapter: 1, flag_left_danchi: true, flag_station_explored: true },
+  },
+  // ── 第2章 ──
+  {
+    label: '開始',
+    chapter: '第2章',
+    sceneId: 'scene_ch2_start',
+    locationId: 'loc_danchi',
+    flags: { flag_chapter: 2, flag_chapter1_cleared: true },
+  },
+  {
+    label: '迷宮前（ユイと合流）',
+    chapter: '第2章',
+    sceneId: 'scene_ichibangai_maze_ready',
+    locationId: 'loc_ichibangai',
+    flags: {
+      flag_chapter: 2, flag_chapter1_cleared: true,
+      flag_left_danchi: true, flag_station_explored: true, flag_met_yui: true,
+    },
+  },
+  {
+    label: 'ボス前（メンターの御札あり）',
+    chapter: '第2章',
+    sceneId: 'scene_ichibangai_boss_ready',
+    locationId: 'loc_ichibangai',
+    flags: {
+      flag_chapter: 2, flag_chapter1_cleared: true,
+      flag_met_yui: true, flag_maze_defeated: true, flag_boss_challenged: true,
+    },
+    inventory: ['item_kinchu_hikari'],
+  },
+  {
+    label: 'CoderDojo（メンター登場）',
+    chapter: '第2章',
+    sceneId: 'scene_coderdojo_default',
+    locationId: 'loc_coderdojo',
+    flags: {
+      flag_chapter: 2, flag_chapter1_cleared: true,
+      flag_maze_defeated: false, flag_boss_challenged: true,
+    },
+  },
+  {
+    label: 'エンディング直前',
+    chapter: '第2章',
+    sceneId: 'scene_ch2_after_maze',
+    locationId: 'loc_ichibangai',
+    flags: {
+      flag_chapter: 2, flag_chapter1_cleared: true,
+      flag_maze_defeated: true, flag_boss_challenged: true,
+    },
+  },
+  // ── 第3章 ──
+  {
+    label: '開始',
+    chapter: '第3章',
+    sceneId: 'scene_ch3_start',
+    locationId: 'loc_danchi',
+    flags: { flag_chapter: 3, flag_chapter1_cleared: true, flag_ch2_cleared: true },
+  },
+  {
+    label: '駅前（大学生）',
+    chapter: '第3章',
+    sceneId: 'scene_station_default',
+    locationId: 'loc_station',
+    flags: {
+      flag_chapter: 3, flag_chapter1_cleared: true, flag_ch2_cleared: true,
+      flag_ch3_helping_obachan: true,
+    },
+  },
+  {
+    label: 'ミュージアム受付',
+    chapter: '第3章',
+    sceneId: 'scene_museum_default',
+    locationId: 'loc_museum',
+    flags: {
+      flag_chapter: 3, flag_chapter1_cleared: true, flag_ch2_cleared: true,
+      flag_ch3_helping_obachan: true, flag_ch3_museum_unlocked: true,
+    },
+  },
+  {
+    label: '神経衰弱（チケット争奪）',
+    chapter: '第3章',
+    sceneId: 'scene_ch3_talk_museum_staff',
+    locationId: 'loc_museum',
+    flags: {
+      flag_chapter: 3, flag_chapter1_cleared: true, flag_ch2_cleared: true,
+      flag_ch3_helping_obachan: true, flag_ch3_museum_unlocked: true,
+    },
+  },
+  {
+    label: 'アーケード（チェイス）',
+    chapter: '第3章',
+    sceneId: 'scene_arcade_default',
+    locationId: 'loc_arcade',
+    flags: {
+      flag_chapter: 3, flag_chapter1_cleared: true, flag_ch2_cleared: true,
+      flag_ch3_helping_obachan: true, flag_ch3_museum_unlocked: true,
+      flag_ch3_got_ticket: true, flag_ch3_ticket_given: true,
+    },
+  },
+];
+
+const CHAPTERS = [...new Set(PRESETS.map(p => p.chapter))];
+
+// ────────────────────────────────────────────────
 // デバッグパネル（ゲームの右カラム）
 // ────────────────────────────────────────────────
 function DebugPanel({
@@ -196,7 +343,10 @@ export function TestPlayPage({
   // 起動設定
   const [sceneId, setSceneId] = useState('');
   const [locationId, setLocationId] = useState('');
+  const [startFlags, setStartFlags] = useState<Record<string, boolean | number | string>>({});
+  const [startInventory, setStartInventory] = useState<string[]>([]);
   const [defaultsApplied, setDefaultsApplied] = useState(false);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
 
   // 実行状態
   const [launched, setLaunched] = useState(false);
@@ -223,13 +373,27 @@ export function TestPlayPage({
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  function doLaunch(sid: string, lid: string) {
-    localStorage.setItem(DEBUG_START_KEY, JSON.stringify({ sceneId: sid, locationId: lid }));
+  function doLaunch(sid: string, lid: string, flags?: Record<string, boolean | number | string>, inv?: string[]) {
+    localStorage.setItem(DEBUG_START_KEY, JSON.stringify({
+      sceneId: sid,
+      locationId: lid,
+      flags:     flags     ?? startFlags,
+      inventory: inv       ?? startInventory,
+    }));
     localStorage.removeItem(DEBUG_STATE_KEY);
     localStorage.removeItem(DEBUG_CMD_KEY);
     setGameState(null);
     setLaunched(true);
     setLaunchKey(k => k + 1);
+  }
+
+  function applyPreset(preset: TestPreset) {
+    setSceneId(preset.sceneId);
+    setLocationId(preset.locationId);
+    setStartFlags(preset.flags ?? {});
+    setStartInventory(preset.inventory ?? []);
+    setActivePreset(preset.label + preset.chapter);
+    doLaunch(preset.sceneId, preset.locationId, preset.flags ?? {}, preset.inventory ?? []);
   }
 
   const SEL: React.CSSProperties = {
@@ -242,56 +406,101 @@ export function TestPlayPage({
     const hasData = allSceneIds.length > 0;
     return (
       <div style={{
-        height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#0f0f1a', fontFamily: 'monospace',
+        height: '100%', overflowY: 'auto',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        background: '#0f0f1a', fontFamily: 'monospace', padding: '32px 16px',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 400 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, width: 480 }}>
           <div style={{ fontSize: 15, fontWeight: 'bold', color: '#7986cb' }}>テストプレイ</div>
 
-          {!hasData && (
-            <div style={{ fontSize: 12, color: '#445', padding: '10px 14px', background: '#12121e', borderRadius: 6, border: '1px solid #2a2a4e' }}>
-              フォルダを開くとシーン一覧が使えます。
+          {/* ── プリセット ── */}
+          <div style={{ background: '#0d0d1a', borderRadius: 6, border: '1px solid #1a1a2e', padding: '14px 16px' }}>
+            <div style={{ fontSize: 11, color: '#7986cb', marginBottom: 12 }}>プリセット（クリックで即起動）</div>
+            {CHAPTERS.map(ch => (
+              <div key={ch} style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, color: '#556', marginBottom: 6, letterSpacing: '0.05em' }}>{ch}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {PRESETS.filter(p => p.chapter === ch).map(preset => {
+                    const isActive = activePreset === preset.label + preset.chapter;
+                    return (
+                      <button
+                        key={preset.label}
+                        onClick={() => applyPreset(preset)}
+                        style={{
+                          fontSize: 11, padding: '5px 10px',
+                          background: isActive ? '#1e3a5a' : '#16213e',
+                          border: `1px solid ${isActive ? '#4a7ab8' : '#2a2a4e'}`,
+                          color: isActive ? '#8ab4f8' : '#aab',
+                          borderRadius: 4, cursor: 'pointer',
+                          transition: 'background 0.15s, border-color 0.15s',
+                        }}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── カスタム起動 ── */}
+          <div style={{ background: '#0d0d1a', borderRadius: 6, border: '1px solid #1a1a2e', padding: '14px 16px' }}>
+            <div style={{ fontSize: 11, color: '#7986cb', marginBottom: 12 }}>カスタム起動</div>
+
+            {!hasData && (
+              <div style={{ fontSize: 12, color: '#445', padding: '10px 14px', background: '#12121e', borderRadius: 6, border: '1px solid #2a2a4e', marginBottom: 10 }}>
+                フォルダを開くとシーン一覧が使えます。
+              </div>
+            )}
+
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 11, color: '#556', marginBottom: 5 }}>開始シーン</div>
+              {hasData ? (
+                <select
+                  value={sceneId}
+                  onChange={e => { setSceneId(e.target.value); setActivePreset(null); }}
+                  style={{ ...SEL, width: '100%' }}
+                >
+                  {allSceneIds.map(id => <option key={id} value={id}>{id}</option>)}
+                </select>
+              ) : (
+                <input
+                  type="text" value={sceneId} placeholder="scene_danchi_morning"
+                  onChange={e => { setSceneId(e.target.value); setActivePreset(null); }}
+                  style={{ ...SEL, width: '100%', boxSizing: 'border-box' }}
+                />
+              )}
             </div>
-          )}
 
-          <div>
-            <div style={{ fontSize: 11, color: '#7986cb', marginBottom: 5 }}>開始シーン</div>
-            {hasData ? (
-              <select value={sceneId} onChange={e => setSceneId(e.target.value)} style={{ ...SEL, width: '100%' }}>
-                {allSceneIds.map(id => <option key={id} value={id}>{id}</option>)}
-              </select>
-            ) : (
-              <input
-                type="text" value={sceneId} placeholder="scene_danchi_morning"
-                onChange={e => setSceneId(e.target.value)}
-                style={{ ...SEL, width: '100%', boxSizing: 'border-box' }}
-              />
-            )}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: '#556', marginBottom: 5 }}>場所</div>
+              {rawLocations.length > 0 ? (
+                <select
+                  value={locationId}
+                  onChange={e => { setLocationId(e.target.value); setActivePreset(null); }}
+                  style={{ ...SEL, width: '100%' }}
+                >
+                  {rawLocations.map(l => <option key={l.id} value={l.id}>{l.name}（{l.id}）</option>)}
+                </select>
+              ) : (
+                <input
+                  type="text" value={locationId} placeholder="loc_danchi"
+                  onChange={e => { setLocationId(e.target.value); setActivePreset(null); }}
+                  style={{ ...SEL, width: '100%', boxSizing: 'border-box' }}
+                />
+              )}
+            </div>
+
+            <button
+              className="primary"
+              style={{ padding: '9px 0', fontSize: 13, width: '100%' }}
+              onClick={() => doLaunch(sceneId, locationId)}
+              disabled={!sceneId || !locationId}
+            >
+              ▶ 起動
+            </button>
           </div>
-
-          <div>
-            <div style={{ fontSize: 11, color: '#7986cb', marginBottom: 5 }}>場所</div>
-            {rawLocations.length > 0 ? (
-              <select value={locationId} onChange={e => setLocationId(e.target.value)} style={{ ...SEL, width: '100%' }}>
-                {rawLocations.map(l => <option key={l.id} value={l.id}>{l.name}（{l.id}）</option>)}
-              </select>
-            ) : (
-              <input
-                type="text" value={locationId} placeholder="loc_danchi"
-                onChange={e => setLocationId(e.target.value)}
-                style={{ ...SEL, width: '100%', boxSizing: 'border-box' }}
-              />
-            )}
-          </div>
-
-          <button
-            className="primary"
-            style={{ padding: '9px 0', fontSize: 13 }}
-            onClick={() => doLaunch(sceneId, locationId)}
-            disabled={!sceneId || !locationId}
-          >
-            ▶ 起動
-          </button>
         </div>
       </div>
     );
@@ -326,7 +535,29 @@ export function TestPlayPage({
         >
           ⟳ 再起動
         </button>
-        <div style={{ fontSize: 11, color: '#445', marginLeft: 4 }}>
+        {/* プリセットクイック切り替え */}
+        <div style={{ display: 'flex', gap: 4, overflowX: 'auto', flex: 1 }}>
+          {PRESETS.map(preset => {
+            const isActive = activePreset === preset.label + preset.chapter;
+            return (
+              <button
+                key={preset.chapter + preset.label}
+                onClick={() => applyPreset(preset)}
+                title={`${preset.chapter} ${preset.label}`}
+                style={{
+                  fontSize: 10, padding: '2px 7px', flexShrink: 0,
+                  background: isActive ? '#1e3a5a' : '#12121e',
+                  border: `1px solid ${isActive ? '#4a7ab8' : '#1a1a2e'}`,
+                  color: isActive ? '#8ab4f8' : '#557',
+                  borderRadius: 3, cursor: 'pointer', whiteSpace: 'nowrap',
+                }}
+              >
+                {preset.chapter.replace('第', '').replace('章', 'ch')} {preset.label}
+              </button>
+            );
+          })}
+        </div>
+        <div style={{ fontSize: 11, color: '#445', flexShrink: 0 }}>
           {gameState
             ? <span style={{ color: '#778' }}>{gameState.currentSceneId}　<span style={{ color: '#556' }}>({gameState.phase})</span></span>
             : <span style={{ color: '#334' }}>起動中…</span>
