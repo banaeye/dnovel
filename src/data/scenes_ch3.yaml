@@ -11,7 +11,7 @@ scenes:
       - flag: flag_ch2_cleared
         value: true
     messages:
-      - text: 第3章　おばちゃんとアメちゃんゲーム
+      - text: 第3章　アーケード街の死闘
         voice_character_id: null
       - text: 一番街での騒動が落ち着いてから、数日が経った。
         voice_character_id: null
@@ -961,7 +961,7 @@ scenes:
     location_id: loc_arcade
     background: backgrounds/archade.jpg
     bgm: audio/bgm/ending.mp3
-    ending_title: 第3章　おばちゃんとアメちゃんゲーム
+    ending_title: 第3章　アーケード街の死闘
     characters:
       - character_id: char_obachan
         position: right
@@ -979,7 +979,7 @@ scenes:
         voice_character_id: char_obachan
       - text: 拍手の中、おばちゃんは胸を張って笑った。
         voice_character_id: null
-      - text: 第3章　おばちゃんとアメちゃんゲーム　完
+      - text: 第3章　アーケード街の死闘　完
         voice_character_id: null
     game_end: true
     flags_set:
@@ -998,7 +998,7 @@ scenes:
     location_id: loc_arcade
     background: backgrounds/archade.jpg
     bgm: audio/bgm/ending.mp3
-    ending_title: 第3章　おばちゃんとアメちゃんゲーム
+    ending_title: 第3章　アーケード街の死闘
     characters:
       - character_id: char_obachan
         position: right
@@ -1014,7 +1014,7 @@ scenes:
         voice_character_id: char_obachan
       - text: 取れた数は多くなくても、おばちゃんの健闘に会場からあたたかい拍手が起きた。
         voice_character_id: null
-      - text: 第3章　おばちゃんとアメちゃんゲーム　完
+      - text: 第3章　アーケード街の死闘　完
         voice_character_id: null
     game_end: true
     flags_set:
