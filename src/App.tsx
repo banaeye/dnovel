@@ -3,11 +3,13 @@ import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 import { MazeRpgEngine } from '@novel-engine/maze-rpg';
 import { RunnerActionEngine } from '@novel-engine/runner-action';
 import { MemoryGameEngine } from '@novel-engine/memory-game';
+import { FlashCalcEngine } from '@novel-engine/flash-calc';
 import type { ChapterConfig } from '@novel-engine/core';
 
 const masterData = getMasterData();
 const chapter2MasterData = getMasterData('chapter2');
 const chapter3MasterData = getMasterData('chapter3');
+const chapter4MasterData = getMasterData('chapter4');
 const ASSETS_BASE = `${import.meta.env.BASE_URL}assets`;
 
 const CHAPTERS: ChapterConfig[] = [
@@ -49,6 +51,21 @@ const CHAPTERS: ChapterConfig[] = [
       flag_ch2_cleared: true,
     },
   },
+  {
+    id: 'chapter4',
+    title: '第4章へ',
+    chapterTitle: '（タイトル未定）',
+    masterData: chapter4MasterData,
+    initialSceneId: 'scene_ch4_start',
+    initialLocationId: 'loc_danchi',
+    unlockFlag: 'flag_ch3_cleared',
+    initialFlags: {
+      flag_chapter: 4,
+      flag_chapter1_cleared: true,
+      flag_ch2_cleared: true,
+      flag_ch3_cleared: true,
+    },
+  },
 ];
 
 export default function App() {
@@ -59,6 +76,7 @@ export default function App() {
         maze_rpg: MazeRpgEngine,
         runner_action: RunnerActionEngine,
         memory_game: MemoryGameEngine,
+        flash_calc: FlashCalcEngine,
       }}
       initial={{
         engineId: 'novel',

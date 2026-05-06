@@ -143,3 +143,23 @@ flags:
     type: boolean
     default: false
     description: "再取得したチケットをアーケード街でおばちゃんに渡した"
+
+  - id: flag_ch4_boy_troubled_seen
+    type: boolean
+    default: false
+    description: "少年がテストで怒られた話を聞いた"
+
+  - id: flag_ch4_ken_offered_help
+    type: boolean
+    default: false
+    description: "ケンが少年にフラッシュ暗算を教えると申し出た"
+
+  - id: flag_ch4_flash_calc_done
+    type: boolean
+    default: false
+    description: "フラッシュ暗算ゲームを一度プレイした"
+
+  - id: flag_ch4_cleared
+    type: boolean
+    default: false
+    description: "第4章クリア済み"

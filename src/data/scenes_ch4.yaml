@@ -1,0 +1,328 @@
+scenes:
+  # ============================================================
+  # 第4章　開幕
+  # ============================================================
+  - id: scene_ch4_start
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_chapter
+        value: 4
+      - flag: flag_chapter1_cleared
+        value: true
+      - flag: flag_ch2_cleared
+        value: true
+      - flag: flag_ch3_cleared
+        value: true
+    messages:
+      - text: 第4章
+        voice_character_id: null
+      - text: アメちゃん大会から、数日が経った。
+        voice_character_id: null
+      - text: 団地の広場に出ると、見慣れた顔がふたつ、仲良さそうに並んでいた。
+        voice_character_id: null
+    next_scene: scene_ch4_boy_and_obachan_chat
+
+  # ============================================================
+  # ロケーション入口シーン（全ロケーション分・章単独動作のため必須）
+  # ============================================================
+  - id: scene_danchi_morning
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch4_flash_calc_done
+            value: true
+          next_scene: scene_ch4_ending
+        - condition:
+            flag: flag_ch4_ken_offered_help
+            value: true
+          next_scene: scene_ch4_flash_calc_start
+        - condition:
+            flag: flag_ch4_boy_troubled_seen
+            value: true
+          next_scene: scene_ch4_ken_offers_help
+        - condition: null
+          next_scene: scene_ch4_boy_and_obachan_chat
+
+  - id: scene_station_default
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 今は駅前にいる気分じゃない。団地に戻ろう。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_coderdojo_default
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 今日はCoderDojoの日じゃない。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 一番街の入口。今日は用事はない。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_arcade_default
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: アーケード街。あのアメちゃん大会が懐かしい。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages:
+      - text: 公園。今日はここではなく、団地の広場の方が騒がしい。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_default
+    location_id: loc_museum
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages:
+      - text: 団地のミュージアム。今日は閉まっているようだ。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_slope_default
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages:
+      - text: 団地への坂道。今は上に戻るより、広場の方が気になる。
+        voice_character_id: null
+    next_scene: null
+
+  # ============================================================
+  # 第4章　本編
+  # ============================================================
+  - id: scene_ch4_boy_and_obachan_chat
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_candy_kid
+        position: left
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: 広場では、アメ好き少年と田村のおばちゃんが並んでベンチに座っていた。
+        voice_character_id: null
+      - text: 「あのアメちゃん大会、ほんまに楽しかったな！」
+        voice_character_id: char_obachan
+      - text: 「うん！　おばちゃん走るの速かった！」
+        voice_character_id: char_candy_kid
+      - text: 「あんたに言われとうなかったわ」
+        voice_character_id: char_obachan
+      - text: ふたりはころころ笑っている。あのアメちゃん大会からすっかり仲良しになったようだ。
+        voice_character_id: null
+    next_scene: scene_ch4_boy_troubled
+
+  - id: scene_ch4_boy_troubled
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch4_boy_troubled_seen
+        value: true
+    characters:
+      - character_id: char_candy_kid
+        position: left
+        expression: talking
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: そのとき、少年の顔が少し曇った。
+        voice_character_id: null
+      - text: 「……でも、学校のテスト、めっちゃ悪くて。お父さんとお母さんにものすごく怒られた」
+        voice_character_id: char_candy_kid
+      - text: 「あらまあ。何点やったん？」
+        voice_character_id: char_obachan
+      - text: 「……さんじゅってん」
+        voice_character_id: char_candy_kid
+      - text: 「それはお父さんも怒るわな」
+        voice_character_id: char_obachan
+      - text: 「もっと勉強しろって……ゲームも取り上げられた」
+        voice_character_id: char_candy_kid
+      - text: ケンは横で話を聞いていた。
+        voice_character_id: null
+    next_scene: scene_ch4_ken_offers_help
+
+  - id: scene_ch4_ken_offers_help
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch4_ken_offered_help
+        value: true
+    characters:
+      - character_id: char_candy_kid
+        position: left
+        expression: normal
+      - character_id: char_hero
+        position: center
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: 「だったら、おれが教えてやるよ」
+        voice_character_id: char_hero
+      - text: 「ケン兄ちゃんが？」
+        voice_character_id: char_candy_kid
+      - text: 「フラッシュ暗算って知ってるか？　数字が一瞬だけパッと出てきて、頭の中で足したり引いたりするやつ」
+        voice_character_id: char_hero
+      - text: 「……ゲームみたいなの？」
+        voice_character_id: char_candy_kid
+      - text: 「ゲームだよ。でもやってると頭が鍛えられる。算数も速くなるぞ」
+        voice_character_id: char_hero
+      - text: 「ほんまかいな」
+        voice_character_id: char_obachan
+      - text: 少年の目がきらりと光った。
+        voice_character_id: null
+      - text: 「……やってみる！」
+        voice_character_id: char_candy_kid
+    next_scene: scene_ch4_flash_calc_start
+
+  - id: scene_ch4_flash_calc_start
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_hero
+        position: center
+        expression: normal
+      - character_id: char_candy_kid
+        position: left
+        expression: normal
+    messages:
+      - text: 「じゃあ、始めるぞ。集中してよく見ておけよ」
+        voice_character_id: char_hero
+      - text: 少年はコクリとうなずいた。
+        voice_character_id: null
+    next_engine:
+      id: flash_calc
+      config:
+        difficulty: easy
+        rounds: 5
+      return_scene: scene_ch4_after_flash_calc
+
+  # ゲーム終了後のディスパッチャー（flash_calc_passed フラグで分岐）
+  - id: scene_ch4_after_flash_calc
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flash_calc_passed
+            value: true
+          next_scene: scene_ch4_flash_calc_pass
+        - condition: null
+          next_scene: scene_ch4_flash_calc_fail
+
+  # 合格（4問以上正解）
+  - id: scene_ch4_flash_calc_pass
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch4_flash_calc_done
+        value: true
+    characters:
+      - character_id: char_candy_kid
+        position: left
+        expression: talking
+      - character_id: char_hero
+        position: center
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: ゲームが終わった。
+        voice_character_id: null
+      - text: 「……なんか、楽しかった！　もう一回やりたい！」
+        voice_character_id: char_candy_kid
+      - text: 「ちゃんと答えられてたじゃないか。続けてたら算数も得意になるぞ」
+        voice_character_id: char_hero
+      - text: 「ほんまかいな」
+        voice_character_id: char_obachan
+      - text: 少年は照れくさそうに笑った。
+        voice_character_id: null
+    next_scene: scene_ch4_ending
+
+  # 不合格（3問以下）→ ケンに励まされて再挑戦
+  - id: scene_ch4_flash_calc_fail
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_candy_kid
+        position: left
+        expression: talking
+      - character_id: char_hero
+        position: center
+        expression: normal
+      - character_id: char_obachan
+        position: right
+        expression: normal
+    messages:
+      - text: ゲームが終わった。
+        voice_character_id: null
+      - text: 「……むずかしかった。全然わからんかった」
+        voice_character_id: char_candy_kid
+      - text: 「最初はそんなもんだ。数字を目で追うのに慣れてないだけだよ」
+        voice_character_id: char_hero
+      - text: 「もう一回やってみ。さっきより絶対できるから」
+        voice_character_id: char_hero
+      - text: 少年は唇を結んで、もう一度うなずいた。
+        voice_character_id: null
+    next_engine:
+      id: flash_calc
+      config:
+        difficulty: easy
+        rounds: 5
+      return_scene: scene_ch4_after_flash_calc
+
+  - id: scene_ch4_ending
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    ending_title: 第4章
+    flags_set:
+      - flag: flag_ch4_cleared
+        value: true
+    messages:
+      - text: 赤羽の団地に、夕暮れが近づいてきた。
+        voice_character_id: null
+      - text: 少年はアメちゃんをひとつ口に放り込んで、また来るな、と手を振った。
+        voice_character_id: null
+      - text: 今日も、ここでは小さなドラマが生まれている。
+        voice_character_id: null
+    game_end: true

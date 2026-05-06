@@ -53,7 +53,7 @@ characters:
     name: "アメ好きっ子"
     name_flag: null
     voicevox_speaker_id: 8
-    y_offset: -190
+    y_offset: -250
     sprites:
       normal: characters/kozo/kozo.png
       talking: characters/kozo/kozo.png
@@ -65,10 +65,10 @@ characters:
     y_offset: -250
     sprites:
       normal: characters/muse/muse_onesan.png
-      talking: characters/muse/muse_onesan.png
+      talking: characters/muse/muse_onesan_talking.png
 
   - id: char_museum_part_timer
-    name: "女子大生バイト"
+    name: "バイト"
     name_flag: null
     voicevox_speaker_id: 3
     y_offset: -250

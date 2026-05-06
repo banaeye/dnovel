@@ -579,7 +579,7 @@ scenes:
         position: right
         expression: normal
     messages:
-      - text: 受付にいたのは、名札を少し斜めにつけた女子大生バイトだった。
+      - text: 受付にいたのは、名札を少し斜めにつけた大学生のバイトだった。
         voice_character_id: null
       - text: カウンターの上には、アメちゃんゲット大会のチケットが一枚だけ置かれている。
         voice_character_id: null
@@ -597,7 +597,7 @@ scenes:
     messages:
       - text: 「あのう、チケットをお持ちって聞いたんですが……」
         voice_character_id: char_hero
-      - text: 「あっ、はい！　えっと、あります！　……あれ、どこに置いたっけ……あ、ここでした！」
+      - text: 「あっ、はい！ただいまバイトの私しかいなくって、、いいのかな、、　えっと、あります！　……あれ、どこに置いたっけ……あ、ここでした！」
         voice_character_id: char_museum_part_timer
       - text: 「でも受付さんから、渡す前に神経衰弱で確認するようにって言われてて……たぶん、そういう決まりです！」
         voice_character_id: char_museum_part_timer
