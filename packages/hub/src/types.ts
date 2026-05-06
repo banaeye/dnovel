@@ -11,7 +11,7 @@ export interface EngineTransition {
   config?: unknown;
   returnEngineId?: string;
   returnConfig?: unknown;
-  /** 遷移エフェクト: 'fade' | 'wipe' | 'flash' | 'none' */
+  /** 遷移エフェクト: 'fade' | 'wipe' | 'flash' | 'speedline' | 'none' */
   transition?: string;
 }
 

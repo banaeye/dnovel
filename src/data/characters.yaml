@@ -73,9 +73,8 @@ characters:
     voicevox_speaker_id: 3
     y_offset: -180
     sprites:
-      normal: characters/college_student/daigakusei_normal.png
-      talking: characters/college_student/daigakusei_normal.png
-
+      normal: characters/bite/bite.png
+      talking: characters/bite/bite_talking.png
   - id: char_oyaji
     name: "おじさん"
     name_flag: null

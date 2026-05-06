@@ -21,8 +21,13 @@ function hashKey(text, speakerId) {
   return createHash('sha1').update(`${text}_${speakerId}`, 'utf8').digest('hex');
 }
 
-// YAML読み込み
-const scenes = yaml.load(fs.readFileSync(path.join(ROOT, 'src/data/scenes.yaml'), 'utf8')).scenes;
+// YAML読み込み（全章分）
+const SCENE_FILES = ['scenes.yaml', 'scenes_ch1.yaml', 'scenes_ch2.yaml', 'scenes_ch3.yaml'];
+const scenes = SCENE_FILES.flatMap(file => {
+  const fullPath = path.join(ROOT, 'src/data', file);
+  if (!fs.existsSync(fullPath)) return [];
+  return yaml.load(fs.readFileSync(fullPath, 'utf8')).scenes ?? [];
+});
 const characters = yaml.load(fs.readFileSync(path.join(ROOT, 'src/data/characters.yaml'), 'utf8')).characters;
 
 // キャラID → speakerId マップ

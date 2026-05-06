@@ -17,6 +17,8 @@ export interface RunnerActionConfig {
   assetsBaseUrl?: string;
   backgroundImage?: string;
   backgroundLoopWidth?: number;
+  bgm?: string;
+  bgmVolume?: number;
   playerImage?: string;
   playerWidth?: number;
   playerHeight?: number;
@@ -167,6 +169,83 @@ function useImage(src: string | undefined): LoadedImage {
   }, [src]);
 
   return { image, failed };
+}
+
+function useRunnerBgm(assetsBaseUrl: string | undefined, bgm: string | undefined, volume = 0.28) {
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    const safeVolume = Math.max(0, Math.min(1, volume));
+
+    if (bgm?.startsWith('synth:')) {
+      cleanup = startSynthBgm(safeVolume);
+      return () => cleanup?.();
+    }
+
+    if (bgm) {
+      const audio = new Audio(resolveAsset(assetsBaseUrl, bgm));
+      audio.loop = true;
+      audio.volume = safeVolume;
+      audio.play().catch(() => {});
+      cleanup = () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+      return () => cleanup?.();
+    }
+
+    return undefined;
+  }, [assetsBaseUrl, bgm, volume]);
+}
+
+function startSynthBgm(volume: number): () => void {
+  const AudioContextClass = window.AudioContext
+    ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioContextClass) return () => {};
+
+  const audioContext = new AudioContextClass();
+  const master = audioContext.createGain();
+  master.gain.value = volume;
+  master.connect(audioContext.destination);
+
+  const delay = audioContext.createDelay();
+  delay.delayTime.value = 0.18;
+  const feedback = audioContext.createGain();
+  feedback.gain.value = 0.18;
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(master);
+
+  const notes = [392, 523.25, 659.25, 783.99, 659.25, 523.25, 440, 587.33];
+  let step = 0;
+  let stopped = false;
+
+  const playNote = () => {
+    if (stopped) return;
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = step % 4 === 0 ? 'square' : 'triangle';
+    osc.frequency.setValueAtTime(notes[step % notes.length], now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.24, now + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    osc.connect(gain);
+    gain.connect(master);
+    gain.connect(delay);
+    osc.start(now);
+    osc.stop(now + 0.18);
+    step += 1;
+  };
+
+  void audioContext.resume().catch(() => {});
+  playNote();
+  const interval = window.setInterval(playNote, 135);
+
+  return () => {
+    stopped = true;
+    window.clearInterval(interval);
+    void audioContext.close().catch(() => {});
+  };
 }
 
 function objectX(object: FlyingObject, elapsedMs: number, speedMultiplier = 1): number {
@@ -526,6 +605,7 @@ function RunnerActionAppComponent({
   const backgroundImageSrc = resolveAsset(config.assetsBaseUrl, config.backgroundImage);
   const playerImageSrc = resolveAsset(config.assetsBaseUrl, config.playerImage);
   const opponentImageSrc = resolveAsset(config.assetsBaseUrl, config.opponentImage);
+  useRunnerBgm(config.assetsBaseUrl, config.bgm, config.bgmVolume);
   const backgroundAsset = useImage(backgroundImageSrc);
   const playerAsset = useImage(playerImageSrc);
   const opponentAsset = useImage(opponentImageSrc);

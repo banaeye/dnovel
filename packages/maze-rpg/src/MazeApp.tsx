@@ -57,6 +57,10 @@ export interface MazeRpgConfig {
   theme?: MazeTheme;
   /** 敵画像などのアセットベース URL（省略時は '/assets'） */
   assetsBaseUrl?: string;
+  /** 探索中に流れる BGM（assetsBaseUrl 相対パス, 例: 'audio/bgm/dungeon.mp3'） */
+  bgm?: string;
+  /** バトル中に流れる BGM（省略時は bgm を継続） */
+  battleBgm?: string;
   /** インベントリに表示するアイテム情報（NovelEngineAdapter が自動注入） */
   items?: MazeItemDef[];
   /** イベントタイル文字 → novel scene ID（例: { E: 'scene_maze_event_01' }） */
@@ -85,6 +89,25 @@ function useGameScale() {
     return () => window.removeEventListener('resize', update);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return scale;
+}
+
+function useMazeBgm(assetsBaseUrl: string, bgm: string | undefined, battleBgm: string | undefined, inBattle: boolean) {
+  const activeBgm = inBattle && battleBgm ? battleBgm : bgm;
+
+  useEffect(() => {
+    if (!activeBgm) return;
+    const url = `${assetsBaseUrl.replace(/\/$/, '')}/${activeBgm}`;
+    const audio = new Audio(url);
+    audio.loop = true;
+    audio.volume = 0.6;
+    audio.play().catch(() => {/* autoplay policy or file not found */});
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  // activeBgm が bgm/battleBgm/inBattle の変化を集約する
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBgm, assetsBaseUrl]);
 }
 
 function HpRow({ hp, maxHp, theme }: { hp: number; maxHp: number; theme: Required<MazeTheme> }) {
@@ -142,6 +165,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   );
   const theme = mergeTheme(config.theme);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
+
+  useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, !!state.battle);
 
   const [itemNotice, setItemNotice] = useState<string | null>(null);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -238,6 +263,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         name:         config.name,
         theme:        config.theme,
         assetsBaseUrl: config.assetsBaseUrl,
+        bgm:          config.bgm,
+        battleBgm:    config.battleBgm,
         items:        config.items,
         events:       config.events,
         itemEffects:  config.itemEffects,
@@ -278,6 +305,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         name:         config.name,
         theme:        config.theme,
         assetsBaseUrl: config.assetsBaseUrl,
+        bgm:          config.bgm,
+        battleBgm:    config.battleBgm,
         items:        config.items,
         events:       config.events,
         itemEffects:  config.itemEffects,

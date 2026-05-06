@@ -68,7 +68,7 @@ scenes:
   - id: scene_museum_default
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
+    bgm: audio/bgm/musium.mp3
     messages: []
     branches:
       type: auto
@@ -113,7 +113,7 @@ scenes:
         voice_character_id: null
   - id: scene_park_default
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     messages: []
     branches:
@@ -131,14 +131,14 @@ scenes:
           next_scene: scene_ch3_park_idle
   - id: scene_ch3_park_idle
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     messages:
       - text: 公園に来た。子どもたちの声が遠くで弾んでいる。
         voice_character_id: null
   - id: scene_ch3_park_after_ticket_stolen
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_candy_kid
@@ -159,18 +159,21 @@ scenes:
           next_scene: scene_ch3_park_chase_start
   - id: scene_ch3_park_chase_start
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     messages:
       - text: アメ好きっ子との距離が少しずつ縮まっていく。犬と鳥にぶつからないように追いかけよう。
         voice_character_id: null
     next_engine:
       id: runner_action
+      transition: speedline
       config:
         stageId: park_chase_bad_kids
         mode: chase
         name: チケットを取り返せ！
         durationMs: 25000
+        bgm: synth:runner
+        bgmVolume: 0.24
         backgroundImage: runner/loop_park.jpg
         backgroundLoopWidth: 1352
         playerImage: runner/hero.png
@@ -186,7 +189,7 @@ scenes:
       return_scene: scene_ch3_after_park_chase
   - id: scene_ch3_after_park_chase
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     messages: []
     branches:
@@ -200,7 +203,7 @@ scenes:
           next_scene: scene_ch3_park_chase_retry
   - id: scene_ch3_park_chase_win
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_candy_kid
@@ -221,9 +224,9 @@ scenes:
     next_scene: scene_ch3_obachan_gives_ticket_to_bad_kids
   - id: scene_ch3_obachan_gives_ticket_to_bad_kids
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
-    overlay_image: cg/candy_happy.jpg
+    overlay_image: cg/give_ticket.jpg
     characters:
       - character_id: char_candy_kid
         position: left
@@ -247,7 +250,7 @@ scenes:
         voice_character_id: char_obachan
   - id: scene_ch3_park_chase_retry
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_candy_kid
@@ -269,7 +272,7 @@ scenes:
           next_scene: scene_ch3_park_cannot_leave
   - id: scene_ch3_park_cannot_leave
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_candy_kid
@@ -288,18 +291,21 @@ scenes:
           next_scene: scene_ch3_park_chase_retry_start
   - id: scene_ch3_park_chase_retry_start
     location_id: loc_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/park.jpg
     bgm: audio/bgm/station.mp3
     messages:
       - text: アメ好きっ子の息も少し上がっている。今度はさっきより追いつきやすそうだ。
         voice_character_id: null
     next_engine:
       id: runner_action
+      transition: speedline
       config:
         stageId: park_chase_bad_kids
         mode: chase
         name: チケットを取り返せ！
         durationMs: 30000
+        bgm: synth:runner
+        bgmVolume: 0.24
         chaseStartDistance: 90
         chaseCatchRate: 0.0054
         chaseHitDistancePenalty: 12
@@ -475,7 +481,6 @@ scenes:
   - id: scene_ch3_museum_receptionist
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -491,7 +496,6 @@ scenes:
   - id: scene_ch3_talk_museum_staff
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -536,7 +540,6 @@ scenes:
   - id: scene_ch3_museum_game_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     messages: []
     branches:
       type: auto
@@ -550,7 +553,6 @@ scenes:
   - id: scene_ch3_museum_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -575,7 +577,6 @@ scenes:
   - id: scene_ch3_museum_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: right
@@ -593,14 +594,12 @@ scenes:
   - id: scene_ch3_museum_after_ticket
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     messages:
       - text: もうチケットはもらった。おばちゃんのところへ戻ろう。
         voice_character_id: null
   - id: scene_ch3_museum_second_visit
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -623,7 +622,6 @@ scenes:
   - id: scene_ch3_talk_museum_staff_second
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -667,7 +665,6 @@ scenes:
   - id: scene_ch3_museum_second_game_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     messages: []
     branches:
       type: auto
@@ -681,7 +678,6 @@ scenes:
   - id: scene_ch3_museum_second_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -709,7 +705,6 @@ scenes:
   - id: scene_ch3_museum_second_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
-    bgm: audio/bgm/coderdojo.mp3
     characters:
       - character_id: char_museum_part_timer
         position: left
@@ -806,10 +801,13 @@ scenes:
         voice_character_id: char_obachan
     next_engine:
       id: runner_action
+      transition: speedline
       config:
         stageId: arcade_deathmatch
         name: アメちゃんゲット大会
         durationMs: 30000
+        bgm: synth:runner
+        bgmVolume: 0.24
         objectSpeedMultiplier: 1.25
         backgroundImage: runner/arcade_loop.jpg
         backgroundLoopWidth: 1352
@@ -987,10 +985,13 @@ scenes:
         voice_character_id: char_obachan
     next_engine:
       id: runner_action
+      transition: speedline
       config:
         stageId: arcade_deathmatch
         name: アーケード街の死闘
         durationMs: 30000
+        bgm: synth:runner
+        bgmVolume: 0.24
         objectSpeedMultiplier: 1.25
         backgroundImage: runner/arcade_loop.jpg
         backgroundLoopWidth: 1352

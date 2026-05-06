@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameContext, EngineTransition, IGameEngine } from './types';
 
-type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'none';
+type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'none';
 type TransitionPhase = 'idle' | 'out' | 'in';
 
 const DURATION: Record<TransitionEffect, number> = {
   fade:  400,
   wipe:  350,
   flash: 150,
+  speedline: 720,
   none:  0,
 };
 
@@ -18,6 +19,16 @@ const KEYFRAMES = `
 @keyframes hub-wipe-in   { from { transform: translateX(0%)    } to { transform: translateX(100%) } }
 @keyframes hub-flash-out { from { opacity: 0 } to { opacity: 1 } }
 @keyframes hub-flash-in  { from { opacity: 1 } to { opacity: 0 } }
+@keyframes hub-speedline-out {
+  0%   { opacity: 0; transform: scaleX(0.25) skewX(-10deg); filter: brightness(1); }
+  45%  { opacity: 1; transform: scaleX(1.15) skewX(-10deg); filter: brightness(1.9); }
+  100% { opacity: 1; transform: scaleX(1) skewX(0deg); filter: brightness(1.35); }
+}
+@keyframes hub-speedline-in {
+  0%   { opacity: 1; transform: scaleX(1) skewX(0deg); filter: brightness(1.35); }
+  55%  { opacity: 0.82; transform: scaleX(1.2) skewX(10deg); filter: brightness(1.8); }
+  100% { opacity: 0; transform: scaleX(0.35) skewX(10deg); filter: brightness(1); }
+}
 `;
 
 interface CurrentEngine {
@@ -97,12 +108,23 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
   const EngineComponent = engine.component;
 
   const overlayActive = phase !== 'idle';
+  const overlayBackground = effect === 'flash'
+    ? '#fff'
+    : effect === 'speedline'
+      ? [
+          'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.95) 0 5%, rgba(255,210,90,0.78) 9%, rgba(255,120,70,0.38) 18%, rgba(0,0,0,0.92) 58%)',
+          'repeating-linear-gradient(100deg, rgba(255,255,255,0.95) 0 8px, rgba(255,210,90,0.35) 8px 14px, rgba(0,0,0,0) 14px 34px)',
+          '#050505',
+        ].join(', ')
+      : '#000';
+
   const overlayStyle: React.CSSProperties = overlayActive ? {
     position:   'fixed',
     inset:      0,
     zIndex:     9999,
     pointerEvents: 'all',
-    background: effect === 'flash' ? '#fff' : '#000',
+    background: overlayBackground,
+    backgroundSize: effect === 'speedline' ? '100% 100%, 220px 100%, 100% 100%' : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
   } : {
     position:      'fixed',
@@ -120,7 +142,27 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
         config={current.config}
         onExit={handleExit}
       />
-      <div style={overlayStyle} />
+      <div style={overlayStyle}>
+        {overlayActive && effect === 'speedline' && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff7c8',
+              fontFamily: "'Impact', 'Arial Black', sans-serif",
+              fontSize: 96,
+              letterSpacing: 0,
+              textShadow: '0 0 18px rgba(255,118,54,0.95), 0 8px 0 rgba(0,0,0,0.55)',
+              transform: phase === 'out' ? 'rotate(-5deg) scale(1.08)' : 'rotate(5deg) scale(0.96)',
+            }}
+          >
+            RUN!
+          </div>
+        )}
+      </div>
     </>
   );
 }
