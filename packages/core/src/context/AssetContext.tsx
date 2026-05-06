@@ -8,7 +8,7 @@ interface AssetContextValue {
 
 export const AssetContext = createContext<AssetContextValue>({
   resolveAsset: (p) => p,
-  resolveVoicePath: (k) => `assets/voicevox/${k}.wav`,
+  resolveVoicePath: (k) => `assets/voicevox/${k}.mp3`,
 });
 
 export function AssetProvider({
@@ -21,7 +21,7 @@ export function AssetProvider({
   const base = assetsBaseUrl.replace(/\/$/, '');
   const value = useMemo<AssetContextValue>(() => ({
     resolveAsset: (relativePath) => `${base}/${relativePath}`,
-    resolveVoicePath: (hashKey) => `${base}/voicevox/${hashKey}.wav`,
+    resolveVoicePath: (hashKey) => `${base}/voicevox/${hashKey}.mp3`,
   }), [base]);
 
   return <AssetContext.Provider value={value}>{children}</AssetContext.Provider>;
