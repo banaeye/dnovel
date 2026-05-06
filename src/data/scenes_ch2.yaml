@@ -533,6 +533,7 @@ scenes:
         voice_character_id: char_hero
     next_engine:
       id: maze_rpg
+      transition: rift
       config:
         map: dungeon_02
         name: 一番街の異空間
@@ -605,6 +606,7 @@ scenes:
         voice_character_id: char_yui
     next_engine:
       id: __return__
+      transition: rift
   - id: scene_ch2_boss_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -647,6 +649,7 @@ scenes:
         voice_character_id: char_hero
     next_engine:
       id: __return__
+      transition: rift
   - id: scene_maze_event_01
     location_id: loc_ichibangai
     background: backgrounds/inner_ichibangai_dark.jpg
@@ -675,6 +678,7 @@ scenes:
           negate: true
     next_engine:
       id: __return__
+      transition: rift
   - id: scene_ch2_after_maze
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg

@@ -43,7 +43,7 @@ function enemyAttack(state: MazeState): MazeState {
   return {
     ...state,
     playerHp: newHp,
-    battle: { ...battle, phase: 'log', log, guarding: false },
+    battle: { ...battle, phase: 'select', log, guarding: false },
   };
 }
 
@@ -101,7 +101,6 @@ export function handleBattleKey(state: MazeState, key: string): MazeState {
 
   if (!confirm) return state;
 
-  if (battle.phase === 'log')  return { ...state, battle: { ...battle, phase: 'select', log: [] } };
   if (battle.phase === 'win') {
     if (state.pendingBossTilePos) {
       const triggeredEvents = new Set(state.triggeredEvents);

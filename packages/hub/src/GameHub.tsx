@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameContext, EngineTransition, IGameEngine } from './types';
 
-type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'none';
+type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'none';
 type TransitionPhase = 'idle' | 'out' | 'in';
 
 const DURATION: Record<TransitionEffect, number> = {
@@ -9,6 +9,7 @@ const DURATION: Record<TransitionEffect, number> = {
   wipe:  350,
   flash: 150,
   speedline: 720,
+  rift: 820,
   none:  0,
 };
 
@@ -29,6 +30,16 @@ const KEYFRAMES = `
   55%  { opacity: 0.82; transform: scaleX(1.2) skewX(10deg); filter: brightness(1.8); }
   100% { opacity: 0; transform: scaleX(0.35) skewX(10deg); filter: brightness(1); }
 }
+@keyframes hub-rift-out {
+  0%   { opacity: 0; transform: scale(1.18) rotate(0deg); filter: blur(0px) brightness(1); }
+  40%  { opacity: 1; transform: scale(1.04) rotate(-1deg); filter: blur(2px) brightness(1.4); }
+  100% { opacity: 1; transform: scale(0.98) rotate(0deg); filter: blur(0px) brightness(0.78); }
+}
+@keyframes hub-rift-in {
+  0%   { opacity: 1; transform: scale(0.98) rotate(0deg); filter: blur(0px) brightness(0.78); }
+  45%  { opacity: 0.85; transform: scale(1.06) rotate(1deg); filter: blur(2px) brightness(1.35); }
+  100% { opacity: 0; transform: scale(1.2) rotate(0deg); filter: blur(0px) brightness(1); }
+}
 `;
 
 interface CurrentEngine {
@@ -36,6 +47,7 @@ interface CurrentEngine {
   config: unknown;
   returnEngineId?: string;
   returnConfig?: unknown;
+  returnTransition?: string;
 }
 
 interface GameHubProps {
@@ -62,13 +74,14 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
         config:         next.config,
         returnEngineId: next.returnEngineId,
         returnConfig:   next.returnConfig,
+        returnTransition: next.returnTransition,
       };
     } else if (current.returnEngineId) {
       nextEngine = { engineId: current.returnEngineId, config: current.returnConfig };
     }
     if (!nextEngine) return;
 
-    const eff = ((next?.transition ?? defaultTransition) || 'none') as TransitionEffect;
+    const eff = ((next ? next.transition : current.returnTransition) ?? defaultTransition ?? 'none') as TransitionEffect;
     if (eff === 'none' || !(eff in DURATION)) {
       setContext(updated);
       setCurrent(nextEngine);
@@ -116,6 +129,12 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
           'repeating-linear-gradient(100deg, rgba(255,255,255,0.95) 0 8px, rgba(255,210,90,0.35) 8px 14px, rgba(0,0,0,0) 14px 34px)',
           '#050505',
         ].join(', ')
+      : effect === 'rift'
+        ? [
+            'radial-gradient(circle at 50% 50%, rgba(190,120,255,0.95) 0 4%, rgba(80,20,120,0.82) 13%, rgba(12,2,24,0.98) 54%, #000 100%)',
+            'repeating-conic-gradient(from 0deg, rgba(210,170,255,0.24) 0deg 7deg, rgba(0,0,0,0) 7deg 18deg)',
+            '#000',
+          ].join(', ')
       : '#000';
 
   const overlayStyle: React.CSSProperties = overlayActive ? {
@@ -124,7 +143,11 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
     zIndex:     9999,
     pointerEvents: 'all',
     background: overlayBackground,
-    backgroundSize: effect === 'speedline' ? '100% 100%, 220px 100%, 100% 100%' : undefined,
+    backgroundSize: effect === 'speedline'
+      ? '100% 100%, 220px 100%, 100% 100%'
+      : effect === 'rift'
+        ? '100% 100%, 180px 180px, 100% 100%'
+        : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
   } : {
     position:      'fixed',

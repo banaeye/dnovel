@@ -49,13 +49,13 @@ interface BattleViewProps {
   theme: Required<MazeTheme>;
   onSelectCommand?: (index: number) => void;
   onCommand?: (index: number) => void;
-  onAdvance?: () => void;
   font: string;
 }
 
-export function BattleView({ state, theme, onSelectCommand, onCommand, onAdvance, font }: BattleViewProps) {
+export function BattleView({ state, theme, onSelectCommand, onCommand, font }: BattleViewProps) {
   const { battle } = state;
   if (!battle) return null;
+  const latest = battle.log.at(-1);
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0, fontFamily: font }}>
@@ -68,7 +68,7 @@ export function BattleView({ state, theme, onSelectCommand, onCommand, onAdvance
         <HpBar hp={battle.enemy.hp} maxHp={battle.enemy.maxHp} color="#e05050" />
       </div>
 
-      {/* コマンドボタン or 続けるヒント */}
+      {/* コマンドボタン */}
       {battle.phase === 'select' ? (
         <div style={{ display: 'flex', gap: 6 }}>
           {COMMANDS.map((cmd, i) => (
@@ -83,32 +83,54 @@ export function BattleView({ state, theme, onSelectCommand, onCommand, onAdvance
             />
           ))}
         </div>
+      ) : battle.phase === 'win' ? (
+        <div
+          style={{ fontSize: 12, color: '#d8b8ff', opacity: 0.95, userSelect: 'none', textShadow: '0 0 8px rgba(180,120,255,0.65)' }}
+        >
+          撃破！
+        </div>
       ) : (
         <div
-          onClick={() => onAdvance?.()}
-          style={{ fontSize: 12, color: theme.uiAccent, opacity: 0.8, cursor: 'pointer', userSelect: 'none' }}
+          style={{ fontSize: 12, color: '#ff9090', opacity: 0.95, userSelect: 'none' }}
         >
-          {battle.phase === 'win' || battle.phase === 'lose'
-            ? '▶ クリック / [Enter] で続ける'
-            : '▶ クリック / [Enter] でログを閉じる'}
+          倒れてしまった……
         </div>
       )}
 
       {/* バトルログ */}
-      <div
-        onClick={battle.phase !== 'select' ? () => onAdvance?.() : undefined}
-        style={{
-          display: 'flex', flexDirection: 'column', gap: 2,
-          cursor: battle.phase !== 'select' ? 'pointer' : 'default',
-          borderTop: `1px solid ${theme.uiBorder}`,
-          paddingTop: 4,
-        }}
-      >
-        {battle.log.slice(-3).map((line, i, arr) => (
-          <div key={i} style={{ fontSize: 12, opacity: i === arr.length - 1 ? 1 : 0.5 }}>
-            {line}
+      <div style={{ borderTop: `1px solid ${theme.uiBorder}`, paddingTop: 6 }}>
+        {latest && (
+          <div
+            style={{
+              fontSize: 13,
+              lineHeight: 1.5,
+              marginBottom: 5,
+              color: '#f3dfaa',
+              textShadow: '0 0 6px rgba(204,170,102,0.35)',
+            }}
+          >
+            {latest}
           </div>
-        ))}
+        )}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            maxHeight: 74,
+            overflow: 'hidden',
+            background: 'rgba(0,0,0,0.18)',
+            border: `1px solid ${theme.uiBorder}`,
+            borderRadius: 3,
+            padding: '5px 6px',
+          }}
+        >
+          {battle.log.slice(-5).map((line, i, arr) => (
+            <div key={`${line}-${i}`} style={{ fontSize: 11, lineHeight: 1.35, opacity: 0.36 + ((i + 1) / arr.length) * 0.5 }}>
+              {line}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

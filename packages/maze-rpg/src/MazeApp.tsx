@@ -169,11 +169,24 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, !!state.battle);
 
   const [itemNotice, setItemNotice] = useState<string | null>(null);
+  const [attackFlash, setAttackFlash] = useState(false);
+  const [defeatEffect, setDefeatEffect] = useState(false);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousBattleRef = useRef(state.battle);
 
   const dispatch = useCallback((key: string) => {
     setState(prev => handleKey(prev, key));
   }, []);
+
+  const attackEnemy = useCallback(() => {
+    if (!state.battle || state.battle.phase !== 'select') return;
+    setAttackFlash(true);
+    window.setTimeout(() => setAttackFlash(false), 180);
+    setState(prev => {
+      if (!prev.battle || prev.battle.phase !== 'select') return prev;
+      return handleKey({ ...prev, battle: { ...prev.battle, cursorIndex: 0 } }, 'Enter');
+    });
+  }, [state.battle]);
 
   const handleUseItem = useCallback((itemId: string, itemName: string) => {
     const effect = config.itemEffects?.[itemId];
@@ -201,6 +214,32 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
+
+  useEffect(() => {
+    const prev = previousBattleRef.current;
+    const current = state.battle;
+    if (current?.phase === 'win' && prev?.phase !== 'win') {
+      setDefeatEffect(true);
+      const timer = window.setTimeout(() => setDefeatEffect(false), 900);
+      previousBattleRef.current = current;
+      return () => window.clearTimeout(timer);
+    }
+    if (!current || current.phase === 'select') setDefeatEffect(false);
+    previousBattleRef.current = current;
+    return undefined;
+  }, [state.battle]);
+
+  useEffect(() => {
+    if (state.battle?.phase !== 'win' && state.battle?.phase !== 'lose') return;
+    const delay = state.battle.phase === 'win' ? 850 : 1050;
+    const timer = window.setTimeout(() => {
+      setState(prev => {
+        if (prev.battle?.phase !== 'win' && prev.battle?.phase !== 'lose') return prev;
+        return handleKey(prev, 'Enter');
+      });
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [state.battle?.phase]);
 
   const buildUpdatedContext = useCallback((): GameContext => ({
     ...context,
@@ -276,6 +315,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       };
       onExit(updatedContext, {
         engineId: 'novel',
+        transition: 'rift',
         config: {
           ...nr,
           initialSceneId: nr.gameoverLandingSceneId ?? nr.gameoverBossSceneId,
@@ -283,6 +323,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         },
         returnEngineId: 'maze_rpg',
         returnConfig: bossRetryConfig,
+        returnTransition: 'rift',
       } as EngineTransition);
     } else if (nr.gameoverSceneId) {
       const updatedContext: GameContext = {
@@ -314,6 +355,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       };
       onExit(updatedContext, {
         engineId: 'novel',
+        transition: 'rift',
         config: {
           ...nr,
           initialSceneId: nr.gameoverLandingSceneId ?? nr.gameoverSceneId,
@@ -321,6 +363,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         },
         returnEngineId: 'maze_rpg',
         returnConfig: retryConfig,
+        returnTransition: 'rift',
       } as EngineTransition);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -343,9 +386,11 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     };
     onExit(updatedContext, {
       engineId: 'novel',
+      transition: 'rift',
       config: { ...nr, initialSceneId: sceneId, autoStart: true },
       returnEngineId: 'maze_rpg',
       returnConfig: resumeConfig,
+      returnTransition: 'rift',
     } as EngineTransition);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.pendingEvent]);
@@ -393,6 +438,18 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           boxShadow: '0 0 60px rgba(0,0,0,0.8)',
         }}
       >
+        <style>{`
+          @keyframes maze-enemy-burst {
+            0% { opacity: 0; transform: scale(0.45); }
+            32% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.75); }
+          }
+          @keyframes maze-hit-slash {
+            0% { opacity: 0; transform: translate(-50%, -50%) rotate(-18deg) scaleX(0.2); }
+            35% { opacity: 1; transform: translate(-50%, -50%) rotate(-18deg) scaleX(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) rotate(-18deg) scaleX(1.15); }
+          }
+        `}</style>
         {/* タイトルバー */}
         <div
           style={{
@@ -434,7 +491,32 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               >
                 <MazeView state={state} theme={theme} />
 
-                {state.battle && <EnemySprite enemy={state.battle.enemy} assetsBaseUrl={assetsBaseUrl} />}
+                {state.battle && (
+                  <>
+                    <EnemySprite
+                      enemy={state.battle.enemy}
+                      assetsBaseUrl={assetsBaseUrl}
+                      defeated={defeatEffect || state.battle.phase === 'win'}
+                      onClick={state.battle.phase === 'select' ? attackEnemy : undefined}
+                    />
+                    {attackFlash && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: '50%',
+                          top: '45%',
+                          width: 240,
+                          height: 18,
+                          borderRadius: 10,
+                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.98), rgba(180,90,255,0.7), transparent)',
+                          boxShadow: '0 0 18px rgba(220,180,255,0.9)',
+                          pointerEvents: 'none',
+                          animation: 'maze-hit-slash 180ms ease-out forwards',
+                        }}
+                      />
+                    )}
+                  </>
+                )}
 
                 {!state.battle && !state.atExit && (
                   <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gridTemplateRows: '1fr 1fr' }}>
@@ -534,7 +616,6 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                   const withCursor = { ...prev, battle: { ...prev.battle, cursorIndex: i } };
                   return handleKey(withCursor, 'Enter');
                 })}
-                onAdvance={() => dispatch('Enter')}
               />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
