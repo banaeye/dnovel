@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameContext, EngineTransition, IGameEngine } from './types';
 
-type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'none';
+type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'none';
 type TransitionPhase = 'idle' | 'out' | 'in';
 
 const DURATION: Record<TransitionEffect, number> = {
@@ -10,6 +10,7 @@ const DURATION: Record<TransitionEffect, number> = {
   flash: 150,
   speedline: 720,
   rift: 820,
+  cardflip: 680,
   none:  0,
 };
 
@@ -39,6 +40,16 @@ const KEYFRAMES = `
   0%   { opacity: 1; transform: scale(0.98) rotate(0deg); filter: blur(0px) brightness(0.78); }
   45%  { opacity: 0.85; transform: scale(1.06) rotate(1deg); filter: blur(2px) brightness(1.35); }
   100% { opacity: 0; transform: scale(1.2) rotate(0deg); filter: blur(0px) brightness(1); }
+}
+@keyframes hub-cardflip-out {
+  0%   { opacity: 0; transform: perspective(900px) rotateY(-90deg) scale(0.85); filter: brightness(1); }
+  42%  { opacity: 1; transform: perspective(900px) rotateY(8deg) scale(1.02); filter: brightness(1.35); }
+  100% { opacity: 1; transform: perspective(900px) rotateY(0deg) scale(1); filter: brightness(0.9); }
+}
+@keyframes hub-cardflip-in {
+  0%   { opacity: 1; transform: perspective(900px) rotateY(0deg) scale(1); filter: brightness(0.9); }
+  46%  { opacity: 0.9; transform: perspective(900px) rotateY(-10deg) scale(1.02); filter: brightness(1.3); }
+  100% { opacity: 0; transform: perspective(900px) rotateY(90deg) scale(0.85); filter: brightness(1); }
 }
 `;
 
@@ -135,6 +146,13 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
             'repeating-conic-gradient(from 0deg, rgba(210,170,255,0.24) 0deg 7deg, rgba(0,0,0,0) 7deg 18deg)',
             '#000',
           ].join(', ')
+        : effect === 'cardflip'
+          ? [
+              'radial-gradient(circle at 50% 50%, rgba(255,245,210,0.9) 0 8%, rgba(110,45,80,0.84) 34%, rgba(12,8,22,0.98) 74%)',
+              'linear-gradient(90deg, rgba(255,255,255,0.20) 0 1px, transparent 1px 80px)',
+              'linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 112px)',
+              '#0d0712',
+            ].join(', ')
       : '#000';
 
   const overlayStyle: React.CSSProperties = overlayActive ? {
@@ -147,6 +165,8 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
       ? '100% 100%, 220px 100%, 100% 100%'
       : effect === 'rift'
         ? '100% 100%, 180px 180px, 100% 100%'
+        : effect === 'cardflip'
+          ? '100% 100%, 80px 100%, 100% 112px, 100% 100%'
         : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
   } : {
@@ -184,6 +204,22 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
           >
             RUN!
           </div>
+        )}
+        {overlayActive && effect === 'cardflip' && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 190,
+              height: 260,
+              borderRadius: 8,
+              border: '2px solid rgba(255,245,210,0.95)',
+              background: 'linear-gradient(145deg, rgba(255,245,210,0.96), rgba(170,80,130,0.92))',
+              boxShadow: '0 0 30px rgba(255,230,160,0.8), inset 0 0 0 10px rgba(70,22,48,0.32)',
+              transform: `translate(-50%, -50%) ${phase === 'out' ? 'rotate(-4deg)' : 'rotate(4deg)'}`,
+            }}
+          />
         )}
       </div>
     </>
