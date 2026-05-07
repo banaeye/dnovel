@@ -41,6 +41,17 @@ export function evaluateCondition(
     result = result && ctx.inventory.includes(condition.has_item);
   }
 
+  if (condition.item_count !== undefined) {
+    const targets = new Set(condition.item_count.items);
+    const count = ctx.inventory.filter((itemId) => targets.has(itemId)).length;
+    if (condition.item_count.min !== undefined) {
+      result = result && count >= condition.item_count.min;
+    }
+    if (condition.item_count.max !== undefined) {
+      result = result && count <= condition.item_count.max;
+    }
+  }
+
   if (condition.location_id !== undefined) {
     result = result && ctx.locationId === condition.location_id;
   }

@@ -189,6 +189,16 @@ flags:
     default: false
     description: "教会の神父さんと話した"
 
+  - id: flag_ch4_plum_park_unlocked
+    type: boolean
+    default: false
+    description: "第4章で梅の木公園へ行けるようになった"
+
+  - id: flag_ch4_maze_appeared
+    type: boolean
+    default: false
+    description: "第4章で一番街の迷路が出現した（おじさんの飲みすぎによる）"
+
   - id: flag_ch4_cleared
     type: boolean
     default: false

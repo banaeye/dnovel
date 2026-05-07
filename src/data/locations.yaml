@@ -14,9 +14,7 @@ locations:
         condition: null
       - location_id: loc_slope
         label: "団地への坂へ"
-        condition:
-          flag: flag_visited_slope
-          value: true
+        condition: null
       - location_id: loc_museum
         label: "団地のミュージアムへ"
         condition:
@@ -25,8 +23,8 @@ locations:
       - location_id: loc_plum_park
         label: "梅の木公園へ"
         condition:
-          flag: flag_chapter
-          value: 4
+          flag: flag_ch4_plum_park_unlocked
+          value: true
     entry_scene: scene_danchi_morning
 
   - id: loc_station
@@ -51,13 +49,19 @@ locations:
       - location_id: loc_arcade
         label: "アーケード街へ"
         condition:
-          flag: flag_chapter
-          value: 3
+          or:
+            - flag: flag_chapter
+              value: 3
+            - flag: flag_chapter
+              value: 4
       - location_id: loc_coderdojo
         label: "CoderDojo赤羽へ"
         condition:
           flag: flag_station_explored
           value: true
+      - location_id: loc_slope
+        label: "団地への坂へ"
+        condition: null
       - location_id: loc_station_end
         label: "駅の端へ"
         condition:
@@ -85,14 +89,7 @@ locations:
         condition: null
       - location_id: loc_slope
         label: "団地への坂へ"
-        condition:
-          and:
-            - flag: flag_met_mentor
-              value: true
-            - flag: flag_examined_whiteboard
-              value: true
-            - flag: flag_examined_kids
-              value: true
+        condition: null
     entry_scene: scene_coderdojo_default
 
   - id: loc_ichibangai
@@ -126,8 +123,11 @@ locations:
       - location_id: loc_park
         label: "公園へ"
         condition:
-          flag: flag_ch3_ticket_stolen
-          value: true
+          or:
+            - flag: flag_ch3_ticket_stolen
+              value: true
+            - flag: flag_chapter
+              value: 4
     entry_scene: scene_arcade_default
 
   - id: loc_park
@@ -187,6 +187,9 @@ locations:
     connections:
       - location_id: loc_coderdojo
         label: "CoderDojoへ戻る"
+        condition: null
+      - location_id: loc_station
+        label: "駅前へ下る"
         condition: null
       - location_id: loc_danchi
         label: "団地へ上る"

@@ -64,6 +64,9 @@ const CHAPTERS: ChapterConfig[] = [
       flag_chapter1_cleared: true,
       flag_ch2_cleared: true,
       flag_ch3_cleared: true,
+      flag_station_explored: true,
+      flag_visited_slope: true,
+      flag_ch3_museum_unlocked: true,
     },
   },
 ];

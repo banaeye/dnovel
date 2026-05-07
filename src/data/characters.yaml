@@ -81,8 +81,8 @@ characters:
     voicevox_speaker_id: 53
     y_offset: -250
     sprites:
-      normal: characters/yopparai/yopparai.png
-      talking: characters/yopparai/yopparai.png
+      normal: characters/yopparai/yoppa.png
+      talking: characters/yopparai/yoppa_talking.png
 
   - id: char_detective
     name: "赤羽の探偵"
