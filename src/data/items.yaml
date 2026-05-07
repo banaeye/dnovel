@@ -78,6 +78,76 @@ items:
     stackable: false
     category: key_item
 
+  - id: item_gummy_1
+    name: "坂のグミ"
+    description: "大学生にもらったグミ。七つ集めると願いが叶うらしい。（1/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_2
+    name: "梅のグミ"
+    description: "梅の木公園でアメちゃんと交換してもらったグミ。（2/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_3
+    name: "記憶のグミ"
+    description: "ミュージアムの受付との神経衰弱で勝ってもらったグミ。（3/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_4
+    name: "謎解きのグミ"
+    description: "探偵おやじの依頼を解決してもらったグミ。（4/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_5
+    name: "祈りのグミ"
+    description: "教会の神父さんからもらったグミ。なんだかあたたかい気がする。（5/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_6
+    name: "迷宮のグミ"
+    description: "一番街の迷路チャレンジをクリアしてもらったグミ。（6/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_gummy_7
+    name: "おばちゃんのグミ"
+    description: "田村のおばちゃんがずっと持っていたグミ。これで七つ揃った。（7/7）"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
   - id: item_event_ticket
     name: "アメちゃんゲットのチケット"
     description: "アーケード街で開かれるアメちゃんゲットゲームのイベントチケット。手書きで番号が入っている。"

@@ -22,6 +22,11 @@ locations:
         condition:
           flag: flag_ch3_museum_unlocked
           value: true
+      - location_id: loc_plum_park
+        label: "梅の木公園へ"
+        condition:
+          flag: flag_chapter
+          value: 4
     entry_scene: scene_danchi_morning
 
   - id: loc_station
@@ -53,6 +58,16 @@ locations:
         condition:
           flag: flag_station_explored
           value: true
+      - location_id: loc_station_end
+        label: "駅の端へ"
+        condition:
+          flag: flag_chapter
+          value: 4
+      - location_id: loc_church
+        label: "教会へ"
+        condition:
+          flag: flag_chapter
+          value: 4
     entry_scene: scene_station_default
 
   - id: loc_coderdojo
@@ -177,3 +192,48 @@ locations:
         label: "団地へ上る"
         condition: null
     entry_scene: scene_slope_default
+
+  - id: loc_plum_park
+    name: "梅の木公園"
+    description: "団地の脇にある小さな公園。古い梅の木が一本だけ立っている。"
+    background_default: backgrounds/danchimae.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_danchi
+        label: "団地へ戻る"
+        condition: null
+    entry_scene: scene_plum_park_default
+
+  - id: loc_station_end
+    name: "駅の端"
+    description: "赤羽駅のホームの端。人が少なく、ひっそりしている。"
+    background_default: backgrounds/akabane.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_station
+        label: "駅前へ戻る"
+        condition: null
+    entry_scene: scene_station_end_default
+
+  - id: loc_church
+    name: "教会"
+    description: "一番街の外れにある小さな教会。静かで落ち着いた雰囲気がある。"
+    background_default: backgrounds/coderdojo.jpg
+    default_commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_station
+        label: "駅前へ戻る"
+        condition: null
+    entry_scene: scene_church_default

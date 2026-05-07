@@ -144,20 +144,50 @@ flags:
     default: false
     description: "再取得したチケットをアーケード街でおばちゃんに渡した"
 
-  - id: flag_ch4_boy_troubled_seen
+  - id: flag_ch4_obachan_knee_heard
     type: boolean
     default: false
-    description: "少年がテストで怒られた話を聞いた"
+    description: "おばちゃんの膝の痛みと来年の大会への不安を聞いた"
 
-  - id: flag_ch4_ken_offered_help
+  - id: flag_ch4_gummy_quest
     type: boolean
     default: false
-    description: "ケンが少年にフラッシュ暗算を教えると申し出た"
+    description: "七つのグミ集めクエストを開始した（坂で大学生から伝説を聞いた）"
 
-  - id: flag_ch4_flash_calc_done
+  - id: flag_ch4_met_detective
     type: boolean
     default: false
-    description: "フラッシュ暗算ゲームを一度プレイした"
+    description: "駅の端の探偵おやじに会った"
+
+  - id: flag_ch4_detective_clue1
+    type: boolean
+    default: false
+    description: "探偵の依頼の手がかり①：大学生から子猫の目撃情報を聞いた"
+
+  - id: flag_ch4_detective_clue2
+    type: boolean
+    default: false
+    description: "探偵の依頼の手がかり②：おばちゃんからベンチの話を聞いた"
+
+  - id: flag_ch4_detective_clue3
+    type: boolean
+    default: false
+    description: "探偵の依頼の手がかり③：アメ好きっ子から子猫の行方を聞いた"
+
+  - id: flag_ch4_detective_solved
+    type: boolean
+    default: false
+    description: "探偵の依頼を解決した"
+
+  - id: flag_ch4_museum_duel_won
+    type: boolean
+    default: false
+    description: "4章ミュージアム神経衰弱（duel）で勝利した"
+
+  - id: flag_ch4_priest_talked
+    type: boolean
+    default: false
+    description: "教会の神父さんと話した"
 
   - id: flag_ch4_cleared
     type: boolean
