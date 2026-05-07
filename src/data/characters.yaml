@@ -81,5 +81,23 @@ characters:
     voicevox_speaker_id: 53
     y_offset: -250
     sprites:
-      normal: characters/yopparai/yopparai.png
-      talking: characters/yopparai/yopparai.png
+      normal: characters/yopparai/yoppa.png
+      talking: characters/yopparai/yoppa_talking.png
+
+  - id: char_detective
+    name: "赤羽の探偵"
+    name_flag: null
+    voicevox_speaker_id: 13
+    y_offset: -250
+    sprites:
+      normal: characters/mentor/mentor_nomal.png
+      talking: characters/mentor/talking.png
+
+  - id: char_priest
+    name: "神父さん"
+    name_flag: null
+    voicevox_speaker_id: 9
+    y_offset: -250
+    sprites:
+      normal: characters/college_student/daigakusei_normal.png
+      talking: characters/college_student/daigakusei_normal.png

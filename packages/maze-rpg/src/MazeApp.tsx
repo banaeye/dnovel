@@ -168,6 +168,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
 
   useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, !!state.battle);
 
+  const [itemPanelMode, setItemPanelMode] = useState<'explore' | 'battle'>('explore');
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [itemNotice, setItemNotice] = useState<string | null>(null);
   const [attackFlash, setAttackFlash] = useState(false);
   const [defeatEffect, setDefeatEffect] = useState(false);
@@ -192,6 +194,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     const effect = config.itemEffects?.[itemId];
     if (effect?.attackEnemy !== undefined && !state.battle) return;
     setState(prev => useItemInMaze(prev, itemId, itemName, effect));
+    setSelectedItemId(null);
     if (!state.battle) {
       if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
       const notice = effect?.healHp === 'full'
@@ -209,11 +212,31 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
         e.preventDefault();
       }
-      setState(prev => handleKey(prev, e.key));
+      const confirm = e.key === 'Enter' || e.key === ' ';
+      setState(prev => {
+        if (prev.battle?.phase === 'select' && prev.battle.cursorIndex === 2 && confirm) {
+          setItemPanelMode('battle');
+          return prev;
+        }
+        return handleKey(prev, e.key);
+      });
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
+
+  useEffect(() => {
+    if (!state.battle) setItemPanelMode('explore');
+    if (!state.battle || state.battle.phase !== 'select') {
+      setSelectedItemId(null);
+    }
+  }, [state.battle]);
+
+  useEffect(() => {
+    if (selectedItemId && !state.inventory.includes(selectedItemId)) {
+      setSelectedItemId(null);
+    }
+  }, [selectedItemId, state.inventory]);
 
   useEffect(() => {
     const prev = previousBattleRef.current;
@@ -611,11 +634,18 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                   if (!prev.battle || prev.battle.phase !== 'select') return prev;
                   return { ...prev, battle: { ...prev.battle, cursorIndex: i } };
                 })}
-                onCommand={i => setState(prev => {
-                  if (!prev.battle || prev.battle.phase !== 'select') return prev;
-                  const withCursor = { ...prev, battle: { ...prev.battle, cursorIndex: i } };
-                  return handleKey(withCursor, 'Enter');
-                })}
+                onCommand={i => {
+                  if (i === 2) {
+                    setItemPanelMode('battle');
+                    return;
+                  }
+                  setItemPanelMode('explore');
+                  setState(prev => {
+                    if (!prev.battle || prev.battle.phase !== 'select') return prev;
+                    const withCursor = { ...prev, battle: { ...prev.battle, cursorIndex: i } };
+                    return handleKey(withCursor, 'Enter');
+                  });
+                }}
               />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -635,6 +665,10 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               inventory={state.inventory}
               itemDefs={config.items ?? []}
               theme={theme}
+              mode={state.battle ? itemPanelMode : 'explore'}
+              itemEffects={config.itemEffects}
+              selectedItemId={selectedItemId}
+              onSelect={setSelectedItemId}
               onUse={handleUseItem}
               notification={itemNotice ?? undefined}
               font={FONT}

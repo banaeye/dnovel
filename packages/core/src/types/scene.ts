@@ -7,6 +7,11 @@ export interface Condition {
   max?: number;
   negate?: boolean;
   has_item?: string;
+  item_count?: {
+    items: string[];
+    min?: number;
+    max?: number;
+  };
   location_id?: string;
   and?: Condition[];
   or?: Condition[];

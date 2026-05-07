@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { MazeState } from '../engine/types.js';
 import type { MazeTheme } from '../MazeApp.js';
 
-const COMMANDS = ['攻撃', '防御', '逃げる'];
+const COMMANDS = ['攻撃', '防御', 'アイテム', '逃げる'];
 
 function HpBar({ hp, maxHp, color }: { hp: number; maxHp: number; color: string }) {
   const pct = Math.max(0, Math.min(1, maxHp > 0 ? hp / maxHp : 0));
