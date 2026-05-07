@@ -42,6 +42,8 @@ function NovelEngineComponent({
         id: item.id,
         name: item.name,
         usable: item.usable,
+        description: item.description,
+        category: item.category,
       }));
 
       // playerCharacterId / opponentCharacterId をキャラクター定義から自動解決

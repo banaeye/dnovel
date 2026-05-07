@@ -51,7 +51,7 @@ function executeCommand(state: MazeState): MazeState {
   const { battle } = state;
   if (!battle) return state;
 
-  if (battle.cursorIndex === 2) {
+  if (battle.cursorIndex === 3) {
     if (state.pendingBossTilePos) {
       const log = [...battle.log, '逃げることはできない！'];
       return enemyAttack({ ...state, battle: { ...battle, log, guarding: false } });
@@ -67,6 +67,8 @@ function executeCommand(state: MazeState): MazeState {
     const log = [...battle.log, 'ケン は身を守った！'];
     return enemyAttack({ ...state, battle: { ...battle, log, guarding: true } });
   }
+
+  if (battle.cursorIndex === 2) return state;
 
   const dmg = Math.max(1, state.playerAtk - battle.enemy.def);
   const newEnemyHp = battle.enemy.hp - dmg;
@@ -93,8 +95,8 @@ export function handleBattleKey(state: MazeState, key: string): MazeState {
   const down = key === 'ArrowDown' || key === 's' || key === 'S';
 
   if (battle.phase === 'select') {
-    if (up)      return { ...state, battle: { ...battle, cursorIndex: (battle.cursorIndex + 2) % 3 } };
-    if (down)    return { ...state, battle: { ...battle, cursorIndex: (battle.cursorIndex + 1) % 3 } };
+    if (up)      return { ...state, battle: { ...battle, cursorIndex: (battle.cursorIndex + 3) % 4 } };
+    if (down)    return { ...state, battle: { ...battle, cursorIndex: (battle.cursorIndex + 1) % 4 } };
     if (confirm) return executeCommand(state);
     return state;
   }
