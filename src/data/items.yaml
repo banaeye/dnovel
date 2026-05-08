@@ -118,9 +118,19 @@ items:
     stackable: false
     category: key_item
 
+  - id: item_wallet
+    name: "バイトの財布"
+    description: "赤羽公園のベンチの下で見つかった財布。梅の木公園のバイトが探していたものだ。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
   - id: item_gummy_5
-    name: "祈りのグミ"
-    description: "教会の神父さんからもらったグミ。なんだかあたたかい気がする。（5/7）"
+    name: "お礼のグミ"
+    description: "梅の木公園のバイトの子にお礼としてもらったグミ。（5/7）"
     icon: null
     usable: false
     use_scene: null

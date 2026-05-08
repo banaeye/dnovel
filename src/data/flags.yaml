@@ -167,12 +167,17 @@ flags:
   - id: flag_ch4_detective_clue2
     type: boolean
     default: false
-    description: "探偵の依頼の手がかり②：おばちゃんからベンチの話を聞いた"
+    description: "探偵の依頼の手がかり②：おばちゃんから猫は梅の木公園へ行ったと聞いた"
 
   - id: flag_ch4_detective_clue3
     type: boolean
     default: false
-    description: "探偵の依頼の手がかり③：アメ好きっ子から子猫の行方を聞いた"
+    description: "探偵の依頼の手がかり③：梅の木公園のバイトから猫は駅へ行ったと聞いた"
+
+  - id: flag_ch4_detective_clue4
+    type: boolean
+    default: false
+    description: "探偵の依頼の手がかり④：駅の大学生から猫は赤羽公園へ行ったと聞いた"
 
   - id: flag_ch4_detective_solved
     type: boolean
@@ -183,11 +188,6 @@ flags:
     type: boolean
     default: false
     description: "4章ミュージアム神経衰弱（duel）で勝利した"
-
-  - id: flag_ch4_priest_talked
-    type: boolean
-    default: false
-    description: "教会の神父さんと話した"
 
   - id: flag_ch4_plum_park_unlocked
     type: boolean

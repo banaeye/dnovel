@@ -90,8 +90,8 @@ characters:
     voicevox_speaker_id: 13
     y_offset: -250
     sprites:
-      normal: characters/mentor/mentor_nomal.png
-      talking: characters/mentor/talking.png
+      normal: characters/tantei/tantei.png
+      talking: characters/tantei/tantei_talking.png
 
   - id: char_priest
     name: "神父さん"

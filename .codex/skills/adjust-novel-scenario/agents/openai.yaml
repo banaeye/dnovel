@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adjust Novel Scenario"
+  short_description: "Edit and validate this novel engine's YAML scenarios."
+  default_prompt: "Use this skill when adjusting or validating YAML scenario flow in this novel game engine."

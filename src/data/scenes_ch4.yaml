@@ -1,7 +1,4 @@
 scenes:
-  # ============================================================
-  # 第4章　開幕
-  # ============================================================
   - id: scene_ch4_start
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -25,7 +22,6 @@ scenes:
       - text: 第4章
         voice_character_id: null
     next_scene: scene_ch4_monologue
-
   - id: scene_ch4_monologue
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -44,7 +40,6 @@ scenes:
       - text: こんな日は、赤羽をぶらぶらしてみようか。
         voice_character_id: char_hero
     next_scene: scene_ch4_obachan_knee
-
   - id: scene_ch4_obachan_knee
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -79,10 +74,6 @@ scenes:
       - text: （なんとかしてあげたいけど……）
         voice_character_id: char_hero
     next_scene: null
-
-  # ============================================================
-  # ロケーション入口シーン（全ロケーション分・章単独動作のため必須）
-  # ============================================================
   - id: scene_danchi_morning
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -125,7 +116,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch4_monologue
-
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
@@ -135,12 +125,21 @@ scenes:
       type: auto
       choices:
         - condition:
+            flag: flag_ch4_detective_clue3
+            value: true
+          next_scene: scene_ch4_station_with_college
+        - condition:
+            and:
+              - has_item: item_gummy_2
+              - flag: flag_ch4_met_detective
+                value: false
+          next_scene: scene_ch4_station_detective_notice
+        - condition:
             flag: flag_ch4_gummy_quest
             value: true
           next_scene: null
         - condition: null
           next_scene: scene_ch4_station_hint
-
   - id: scene_ch4_station_hint
     location_id: loc_station
     background: backgrounds/akabane.jpg
@@ -149,7 +148,108 @@ scenes:
       - text: 駅前に出てきた。どこかに行ってみようかな。
         voice_character_id: char_hero
     next_scene: null
-
+  - id: scene_ch4_station_detective_notice
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    messages:
+      - text: 駅前に出ると、ホームの端の方で誰かがこちらに向かって手招きしているのに気づいた。
+        voice_character_id: null
+      - text: コートを着た中年の男だ。「こっちに来い」というように、大きくジェスチャーしている。
+        voice_character_id: null
+      - text: （なんだろう……駅の端の方か）
+        voice_character_id: char_hero
+  - id: scene_ch4_station_with_college
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_college_student
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_college_student
+        scene_id: scene_ch4_station_college_talk
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch4_detective_clue4
+            value: true
+          next_scene: null
+        - condition: null
+          next_scene: scene_ch4_station_college_first
+  - id: scene_ch4_station_college_first
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_college_student
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_college_student
+        scene_id: scene_ch4_station_college_talk
+    messages:
+      - text: 駅前に来ると、坂にいたはずの大学生がいた。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_ch4_station_college_talk
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_college_student
+        position: center
+        expression: normal
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch4_detective_clue4
+            value: true
+          next_scene: scene_ch4_station_college_repeat
+        - condition: null
+          next_scene: scene_ch4_station_college_clue4
+  - id: scene_ch4_station_college_clue4
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    flags_set:
+      - flag: flag_ch4_detective_clue4
+        value: true
+    characters:
+      - character_id: char_college_student
+        position: center
+        expression: normal
+    messages:
+      - text: 「あ！　ケンくん、ちょうどよかった！」
+        voice_character_id: char_college_student
+      - text: 「どうしたんですか？」
+        voice_character_id: char_hero
+      - text: 「さっきあの子猫、また見かけたんです。改札の前を走り抜けて、赤羽公園の方へ向かっていきました！」
+        voice_character_id: char_college_student
+      - text: 「赤羽公園！？」
+        voice_character_id: char_hero
+      - text: 「急いで！　あのまま走ったなら、ベンチのあたりにいるかもしれません」
+        voice_character_id: char_college_student
+      - text: 「ありがとうございます！」
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_ch4_station_college_repeat
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_college_student
+        position: center
+        expression: normal
+    messages:
+      - text: 「赤羽公園のベンチあたりに行きましたよ、確かに！　早く！」
+        voice_character_id: char_college_student
+    next_scene: null
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -178,7 +278,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch4_coderdojo_first
-
   - id: scene_ch4_coderdojo_first
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -194,7 +293,6 @@ scenes:
       - text: 今日はCoderDojoの日だ。田中メンターが来ていた。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch4_coderdojo_mentor
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -216,7 +314,6 @@ scenes:
           next_scene: scene_ch4_coderdojo_ofuda
         - condition: null
           next_scene: scene_ch4_coderdojo_chat
-
   - id: scene_ch4_coderdojo_chat
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -226,12 +323,11 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「おー、ケンちゃん！　今日もがんばろか」
+      - text: 「おー、ケンちゃん！　今日もがんばろう」
         voice_character_id: char_mentor
       - text: 「はい」
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_coderdojo_ofuda
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -246,20 +342,19 @@ scenes:
     messages:
       - text: 「田中メンター……一番街に変な霧が出てて、迷路みたいになってて」
         voice_character_id: char_hero
-      - text: 「え、ほんまに？　それ、あかんやつちゃう？」
+      - text: 「え、本当に？　それはまずいんじゃないかな」
         voice_character_id: char_mentor
       - text: メンターはカバンをごそごそ探って、折り畳まれた紙を取り出した。
         voice_character_id: null
-      - text: 「これ、知り合いにもらったおふだや。よくわからんけど、一応持っといて」
+      - text: 「これ、知り合いにもらったおふだだよ。よくわからないけど、一応持っておいて」
         voice_character_id: char_mentor
       - text: 「悪霊退散って書いてある……」
         voice_character_id: char_hero
-      - text: 「気持ちの問題やで。でも、いざとなったら使ってみ」
+      - text: 「気持ちの問題だよ。でも、いざとなったら使ってみ」
         voice_character_id: char_mentor
       - text: おふだを受け取った。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch4_coderdojo_done
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -273,10 +368,9 @@ scenes:
         voice_character_id: char_mentor
       - text: 「はい、助かりました」
         voice_character_id: char_hero
-      - text: 「そりゃよかった。デバッグも根気やで」
+      - text: 「そりゃよかった。デバッグも根気だよ」
         voice_character_id: char_mentor
     next_scene: null
-
   - id: scene_ichibangai_default
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -309,7 +403,6 @@ scenes:
           next_scene: scene_ch4_ichibangai_yui
         - condition: null
           next_scene: null
-
   - id: scene_arcade_default
     location_id: loc_arcade
     background: backgrounds/archade.jpg
@@ -319,7 +412,6 @@ scenes:
       - text: アーケード街。あのアメちゃん大会が懐かしい。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_arcade_no_quest
     location_id: loc_arcade
     background: backgrounds/archade.jpg
@@ -329,8 +421,28 @@ scenes:
       - text: アーケード街。あのアメちゃん大会が懐かしい。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/danchi.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch4_detective_clue4
+            value: true
+          next_scene: scene_ch4_park_with_cat
+        - condition:
+            has_item: item_gummy_2
+          next_scene: scene_ch4_park_after_trade
+        - condition:
+            flag: flag_ch4_gummy_quest
+            value: true
+          next_scene: scene_ch4_park_candy_kid
+        - condition: null
+          next_scene: scene_ch4_park_no_quest
+  - id: scene_ch4_park_candy_kid
     location_id: loc_park
     background: backgrounds/park.jpg
     bgm: audio/bgm/danchi.mp3
@@ -338,26 +450,83 @@ scenes:
       - character_id: char_candy_kid
         position: center
         expression: normal
-    messages: []
     talkable:
       - character_id: char_candy_kid
         scene_id: scene_ch4_park_talk
+    messages: []
+  - id: scene_ch4_park_after_trade
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters: []
+    messages:
+      - text: 公園に来た。少年の姿はもうなかった。
+        voice_character_id: char_hero
+  - id: scene_ch4_park_with_cat
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters: []
+    clickable_areas:
+      - id: area_park_bench_cat
+        x: 300
+        y: 350
+        width: 200
+        height: 100
+        label: "ベンチの下を覗く"
+        next_scene: scene_ch4_park_find_cat
         condition:
-          flag: flag_ch4_gummy_quest
-          value: true
-    branches:
-      type: auto
-      choices:
-        - condition:
-            has_item: item_gummy_2
-          next_scene: null
-        - condition:
-            flag: flag_ch4_gummy_quest
-            value: true
-          next_scene: null
-        - condition: null
-          next_scene: scene_ch4_park_no_quest
-
+          flag: flag_ch4_detective_solved
+          value: false
+    messages:
+      - text: 赤羽公園。ベンチの下に何かいるような気がする。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_ch4_park_find_cat
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch4_detective_solved
+        value: true
+    characters:
+      - character_id: char_detective
+        position: left
+        expression: normal
+      - character_id: char_hero
+        position: right
+        expression: normal
+    item_give:
+      - item_id: item_gummy_4
+        condition: null
+      - item_id: item_wallet
+        condition: null
+    messages:
+      - text: ベンチの下を覗いてみると——小さな子猫がまるまって、金属のペンダントを前足で押さえていた。
+        voice_character_id: null
+      - text: そのすぐ隣に、小さな財布も落ちていた。
+        voice_character_id: null
+      - text: 「あっ……！」
+        voice_character_id: char_hero
+      - text: 「見つけたぞ！！」
+        voice_character_id: char_detective
+      - text: 後ろから探偵おやじが走ってきた。途中で柱に頭をぶつけたが、気にしていないようだった。
+        voice_character_id: null
+      - text: 「子猫よ……戻ってきてくれたか」
+        voice_character_id: char_detective
+      - text: 探偵はペンダントをそっと受け取り、大切そうに胸にしまった。
+        voice_character_id: null
+      - text: 「ありがとう、ケン。約束どおり、これを受け取ってくれ」
+        voice_character_id: char_detective
+      - text: 探偵はポケットからグミをひとつ取り出して、名残惜しそうに一度だけ眺めた。
+        voice_character_id: null
+      - text: 「……本当は夜食にするつもりだったが、約束は約束じゃ」
+        voice_character_id: char_detective
+      - text: グミを受け取った。
+        voice_character_id: null
+      - text: （財布……これ、梅の木公園のバイトのひとが探してたやつだ。届けに行かないと）
+        voice_character_id: char_hero
+    next_scene: null
   - id: scene_ch4_park_no_quest
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -367,7 +536,6 @@ scenes:
       - text: 赤羽公園。今日はのんびりした雰囲気だ。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_museum_default
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -395,7 +563,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch4_museum_no_quest
-
   - id: scene_ch4_museum_no_quest
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -405,7 +572,6 @@ scenes:
       - text: 団地のミュージアム。今日は特に用事はない。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_slope_default
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -427,7 +593,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch4_slope_first
-
   - id: scene_ch4_slope_first
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -443,30 +608,159 @@ scenes:
       - text: 団地への坂道。風が気持ちいい。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_plum_park_default
     location_id: loc_plum_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/umenoki_park.jpg
     bgm: audio/bgm/danchi.mp3
-    characters: []
-    messages:
-      - text: 梅の木公園。今日はまだ、ここに来る理由はなさそうだ。
-        voice_character_id: char_hero
-    next_scene: null
-
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch4_detective_clue2
+            value: true
+          next_scene: scene_ch4_plum_park_with_baito
+        - condition: null
+          next_scene: scene_ch4_plum_park_no_quest
   - id: scene_ch4_plum_park_no_quest
     location_id: loc_plum_park
-    background: backgrounds/danchimae.jpg
+    background: backgrounds/umenoki_park.jpg
     bgm: audio/bgm/danchi.mp3
     characters: []
     messages:
       - text: 梅の木公園。古い梅の木が一本、静かに立っている。
         voice_character_id: char_hero
     next_scene: null
-
+  - id: scene_ch4_plum_park_with_baito
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_museum_part_timer
+        scene_id: scene_ch4_plum_park_baito
+    messages:
+      - text: 梅の木公園。古い梅の木のそばに、見かけないバイトの男の子が立っていた。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_ch4_plum_park_baito
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            has_item: item_wallet
+          next_scene: scene_ch4_plum_park_wallet_return
+        - condition:
+            has_item: item_gummy_5
+          next_scene: scene_ch4_plum_park_baito_done
+        - condition:
+            flag: flag_ch4_detective_clue3
+            value: true
+          next_scene: scene_ch4_plum_park_baito_repeat
+        - condition: null
+          next_scene: scene_ch4_plum_park_baito_clue3
+  - id: scene_ch4_plum_park_baito_clue3
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch4_detective_clue3
+        value: true
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    messages:
+      - text: 「あの……子猫を探してるんですけど、見ませんでしたか？　光るもの咥えてて」
+        voice_character_id: char_hero
+      - text: 「あ！　さっきいましたよ！　梅の木の根元でしばらくじっとしてたんですけど、急に走り出して……」
+        voice_character_id: char_museum_part_timer
+      - text: 「どっちへ？」
+        voice_character_id: char_hero
+      - text: 「駅の方へ走っていきました。めちゃ速かったです」
+        voice_character_id: char_museum_part_timer
+      - text: 「駅！　ありがとうございます！」
+        voice_character_id: char_hero
+      - text: 「……あ、そういえば、さっきここで財布なくしちゃって。ずっと探してるんですけど全然見つからなくて」
+        voice_character_id: char_museum_part_timer
+      - text: 「財布……」
+        voice_character_id: char_hero
+      - text: 「猫が走り去るとき、何か引きずってたような気もして。もしかしてあの猫が持って行ったのかな」
+        voice_character_id: char_museum_part_timer
+      - text: （財布も猫が持って行ったのかもしれない）
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_ch4_plum_park_baito_repeat
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    messages:
+      - text: 「駅の方へ走っていきましたよ、確かに。財布も探してるんですよね……」
+        voice_character_id: char_museum_part_timer
+    next_scene: null
+  - id: scene_ch4_plum_park_wallet_return
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    item_give:
+      - item_id: item_gummy_5
+        condition: null
+    item_remove:
+      - item_wallet
+    messages:
+      - text: 「あの、これ……財布じゃないですか？」
+        voice_character_id: char_hero
+      - text: 「え！？」
+        voice_character_id: char_museum_part_timer
+      - text: 「公園のベンチの下で見つけました。猫が持ってたみたいで」
+        voice_character_id: char_hero
+      - text: 「本当に！？　よかったー！！　ずっと探してたんです！！」
+        voice_character_id: char_museum_part_timer
+      - text: 「よかったです」
+        voice_character_id: char_hero
+      - text: 「お礼に……これ、もらいものなんですけど、よかったら」
+        voice_character_id: char_museum_part_timer
+      - text: バイトはポケットからグミをひとつ取り出して、ケンに差し出した。
+        voice_character_id: null
+      - text: 「なくさないように気をつけてくださいね。私もよくなくすので！」
+        voice_character_id: char_museum_part_timer
+      - text: グミを受け取った。
+        voice_character_id: null
+    next_scene: null
+  - id: scene_ch4_plum_park_baito_done
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters:
+      - character_id: char_museum_part_timer
+        position: center
+        expression: normal
+    messages:
+      - text: 「財布も見つかって、本当に助かりました！　グミ集め、がんばってください！」
+        voice_character_id: char_museum_part_timer
+    next_scene: null
   - id: scene_station_end_default
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_detective
@@ -488,55 +782,15 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch4_station_end_no_quest
-
   - id: scene_ch4_station_end_no_quest
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters: []
     messages:
       - text: 駅の端。ホームの隅で、電車が遠ざかっていく。
         voice_character_id: char_hero
     next_scene: null
-
-  - id: scene_church_default
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    characters:
-      - character_id: char_priest
-        position: center
-        expression: normal
-    messages: []
-    talkable:
-      - character_id: char_priest
-        scene_id: scene_ch4_priest
-    branches:
-      type: auto
-      choices:
-        - condition:
-            has_item: item_gummy_5
-          next_scene: null
-        - condition:
-            flag: flag_ch4_gummy_quest
-            value: true
-          next_scene: null
-        - condition: null
-          next_scene: scene_ch4_church_no_quest
-
-  - id: scene_ch4_church_no_quest
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    characters: []
-    messages:
-      - text: 教会。静かで落ち着いた空気が流れている。
-        voice_character_id: char_hero
-    next_scene: null
-
-  # ============================================================
-  # グミ①　坂の大学生
-  # ============================================================
   - id: scene_ch4_slope_college
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -554,11 +808,13 @@ scenes:
             value: true
           next_scene: scene_ch4_slope_college_repeat
         - condition:
-            has_item: item_gummy_1
+            and:
+              - has_item: item_gummy_1
+              - flag: flag_ch4_met_detective
+                value: true
           next_scene: scene_ch4_slope_college_clue
         - condition: null
           next_scene: scene_ch4_slope_college_first
-
   - id: scene_ch4_slope_college_first
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -595,7 +851,6 @@ scenes:
       - text: （おばちゃんの膝が治るように……七つ集めてみよう）
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_slope_college_repeat
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -617,7 +872,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: null
-
   - id: scene_ch4_slope_college_clue
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -630,19 +884,15 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「グミ集めてるんですね！　そういえば、さっきここで小さな子猫を見かけましたよ」
+      - text: 「あ、そういえば今日、駅の端の方から小さな子猫が走ってくるのを見ましたよ」
         voice_character_id: char_college_student
-      - text: 「子猫？」
+      - text: 「子猫？　何か咥えてた？」
         voice_character_id: char_hero
-      - text: 「駅の端の方から来て、ベンチの下に入ってったんです。なんか口に何か咥えてて」
+      - text: 「そうなんです！　光るものを口に咥えたまま、団地の方へ向かっていきました」
         voice_character_id: char_college_student
-      - text: 「ふーん……」
+      - text: 「団地の方へ……」
         voice_character_id: char_hero
     next_scene: null
-
-  # ============================================================
-  # グミ②　赤羽公園・アメ好きっ子
-  # ============================================================
   - id: scene_ch4_park_talk
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -663,14 +913,10 @@ scenes:
           next_scene: scene_ch4_park_trade
         - condition: null
           next_scene: scene_ch4_park_no_candy
-
   - id: scene_ch4_park_trade
     location_id: loc_park
     background: backgrounds/park.jpg
     bgm: audio/bgm/danchi.mp3
-    flags_set:
-      - flag: flag_ch4_detective_clue3
-        value: true
     characters:
       - character_id: char_candy_kid
         position: center
@@ -698,7 +944,6 @@ scenes:
       - text: 「子猫が光るものを……？」
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_park_no_candy
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -717,7 +962,6 @@ scenes:
       - text: 「おばちゃんに聞いてみようかな」
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_park_done
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -730,10 +974,6 @@ scenes:
       - text: 「グミ、ちゃんと持ってる？ 全部集めてね！」
         voice_character_id: char_candy_kid
     next_scene: null
-
-  # ============================================================
-  # グミ③　ミュージアム・神経衰弱
-  # ============================================================
   - id: scene_ch4_museum_staff
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -751,7 +991,6 @@ scenes:
           next_scene: scene_ch4_museum_done
         - condition: null
           next_scene: scene_ch4_museum_challenge
-
   - id: scene_ch4_museum_challenge
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -779,7 +1018,6 @@ scenes:
         difficulty: easy
         rounds: 5
       return_scene: scene_ch4_museum_result
-
   - id: scene_ch4_museum_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -794,7 +1032,6 @@ scenes:
           next_scene: scene_ch4_museum_win
         - condition: null
           next_scene: scene_ch4_museum_lose
-
   - id: scene_ch4_museum_win
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -817,7 +1054,6 @@ scenes:
       - text: グミを受け取った。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch4_museum_lose
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -832,7 +1068,6 @@ scenes:
       - text: 「……もう一回！」
         voice_character_id: char_hero
     next_scene: scene_ch4_museum_challenge
-
   - id: scene_ch4_museum_done
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -845,13 +1080,9 @@ scenes:
       - text: 「残り少ないな、グミ集め。……健闘を祈る」
         voice_character_id: char_museum_staff
     next_scene: null
-
-  # ============================================================
-  # グミ④　駅の端・探偵おやじ（謎解き）
-  # ============================================================
   - id: scene_ch4_detective
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_detective
@@ -869,19 +1100,26 @@ scenes:
             value: true
           next_scene: scene_ch4_detective_done
         - condition:
+            flag: flag_ch4_detective_clue3
+            value: true
+          next_scene: scene_ch4_detective_wait_clue4
+        - condition:
             flag: flag_ch4_detective_clue2
             value: true
-          next_scene: scene_ch4_detective_choice
+          next_scene: scene_ch4_detective_wait_clue3
+        - condition:
+            flag: flag_ch4_detective_clue1
+            value: true
+          next_scene: scene_ch4_detective_wait_clue2
         - condition:
             flag: flag_ch4_met_detective
             value: true
-          next_scene: scene_ch4_detective_wait
+          next_scene: scene_ch4_detective_wait_clue1
         - condition: null
           next_scene: scene_ch4_detective_intro
-
   - id: scene_ch4_detective_intro
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     flags_set:
       - flag: flag_ch4_met_detective
@@ -911,109 +1149,68 @@ scenes:
         voice_character_id: char_hero
       - text: 「切符をなくしただけじゃ。たぶん。細かいことはいい。情報を集めて、どこへ行ったか突き止めてくれんかね。礼はするぞ」
         voice_character_id: char_detective
-      - text: 「子猫は団地の方から来たんじゃ。あのあたりの人に、見かけなかったか聞いてみてくれ」
+      - text: 「子猫は団地への坂道あたりから来たんじゃ。まずあのあたりにいる人に聞いてみてくれ」
         voice_character_id: char_detective
       - text: 「わかりました。調べてみます」
         voice_character_id: char_hero
     next_scene: null
-
-  - id: scene_ch4_detective_wait
+  - id: scene_ch4_detective_wait_clue1
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_detective
         position: center
         expression: normal
     messages:
-      - text: 「どうじゃ、何か分かったかね」
+      - text: 「どうじゃ、坂道あたりで何か分かったかね」
         voice_character_id: char_detective
       - text: 探偵おやじは売店の試食品を、やけに堂々と三つ食べていた。
         voice_character_id: null
       - text: 「まだで……」
         voice_character_id: char_hero
-      - text: 「団地のベンチあたりにいたのを見た、という目撃情報があるんじゃ。あのあたりに詳しいおばちゃんに聞いてみるといい」
-        voice_character_id: char_detective
-      - text: 「おばちゃんに聞けばいいんですね」
-        voice_character_id: char_hero
-      - text: 「そうじゃ。わしはここで聞き込み……と腹ごしらえを続ける」
+      - text: 「団地への坂に若い大学生がよくいるじゃろ。あやつに聞いてみなさい」
         voice_character_id: char_detective
     next_scene: null
-
-  - id: scene_ch4_detective_choice
+  - id: scene_ch4_detective_wait_clue2
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
-    bgm: audio/bgm/station.mp3
-    characters:
-      - character_id: char_detective
-        position: center
-        expression: talking
-    messages:
-      - text: 「おや、戻ってきたか。どこへ行ったか分かったかね」
-        voice_character_id: char_detective
-      - text: 「先に言っておくが、外れても調査料は返せんぞ」
-        voice_character_id: char_detective
-      - text: 「払ってないです」
-        voice_character_id: char_hero
-      - text: 「では今から払ったことに……いや、冗談じゃ」
-        voice_character_id: char_detective
-      - text: 「えーと……」
-        voice_character_id: char_hero
-    branches:
-      type: choice
-      choices:
-        - label: 「坂道の方に逃げました」
-          next_scene: scene_ch4_detective_wrong
-        - label: 「赤羽公園のベンチの下にいます」
-          next_scene: scene_ch4_detective_correct
-        - label: 「アーケード街の方に走っていきました」
-          next_scene: scene_ch4_detective_wrong
-
-  - id: scene_ch4_detective_correct
-    location_id: loc_station_end
-    background: backgrounds/akabane.jpg
-    bgm: audio/bgm/station.mp3
-    flags_set:
-      - flag: flag_ch4_detective_solved
-        value: true
-    characters:
-      - character_id: char_detective
-        position: center
-        expression: talking
-    item_give:
-      - item_id: item_gummy_4
-        condition: null
-    messages:
-      - text: 「赤羽公園のベンチの下……！　確かにあの子猫は人の多い場所が好きでな。そこで間違いない！」
-        voice_character_id: char_detective
-      - text: 探偵おやじは颯爽と走り出した。途中で駅員の姿を見つけ、柱の陰を通って戻ってきた。
-        voice_character_id: null
-      - text: 「見つかった！　本当にありがとう。約束のものじゃ」
-        voice_character_id: char_detective
-      - text: 探偵はポケットからグミをひとつ取り出しかけて、名残惜しそうに一度だけ眺めた。
-        voice_character_id: null
-      - text: 「……本当は夜食にするつもりだったが、約束は約束じゃ」
-        voice_character_id: char_detective
-      - text: グミを受け取った。
-        voice_character_id: null
-    next_scene: null
-
-  - id: scene_ch4_detective_wrong
-    location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_detective
         position: center
         expression: normal
     messages:
-      - text: 「うーむ……そこは違うようじゃな。もう少し調べてきてくれ」
+      - text: 「大学生から話を聞いたじゃろ。次は団地のおばちゃんに聞いてみなさい。あの方は、この辺りを一番よく見ておる」
         voice_character_id: char_detective
     next_scene: null
-
+  - id: scene_ch4_detective_wait_clue3
+    location_id: loc_station_end
+    background: backgrounds/ekihaji.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_detective
+        position: center
+        expression: normal
+    messages:
+      - text: 「おばちゃんから梅の木公園と聞いたか。次はあの公園じゃ。あのあたりに詳しい者がいるはずじゃ」
+        voice_character_id: char_detective
+    next_scene: null
+  - id: scene_ch4_detective_wait_clue4
+    location_id: loc_station_end
+    background: backgrounds/ekihaji.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_detective
+        position: center
+        expression: normal
+    messages:
+      - text: 「もうあとは赤羽公園のベンチの下を確認するだけじゃ。急ぎなさい」
+        voice_character_id: char_detective
+    next_scene: null
   - id: scene_ch4_detective_done
     location_id: loc_station_end
-    background: backgrounds/akabane.jpg
+    background: backgrounds/ekihaji.jpg
     bgm: audio/bgm/station.mp3
     characters:
       - character_id: char_detective
@@ -1023,8 +1220,6 @@ scenes:
       - text: 「ペンダントも無事戻った。本当に助かったよ、ありがとう」
         voice_character_id: char_detective
     next_scene: null
-
-  # おばちゃんの手がかり（探偵依頼 clue2）
   - id: scene_ch4_talk_obachan
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1048,14 +1243,13 @@ scenes:
           next_scene: scene_ch4_obachan_candy
         - condition:
             and:
-              - flag: flag_ch4_met_detective
+              - flag: flag_ch4_detective_clue1
                 value: true
               - flag: flag_ch4_detective_clue2
                 value: false
           next_scene: scene_ch4_obachan_clue2
         - condition: null
           next_scene: scene_ch4_obachan_chat
-
   - id: scene_ch4_obachan_candy
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1088,7 +1282,6 @@ scenes:
       - text: アメちゃんをもらった。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch4_obachan_clue2
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1105,12 +1298,17 @@ scenes:
         voice_character_id: char_obachan
       - text: 「うん。あ、おばちゃん、さっき子猫見た？」
         voice_character_id: char_hero
-      - text: 「子猫？　ああ、さっきこのベンチの下に入ってたよ。何かキラキラしたもの咥えてたねえ」
+      - text: 「子猫？　ああ、さっき梅の木公園の方へ走っていくのを見たよ。何かキラキラしたもの咥えてたねえ」
         voice_character_id: char_obachan
-      - text: 「ベンチの下に……じゃあ赤羽公園のベンチかな」
+      - text: 「梅の木公園か……行ってみよう」
+        voice_character_id: char_hero
+      - text: 梅の木公園——団地のすぐ脇にある、小さな公園だ。
+        voice_character_id: null
+      - text: 古い梅の木が一本だけ立っていて、ケンはいつも通り過ぎるだけで、ちゃんと入ったことはなかった。
+        voice_character_id: null
+      - text: （こんなところに子猫がいたのか）
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch4_obachan_chat
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1123,96 +1321,6 @@ scenes:
       - text: 「ケンちゃん、がんばってるね。応援してるよ」
         voice_character_id: char_obachan
     next_scene: null
-
-  # ============================================================
-  # グミ⑤　教会・神父さん
-  # ============================================================
-  - id: scene_ch4_priest
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    characters:
-      - character_id: char_priest
-        position: center
-        expression: normal
-    messages: []
-    branches:
-      type: auto
-      choices:
-        - condition:
-            has_item: item_gummy_5
-          next_scene: scene_ch4_priest_done
-        - condition:
-            flag: flag_ch4_priest_talked
-            value: true
-          next_scene: scene_ch4_priest_give
-        - condition: null
-          next_scene: scene_ch4_priest_first
-
-  - id: scene_ch4_priest_first
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    flags_set:
-      - flag: flag_ch4_priest_talked
-        value: true
-    characters:
-      - character_id: char_priest
-        position: center
-        expression: normal
-    messages:
-      - text: 「いらっしゃい。何かお探しですか」
-        voice_character_id: char_priest
-      - text: 「あの……グミを集めてるんです。おばあちゃんの膝が治るように願いを叶えたくて」
-        voice_character_id: char_hero
-      - text: 「……なんと純粋な願い」
-        voice_character_id: char_priest
-      - text: 「純粋に誰かの幸せを願う心は、神様も聞いてくださいますよ」
-        voice_character_id: char_priest
-      - text: 「ありがとうございます」
-        voice_character_id: char_hero
-      - text: 「ただし、願いは魔法ではありません。叶えるために動いた人の足跡が、いつか奇跡に見えるのです」
-        voice_character_id: char_priest
-      - text: 「少し待っていてください」
-        voice_character_id: char_priest
-      - text: 神父は奥に入り、しばらくして小さな瓶に入ったグミを持ってきた。
-        voice_character_id: null
-      - text: 「これは以前、ある方から預かったものです。今、あなたに渡す時が来たようです」
-        voice_character_id: char_priest
-    next_scene: scene_ch4_priest_give
-
-  - id: scene_ch4_priest_give
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    characters:
-      - character_id: char_priest
-        position: center
-        expression: normal
-    item_give:
-      - item_id: item_gummy_5
-        condition: null
-    messages:
-      - text: 神父さんからグミを受け取った。
-        voice_character_id: null
-    next_scene: null
-
-  - id: scene_ch4_priest_done
-    location_id: loc_church
-    background: backgrounds/coderdojo.jpg
-    bgm: audio/bgm/danchi.mp3
-    characters:
-      - character_id: char_priest
-        position: center
-        expression: normal
-    messages:
-      - text: 「どうかその願い、届きますように」
-        voice_character_id: char_priest
-    next_scene: null
-
-  # ============================================================
-  # グミ⑥　一番街・おじさんの迷路チャレンジ
-  # ============================================================
   - id: scene_ch4_ichibangai_oyaji
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1234,7 +1342,6 @@ scenes:
           next_scene: scene_ch4_ichibangai_oyaji_wait
         - condition: null
           next_scene: scene_ch4_ichibangai_oyaji_first
-
   - id: scene_ch4_ichibangai_oyaji_first
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1251,7 +1358,6 @@ scenes:
       - text: 「普通が一番じゃ。普通じゃない一番街は、ろくなことにならんからな」
         voice_character_id: char_oyaji
     next_scene: null
-
   - id: scene_ch4_ichibangai_oyaji_wait
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1274,14 +1380,7 @@ scenes:
         voice_character_id: char_hero
       - text: 「ガハハ、大丈夫大丈夫。叶わなかった願いも、あとで笑い話になる。赤羽はそういう街じゃ」
         voice_character_id: char_oyaji
-      - text: 「わしのグミは、まだ早い。三つくらい集まったら、また一番街に来てみな」
-        voice_character_id: char_oyaji
-      - text: 「三つ？」
-        voice_character_id: char_hero
-      - text: 「それくらい集まると、この街の古いものが少しだけ目を覚ますんじゃ」
-        voice_character_id: char_oyaji
     next_scene: null
-
   - id: scene_ch4_ichibangai_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1293,20 +1392,19 @@ scenes:
     messages:
       - text: 一番街の入口に近づいた瞬間、空気が冷たく沈んだ。
         voice_character_id: null
-      - text: 赤い提灯の奥から、白い霧のようなものが流れてくる。
+      - text: 一番街のゲートの奥から、白い霧のようなものが流れてくる。
         voice_character_id: null
       - text: 「……ケン」
         voice_character_id: char_yui
       - text: 「ユイ？　どうしてここに」
         voice_character_id: char_hero
-      - text: 「グミを三つ集めたから。願いの気配に、一番街の迷路が反応してる」
+      - text: 「嫌な予感がして、、見に来てみたらやっぱりこうなってた」
         voice_character_id: char_yui
       - text: 「また、あの迷路……」
         voice_character_id: char_hero
-      - text: 「大丈夫。前と同じ。出口まで行けば戻れる。奥で、おじさんも待ってる」
+      - text: 「悪霊が出てくるかもしれない。見に行かないと」
         voice_character_id: char_yui
     next_scene: scene_ch4_ichibangai_challenge
-
   - id: scene_ch4_ichibangai_challenge
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1325,7 +1423,7 @@ scenes:
       transition: rift
       config:
         map: dungeon_02
-        name: "一番街の霊気"
+        name: 一番街の霊気
         bgm: audio/bgm/dungeon.mp3
         battleBgm: audio/bgm/buttle.mp3
         theme:
@@ -1355,7 +1453,6 @@ scenes:
       gameover_scene: scene_ch4_maze_gameover
       gameover_boss_scene: scene_ch4_boss_gameover
       gameover_landing_scene: scene_ichibangai_default
-
   - id: scene_ch4_maze_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1378,7 +1475,6 @@ scenes:
       - text: 「……わかった。一緒に行く」
         voice_character_id: char_yui
     next_scene: scene_ch4_maze_retry
-
   - id: scene_ch4_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1395,7 +1491,6 @@ scenes:
     next_engine:
       id: __return__
       transition: rift
-
   - id: scene_ch4_boss_gameover
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1414,7 +1509,6 @@ scenes:
       - text: 「……うん。今度こそ一緒に倒そう」
         voice_character_id: char_yui
     next_scene: scene_ch4_boss_maze_retry
-
   - id: scene_ch4_boss_maze_retry
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1431,7 +1525,6 @@ scenes:
     next_engine:
       id: __return__
       transition: rift
-
   - id: scene_ch4_ichibangai_maze_result
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1454,7 +1547,6 @@ scenes:
       - text: グミを受け取った。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch4_ichibangai_done
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1470,10 +1562,6 @@ scenes:
       - text: 「残りもがんばれよ。応援してるぞ」
         voice_character_id: char_oyaji
     next_scene: null
-
-  # ============================================================
-  # 6個集まったら→おばちゃんへヒント
-  # ============================================================
   - id: scene_ch4_hint_seven
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1490,10 +1578,6 @@ scenes:
       - text: （一番身近な人……）
         voice_character_id: char_hero
     next_scene: scene_ch4_wish
-
-  # ============================================================
-  # グミ⑦　おばちゃん（感動のラスト）
-  # ============================================================
   - id: scene_ch4_obachan_last
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1530,10 +1614,6 @@ scenes:
       - text: ケンの目が熱くなった。
         voice_character_id: char_hero
     next_scene: scene_ch4_wish
-
-  # ============================================================
-  # 全グミ揃った→願いをかける
-  # ============================================================
   - id: scene_ch4_wish
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1547,7 +1627,6 @@ scenes:
           next_scene: scene_ch4_wish_ceremony
         - condition: null
           next_scene: scene_ch4_obachan_last
-
   - id: scene_ch4_wish_ceremony
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -1575,15 +1654,11 @@ scenes:
       - text: ケンはそっと目を閉じて、七つのグミを手のひらで包んだ。
         voice_character_id: null
     next_scene: scene_ch4_ending
-
-  # ============================================================
-  # エンディング
-  # ============================================================
   - id: scene_ch4_ending
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
     bgm: audio/bgm/danchi.mp3
-    ending_title: "第4章　七つのグミ"
+    ending_title: 第4章　七つのグミ
     flags_set:
       - flag: flag_ch4_cleared
         value: true

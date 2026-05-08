@@ -14,7 +14,12 @@ locations:
         condition: null
       - location_id: loc_slope
         label: "団地への坂へ"
-        condition: null
+        condition:
+          or:
+            - flag: flag_visited_slope
+              value: true
+            - flag: flag_chapter
+              value: 4
       - location_id: loc_museum
         label: "団地のミュージアムへ"
         condition:
@@ -23,7 +28,7 @@ locations:
       - location_id: loc_plum_park
         label: "梅の木公園へ"
         condition:
-          flag: flag_ch4_plum_park_unlocked
+          flag: flag_ch4_detective_clue2
           value: true
     entry_scene: scene_danchi_morning
 
@@ -61,17 +66,18 @@ locations:
           value: true
       - location_id: loc_slope
         label: "団地への坂へ"
-        condition: null
+        condition:
+          flag: flag_chapter
+          value: 4
       - location_id: loc_station_end
         label: "駅の端へ"
         condition:
-          flag: flag_chapter
-          value: 4
-      - location_id: loc_church
-        label: "教会へ"
+          has_item: item_gummy_2
+      - location_id: loc_park
+        label: "赤羽公園へ"
         condition:
-          flag: flag_chapter
-          value: 4
+          flag: flag_ch4_detective_clue4
+          value: true
     entry_scene: scene_station_default
 
   - id: loc_coderdojo
@@ -89,7 +95,17 @@ locations:
         condition: null
       - location_id: loc_slope
         label: "団地への坂へ"
-        condition: null
+        condition:
+          or:
+            - and:
+                - flag: flag_met_mentor
+                  value: true
+                - flag: flag_examined_whiteboard
+                  value: true
+                - flag: flag_examined_kids
+                  value: true
+            - flag: flag_chapter
+              value: 4
     entry_scene: scene_coderdojo_default
 
   - id: loc_ichibangai
@@ -190,7 +206,9 @@ locations:
         condition: null
       - location_id: loc_station
         label: "駅前へ下る"
-        condition: null
+        condition:
+          flag: flag_chapter
+          value: 4
       - location_id: loc_danchi
         label: "団地へ上る"
         condition: null
@@ -199,7 +217,7 @@ locations:
   - id: loc_plum_park
     name: "梅の木公園"
     description: "団地の脇にある小さな公園。古い梅の木が一本だけ立っている。"
-    background_default: backgrounds/danchimae.jpg
+    background_default: backgrounds/umenoki_park.jpg
     default_commands:
       - cmd_examine
       - cmd_talk
@@ -214,7 +232,7 @@ locations:
   - id: loc_station_end
     name: "駅の端"
     description: "赤羽駅のホームの端。人が少なく、ひっそりしている。"
-    background_default: backgrounds/akabane.jpg
+    background_default: backgrounds/ekihaji.jpg
     default_commands:
       - cmd_examine
       - cmd_talk
@@ -225,18 +243,3 @@ locations:
         label: "駅前へ戻る"
         condition: null
     entry_scene: scene_station_end_default
-
-  - id: loc_church
-    name: "教会"
-    description: "一番街の外れにある小さな教会。静かで落ち着いた雰囲気がある。"
-    background_default: backgrounds/coderdojo.jpg
-    default_commands:
-      - cmd_examine
-      - cmd_talk
-      - cmd_move
-      - cmd_inventory
-    connections:
-      - location_id: loc_station
-        label: "駅前へ戻る"
-        condition: null
-    entry_scene: scene_church_default
