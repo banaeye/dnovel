@@ -20,10 +20,12 @@ const TEMPLATES: Record<string, EnemyTemplate> = {
 
 export const MAP_ENEMIES: Record<string, EnemyTemplate[]> = {
   dungeon_02: [TEMPLATES.ghost!, TEMPLATES.bat!, TEMPLATES.wraith!],
+  dungeon_03: [TEMPLATES.ghost!, TEMPLATES.bat!, TEMPLATES.wraith!],
 };
 
 export const MAP_BOSS: Record<string, EnemyTemplate> = {
   dungeon_02: { id: 'maze_boss', name: '迷宮の主', hp: 22, atk: 7, def: 2 },
+  dungeon_03: { id: 'maze_boss', name: '迷宮の主', hp: 22, atk: 7, def: 2 },
 };
 
 export function bossEnemy(mapId: string): Enemy | null {

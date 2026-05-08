@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameContext, EngineTransition, IGameEngine } from './types';
 
-type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'none';
+type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'numberstorm' | 'none';
 type TransitionPhase = 'idle' | 'out' | 'in';
 
 const DURATION: Record<TransitionEffect, number> = {
@@ -11,8 +11,22 @@ const DURATION: Record<TransitionEffect, number> = {
   speedline: 720,
   rift: 820,
   cardflip: 680,
+  numberstorm: 860,
   none:  0,
 };
+
+const NUMBER_STORM_DIGITS = [
+  { value: '7', left: '8%', top: '14%', size: 66, delay: 0, rotate: -18, color: '#fff2a8' },
+  { value: '3', left: '20%', top: '72%', size: 52, delay: 90, rotate: 14, color: '#8be9ff' },
+  { value: '+', left: '34%', top: '24%', size: 46, delay: 150, rotate: -9, color: '#ff9fd5' },
+  { value: '12', left: '48%', top: '68%', size: 74, delay: 40, rotate: 11, color: '#ffffff' },
+  { value: '5', left: '62%', top: '18%', size: 58, delay: 220, rotate: 17, color: '#b6ff8b' },
+  { value: '9', left: '78%', top: '58%', size: 68, delay: 120, rotate: -13, color: '#ffd18b' },
+  { value: '=', left: '86%', top: '30%', size: 48, delay: 260, rotate: 8, color: '#fff2a8' },
+  { value: '21', left: '12%', top: '46%', size: 82, delay: 300, rotate: 10, color: '#ffffff' },
+  { value: '4', left: '42%', top: '8%', size: 44, delay: 360, rotate: -16, color: '#8be9ff' },
+  { value: '6', left: '70%', top: '78%', size: 50, delay: 430, rotate: 18, color: '#ff9fd5' },
+];
 
 const KEYFRAMES = `
 @keyframes hub-fade-out  { from { opacity: 0 } to { opacity: 1 } }
@@ -50,6 +64,26 @@ const KEYFRAMES = `
   0%   { opacity: 1; transform: perspective(900px) rotateY(0deg) scale(1); filter: brightness(0.9); }
   46%  { opacity: 0.9; transform: perspective(900px) rotateY(-10deg) scale(1.02); filter: brightness(1.3); }
   100% { opacity: 0; transform: perspective(900px) rotateY(90deg) scale(0.85); filter: brightness(1); }
+}
+@keyframes hub-numberstorm-out {
+  0%   { opacity: 0; transform: scale(0.92) rotate(-2deg); filter: brightness(1); }
+  35%  { opacity: 1; transform: scale(1.04) rotate(1deg); filter: brightness(1.35); }
+  100% { opacity: 1; transform: scale(1.01) rotate(0deg); filter: brightness(1.12); }
+}
+@keyframes hub-numberstorm-in {
+  0%   { opacity: 1; transform: scale(1.01) rotate(0deg); filter: brightness(1.12); }
+  45%  { opacity: 0.86; transform: scale(1.05) rotate(-1deg); filter: brightness(1.25); }
+  100% { opacity: 0; transform: scale(1.16) rotate(2deg); filter: brightness(1); }
+}
+@keyframes hub-number-fly {
+  0%   { opacity: 0; transform: translate3d(-42vw, 22vh, 0) rotate(-28deg) scale(0.35); }
+  18%  { opacity: 1; }
+  55%  { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg) scale(1.08); }
+  100% { opacity: 0; transform: translate3d(38vw, -24vh, 0) rotate(30deg) scale(0.62); }
+}
+@keyframes hub-number-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.84; }
+  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
 }
 `;
 
@@ -153,6 +187,13 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
               'linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 112px)',
               '#0d0712',
             ].join(', ')
+          : effect === 'numberstorm'
+            ? [
+                'radial-gradient(circle at 50% 46%, rgba(255,255,255,0.98) 0 6%, rgba(255,230,92,0.74) 14%, rgba(25,190,220,0.38) 33%, rgba(21,24,60,0.96) 72%)',
+                'repeating-linear-gradient(24deg, rgba(255,255,255,0.18) 0 2px, transparent 2px 28px)',
+                'repeating-linear-gradient(116deg, rgba(255,223,92,0.17) 0 2px, transparent 2px 34px)',
+                '#11183c',
+              ].join(', ')
       : '#000';
 
   const overlayStyle: React.CSSProperties = overlayActive ? {
@@ -167,6 +208,8 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
         ? '100% 100%, 180px 180px, 100% 100%'
         : effect === 'cardflip'
           ? '100% 100%, 80px 100%, 100% 112px, 100% 100%'
+          : effect === 'numberstorm'
+            ? '100% 100%, 120px 120px, 150px 150px, 100% 100%'
         : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
   } : {
@@ -220,6 +263,59 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
               transform: `translate(-50%, -50%) ${phase === 'out' ? 'rotate(-4deg)' : 'rotate(4deg)'}`,
             }}
           />
+        )}
+        {overlayActive && effect === 'numberstorm' && (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 210,
+                height: 210,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.96) 0 18%, rgba(255,222,82,0.84) 31%, rgba(34,206,230,0.22) 56%, transparent 70%)',
+                boxShadow: '0 0 34px rgba(255,234,94,0.85), 0 0 72px rgba(73,220,255,0.48)',
+                animation: 'hub-number-pulse 520ms ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#162057',
+                fontFamily: "'Arial Black', 'Impact', sans-serif",
+                fontSize: 64,
+                letterSpacing: 0,
+                textShadow: '0 2px 0 rgba(255,255,255,0.8), 0 0 16px rgba(255,241,124,0.9)',
+              }}
+            >
+              COUNT!
+            </div>
+            {NUMBER_STORM_DIGITS.map((digit, index) => (
+              <span
+                key={`${digit.value}-${index}`}
+                style={{
+                  position: 'absolute',
+                  left: digit.left,
+                  top: digit.top,
+                  color: digit.color,
+                  fontFamily: "'Arial Black', 'Impact', sans-serif",
+                  fontSize: digit.size,
+                  lineHeight: 1,
+                  letterSpacing: 0,
+                  textShadow: '0 0 16px rgba(255,255,255,0.92), 0 5px 0 rgba(7,11,34,0.42)',
+                  transform: `rotate(${digit.rotate}deg)`,
+                  animation: `hub-number-fly 620ms cubic-bezier(0.2, 0.9, 0.2, 1) ${digit.delay}ms both`,
+                }}
+              >
+                {digit.value}
+              </span>
+            ))}
+          </>
         )}
       </div>
     </>

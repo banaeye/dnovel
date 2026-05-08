@@ -199,6 +199,11 @@ flags:
     default: false
     description: "第4章で一番街の迷路が出現した（おじさんの飲みすぎによる）"
 
+  - id: flag_ch4_yui_maze_met
+    type: boolean
+    default: false
+    description: "ユイが迷路の前に現れて初回の説明を済ませた"
+
   - id: flag_ch4_cleared
     type: boolean
     default: false

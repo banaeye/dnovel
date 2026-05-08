@@ -155,9 +155,9 @@ scenes:
     messages:
       - text: 駅前に出ると、ホームの端の方で誰かがこちらに向かって手招きしているのに気づいた。
         voice_character_id: null
-      - text: コートを着た中年の男だ。「こっちに来い」というように、大きくジェスチャーしている。
+      - text: 中年の男だ。「こっちに来い」というように、大きくジェスチャーしている。
         voice_character_id: null
-      - text: （なんだろう……駅の端の方か）
+      - text: （なんだろう……駅の端の方に行ってみるべきか）
         voice_character_id: char_hero
   - id: scene_ch4_station_with_college
     location_id: loc_station
@@ -229,13 +229,9 @@ scenes:
         voice_character_id: char_college_student
       - text: 「どうしたんですか？」
         voice_character_id: char_hero
-      - text: 「さっきあの子猫、また見かけたんです。改札の前を走り抜けて、赤羽公園の方へ向かっていきました！」
+      - text: 「さっきあの子猫、また見かけたんです。改札の前を走り抜けて、公園の方へ向かっていきました！」
         voice_character_id: char_college_student
-      - text: 「赤羽公園！？」
-        voice_character_id: char_hero
-      - text: 「急いで！　あのまま走ったなら、ベンチのあたりにいるかもしれません」
-        voice_character_id: char_college_student
-      - text: 「ありがとうございます！」
+      - text: 「公園！？アーケード街の方か」
         voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_station_college_repeat
@@ -254,28 +250,21 @@ scenes:
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
     bgm: audio/bgm/station.mp3
-    characters:
-      - character_id: char_mentor
-        position: center
-        expression: normal
     messages: []
-    talkable:
-      - character_id: char_mentor
-        scene_id: scene_ch4_coderdojo_mentor
     branches:
       type: auto
       choices:
         - condition:
             has_item: item_kinchu_hikari
-          next_scene: null
+          next_scene: scene_ch4_coderdojo_area
         - condition:
             flag: flag_ch4_maze_appeared
             value: true
-          next_scene: null
+          next_scene: scene_ch4_coderdojo_area
         - condition:
             flag: flag_ch4_gummy_quest
             value: true
-          next_scene: null
+          next_scene: scene_ch4_coderdojo_area
         - condition: null
           next_scene: scene_ch4_coderdojo_first
   - id: scene_ch4_coderdojo_first
@@ -286,13 +275,98 @@ scenes:
       - character_id: char_mentor
         position: center
         expression: normal
-    talkable:
-      - character_id: char_mentor
-        scene_id: scene_ch4_coderdojo_mentor
     messages:
       - text: 今日はCoderDojoの日だ。田中メンターが来ていた。
         voice_character_id: null
-    next_scene: null
+    next_scene: scene_ch4_coderdojo_area
+  - id: scene_ch4_coderdojo_area
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_mentor
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_mentor
+        scene_id: scene_ch4_coderdojo_mentor
+    clickable_areas:
+      - id: area_ch4_coderdojo_juice
+        x: 89
+        "y": 394
+        width: 52
+        height: 70
+        label: ジュース
+        next_scene: scene_ch4_coderdojo_examine_juice
+        condition: null
+      - id: area_ch4_coderdojo_milktea
+        x: 704
+        "y": 390
+        width: 87
+        height: 69
+        label: ティー
+        next_scene: scene_ch4_coderdojo_examine_milktea
+        condition: null
+    messages: []
+    child_scenes:
+      - id: scene_ch4_coderdojo_examine_juice
+        location_id: loc_coderdojo
+        messages: []
+        branches:
+          type: auto
+          choices:
+            - condition:
+                has_item: item_drink
+              next_scene: scene_ch4_coderdojo_juice_have
+            - condition: null
+              next_scene: scene_ch4_coderdojo_juice_get
+        child_scenes:
+          - id: scene_ch4_coderdojo_juice_get
+            location_id: loc_coderdojo
+            item_give:
+              - item_id: item_drink
+                condition: null
+            messages:
+              - text: 机の上に置きっぱなしのジュースがある。
+                voice_character_id: null
+              - text: （もらっておこう）
+                voice_character_id: char_hero
+            next_scene: null
+          - id: scene_ch4_coderdojo_juice_have
+            location_id: loc_coderdojo
+            messages:
+              - text: ジュースはもう持っている。
+                voice_character_id: null
+            next_scene: null
+      - id: scene_ch4_coderdojo_examine_milktea
+        location_id: loc_coderdojo
+        messages: []
+        branches:
+          type: auto
+          choices:
+            - condition:
+                has_item: item_milktea
+              next_scene: scene_ch4_coderdojo_milktea_have
+            - condition: null
+              next_scene: scene_ch4_coderdojo_milktea_get
+        child_scenes:
+          - id: scene_ch4_coderdojo_milktea_get
+            location_id: loc_coderdojo
+            item_give:
+              - item_id: item_milktea
+                condition: null
+            messages:
+              - text: 机の端にミルクティーが置いてある。まだ温かそうだ。
+                voice_character_id: null
+              - text: （もらっておこう）
+                voice_character_id: char_hero
+            next_scene: null
+          - id: scene_ch4_coderdojo_milktea_have
+            location_id: loc_coderdojo
+            messages:
+              - text: ミルクティーはもう持っている。
+                voice_character_id: null
+            next_scene: null
   - id: scene_ch4_coderdojo_mentor
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -332,6 +406,7 @@ scenes:
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
     bgm: audio/bgm/station.mp3
+    overlay_image: cg/get_superitem.jpg
     characters:
       - character_id: char_mentor
         position: center
@@ -389,6 +464,10 @@ scenes:
         - condition:
             has_item: item_gummy_6
           next_scene: null
+        - condition:
+            flag: flag_ch4_yui_maze_met
+            value: true
+          next_scene: scene_ch4_ichibangai_yui_ready
         - condition:
             item_count:
               items:
@@ -470,10 +549,10 @@ scenes:
     clickable_areas:
       - id: area_park_bench_cat
         x: 300
-        y: 350
+        "y": 350
         width: 200
         height: 100
-        label: "ベンチの下を覗く"
+        label: ベンチの下を覗く
         next_scene: scene_ch4_park_find_cat
         condition:
           flag: flag_ch4_detective_solved
@@ -628,7 +707,7 @@ scenes:
     bgm: audio/bgm/danchi.mp3
     characters: []
     messages:
-      - text: 梅の木公園。古い梅の木が一本、静かに立っている。
+      - text: 梅の木公園。もう花の季節ではなく緑が生い茂っている。
         voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_plum_park_with_baito
@@ -643,7 +722,7 @@ scenes:
       - character_id: char_museum_part_timer
         scene_id: scene_ch4_plum_park_baito
     messages:
-      - text: 梅の木公園。古い梅の木のそばに、見かけないバイトの男の子が立っていた。
+      - text: 梅の木公園。古い梅の木のそばに、ミュージアムのバイトの人がいる。
         voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_plum_park_baito
@@ -682,7 +761,13 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「あの……子猫を探してるんですけど、見ませんでしたか？　光るもの咥えてて」
+      - text: 「あ、ケン君。こんにちは。実はここで財布なくしちゃって。ずっと探してるんですけど全然見つからなくて」
+        voice_character_id: char_museum_part_timer
+      - text: 「財布……」
+        voice_character_id: char_hero
+      - text: 「あ、いいんですよもうすこし探します。よく落としちゃうんですよね」
+        voice_character_id: char_museum_part_timer
+      - text: 「あの……実は僕も子猫を探してるんですけど、見ませんでしたか？　こっちに来たらしくて」
         voice_character_id: char_hero
       - text: 「あ！　さっきいましたよ！　梅の木の根元でしばらくじっとしてたんですけど、急に走り出して……」
         voice_character_id: char_museum_part_timer
@@ -691,14 +776,6 @@ scenes:
       - text: 「駅の方へ走っていきました。めちゃ速かったです」
         voice_character_id: char_museum_part_timer
       - text: 「駅！　ありがとうございます！」
-        voice_character_id: char_hero
-      - text: 「……あ、そういえば、さっきここで財布なくしちゃって。ずっと探してるんですけど全然見つからなくて」
-        voice_character_id: char_museum_part_timer
-      - text: 「財布……」
-        voice_character_id: char_hero
-      - text: 「猫が走り去るとき、何か引きずってたような気もして。もしかしてあの猫が持って行ったのかな」
-        voice_character_id: char_museum_part_timer
-      - text: （財布も猫が持って行ったのかもしれない）
         voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_plum_park_baito_repeat
@@ -939,10 +1016,6 @@ scenes:
         voice_character_id: char_candy_kid
       - text: アメちゃんをひとつ渡すと、少年は嬉しそうにグミをくれた。
         voice_character_id: null
-      - text: 「そうだ、さっきこの公園のベンチの下に子猫いたよ！　なんか光ってるもの咥えてた！」
-        voice_character_id: char_candy_kid
-      - text: 「子猫が光るものを……？」
-        voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_park_no_candy
     location_id: loc_park
@@ -1014,6 +1087,7 @@ scenes:
         voice_character_id: char_hero
     next_engine:
       id: flash_calc
+      transition: numberstorm
       config:
         difficulty: easy
         rounds: 5
@@ -1381,10 +1455,42 @@ scenes:
       - text: 「ガハハ、大丈夫大丈夫。叶わなかった願いも、あとで笑い話になる。赤羽はそういう街じゃ」
         voice_character_id: char_oyaji
     next_scene: null
+  - id: scene_maze_event_01
+    location_id: loc_ichibangai
+    background: backgrounds/inner_ichibangai_dark.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_obachan
+        position: left
+        expression: normal
+    item_give:
+      - item_id: item_fushigi_candy
+        condition:
+          has_item: item_fushigi_candy
+          negate: true
+    messages:
+      - text: ——突然、視界が歪んだ。
+        voice_character_id: null
+      - text: そこには、見覚えのある顔があった。
+        voice_character_id: null
+      - text: 「……田村のおばちゃん？　なんでここに」
+        voice_character_id: char_hero
+      - text: 「あら、ケンちゃん。こんなとこまで来てがんばってるんやね」
+        voice_character_id: char_obachan
+      - text: 「ほら、あめちゃん。お腹すいたやろ」
+        voice_character_id: char_obachan
+      - text: ——気づくと、おばちゃんの姿は消えていた。手のひらの中に、アメが一粒残っていた。
+        voice_character_id: null
+    next_engine:
+      id: __return__
+      transition: rift
   - id: scene_ch4_ichibangai_yui
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
     bgm: audio/bgm/dungeon.mp3
+    flags_set:
+      - flag: flag_ch4_yui_maze_met
+        value: true
     characters:
       - character_id: char_yui
         position: center
@@ -1398,17 +1504,31 @@ scenes:
         voice_character_id: char_yui
       - text: 「ユイ？　どうしてここに」
         voice_character_id: char_hero
-      - text: 「嫌な予感がして、、見に来てみたらやっぱりこうなってた」
+      - text: 「嫌な予感がして、見に来てみたらやっぱりこうなってた」
         voice_character_id: char_yui
       - text: 「また、あの迷路……」
         voice_character_id: char_hero
       - text: 「悪霊が出てくるかもしれない。見に行かないと」
         voice_character_id: char_yui
     next_scene: scene_ch4_ichibangai_challenge
+  - id: scene_ch4_ichibangai_yui_ready
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: ユイが霧の前に立っていた。
+        voice_character_id: null
+      - text: 「来た。準備できた？」
+        voice_character_id: char_yui
+    next_scene: scene_ch4_ichibangai_challenge
   - id: scene_ch4_ichibangai_challenge
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
-    bgm: audio/bgm/station.mp3
+    bgm: audio/bgm/dungeon.mp3
     characters:
       - character_id: char_yui
         position: center
@@ -1416,13 +1536,29 @@ scenes:
     messages:
       - text: 「行こう。ここを抜けた先に、次のグミがある」
         voice_character_id: char_yui
+    branches:
+      type: choice
+      choices:
+        - label: 「うん、行こう」
+          next_scene: scene_ch4_maze_enter
+        - label: 「少し準備してから来る」
+          next_scene: null
+  - id: scene_ch4_maze_enter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
       - text: 「うん」
         voice_character_id: char_hero
     next_engine:
       id: maze_rpg
       transition: rift
       config:
-        map: dungeon_02
+        map: dungeon_03
         name: 一番街の霊気
         bgm: audio/bgm/dungeon.mp3
         battleBgm: audio/bgm/buttle.mp3
@@ -1486,8 +1622,18 @@ scenes:
     messages:
       - text: 「……行こ。今度こそ大丈夫」
         voice_character_id: char_yui
-      - text: 「うん」
-        voice_character_id: char_hero
+    branches:
+      type: choice
+      choices:
+        - label: 「うん、もう一回」
+          next_scene: scene_ch4_maze_reenter
+        - label: 「少し準備してから来る」
+          next_scene: null
+  - id: scene_ch4_maze_reenter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    messages: []
     next_engine:
       id: __return__
       transition: rift
@@ -1518,10 +1664,20 @@ scenes:
         position: right
         expression: normal
     messages:
-      - text: 「準備はいい？」
+      - text: 「あそこまでの道はもう分かってる。行ける」
         voice_character_id: char_yui
-      - text: うん。今度は負けない。
-        voice_character_id: char_hero
+    branches:
+      type: choice
+      choices:
+        - label: 「うん、今度こそ倒す」
+          next_scene: scene_ch4_boss_maze_reenter
+        - label: 「少し準備してから来る」
+          next_scene: null
+  - id: scene_ch4_boss_maze_reenter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    messages: []
     next_engine:
       id: __return__
       transition: rift
@@ -1672,3 +1828,55 @@ scenes:
       - text: 赤羽のひとたちが、みんなで一緒にいてくれたこと。
         voice_character_id: null
     game_end: true
+  - id: scene_use_candy
+    overlay_image: cg/candy_happy.jpg
+    messages:
+      - text: アメをなめた。
+        voice_character_id: null
+      - text: 甘くておいしい。
+        voice_character_id: null
+      - text: ……なんだか、すごく幸せな気持ちになった。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_use_juice
+    overlay_image: cg/happy_juice.jpg
+    messages:
+      - text: ジュースを飲んだ。
+        voice_character_id: null
+      - text: あっさりとしていて、とてもおいしい。
+        voice_character_id: null
+      - text: ……なんだか、すごく幸せな気持ちになった。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_use_milktea
+    overlay_image: cg/happy_juice.jpg
+    messages:
+      - text: ミルクティーを飲んだ。
+        voice_character_id: null
+      - text: やさしい甘さで、ほっとする味がした。
+        voice_character_id: null
+      - text: ……少し、気持ちが落ち着いた。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_use_fushigi_candy
+    overlay_image: cg/candy_happy.jpg
+    messages:
+      - text: 不思議なアメをなめた。
+        voice_character_id: null
+      - text: ひんやりしているのに、甘くてやさしい味がした。
+        voice_character_id: null
+      - text: ……体の中から、力が戻ってくる気がした。
+        voice_character_id: char_hero
+    next_scene: null
+  - id: scene_use_kinchu_hikari
+    item_give:
+      - item_id: item_kinchu_hikari
+        condition: null
+    messages:
+      - text: 悪霊退散のおふだを手に持ってみた。
+        voice_character_id: null
+      - text: かすかな輝きが、掌に温かく広がる。
+        voice_character_id: char_hero
+      - text: ……これは、迷宮の番人に向かって使おう。
+        voice_character_id: char_hero
+    next_scene: null
