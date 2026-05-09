@@ -36,7 +36,7 @@ function wavToMp3(wavBuffer) {
 }
 
 // YAML読み込み（全章分）
-const SCENE_FILES = ['scenes.yaml', 'scenes_ch1.yaml', 'scenes_ch2.yaml', 'scenes_ch3.yaml'];
+const SCENE_FILES = ['scenes.yaml', 'scenes_ch1.yaml', 'scenes_ch2.yaml', 'scenes_ch3.yaml', 'scenes_ch4.yaml'];
 const scenes = SCENE_FILES.flatMap(file => {
   const fullPath = path.join(ROOT, 'src/data', file);
   if (!fs.existsSync(fullPath)) return [];
