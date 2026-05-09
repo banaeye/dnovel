@@ -11,7 +11,9 @@ const DIR_ARROW: Record<string, [number, number][]> = {
   W: [[-5, 0], [4, -4], [4, 4]],
 };
 
-export function MiniMap({ state }: { state: MazeState }) {
+export type MiniMapMode = 'full' | 'visited';
+
+export function MiniMap({ state, mode = 'full' }: { state: MazeState; mode?: MiniMapMode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cols = state.map[0]?.length ?? 0;
   const rows = state.map.length;
@@ -33,6 +35,12 @@ export function MiniMap({ state }: { state: MazeState }) {
         const visited = state.visited.has(key);
         const sx = PAD + x * CELL;
         const sy = PAD + y * CELL;
+
+        if (mode === 'visited' && !visited) {
+          ctx.fillStyle = '#050505';
+          ctx.fillRect(sx, sy, CELL, CELL);
+          continue;
+        }
 
         if (cell === '#') {
           ctx.fillStyle = visited ? '#554433' : '#2a1a0a';
@@ -61,7 +69,7 @@ export function MiniMap({ state }: { state: MazeState }) {
     ctx.lineTo(px + arrow[2]![0], py + arrow[2]![1]);
     ctx.closePath();
     ctx.fill();
-  }, [state, W, H, rows, cols]);
+  }, [state, W, H, rows, cols, mode]);
 
   return (
     <canvas

@@ -9,6 +9,7 @@ import { BattleView } from './components/BattleView.js';
 import { EnemySprite } from './components/EnemySprite.js';
 import { ItemPanel } from './components/ItemPanel.js';
 import type { MazeItemDef } from './components/ItemPanel.js';
+import type { MiniMapMode } from './components/MiniMap.js';
 
 export type { MazeItemDef };
 
@@ -61,6 +62,8 @@ export interface MazeRpgConfig {
   bgm?: string;
   /** バトル中に流れる BGM（省略時は bgm を継続） */
   battleBgm?: string;
+  /** ミニマップ表示。'visited' なら通ったマスだけを表示する（省略時は 'full'） */
+  minimapMode?: MiniMapMode;
   /** インベントリに表示するアイテム情報（NovelEngineAdapter が自動注入） */
   items?: MazeItemDef[];
   /** イベントタイル文字 → novel scene ID（例: { E: 'scene_maze_event_01' }） */
@@ -126,6 +129,63 @@ function HpRow({ hp, maxHp, theme }: { hp: number; maxHp: number; theme: Require
   );
 }
 
+function HealSparkleEffect() {
+  const sparkles = [
+    { left: '22%', top: '62%', delay: '0ms', size: 8 },
+    { left: '33%', top: '36%', delay: '90ms', size: 5 },
+    { left: '46%', top: '68%', delay: '170ms', size: 7 },
+    { left: '57%', top: '32%', delay: '40ms', size: 6 },
+    { left: '70%', top: '56%', delay: '130ms', size: 9 },
+    { left: '39%', top: '48%', delay: '230ms', size: 5 },
+    { left: '62%', top: '72%', delay: '280ms', size: 6 },
+  ];
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        zIndex: 6,
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '56%',
+          width: 250,
+          height: 120,
+          borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(180,255,190,0.45) 0%, rgba(120,255,170,0.16) 45%, transparent 72%)',
+          boxShadow: '0 0 36px rgba(150,255,190,0.6)',
+          transform: 'translate(-50%, -50%)',
+          animation: 'maze-heal-aura 900ms ease-out forwards',
+        }}
+      />
+      {sparkles.map((sparkle, i) => (
+        <span
+          key={i}
+          style={{
+            position: 'absolute',
+            left: sparkle.left,
+            top: sparkle.top,
+            width: sparkle.size,
+            height: sparkle.size,
+            transform: 'translate(-50%, -50%) rotate(45deg)',
+            background: '#f4ffe1',
+            boxShadow: '0 0 10px #d8ff95, 0 0 18px rgba(120,255,170,0.9)',
+            animation: `maze-heal-sparkle 780ms ease-out ${sparkle.delay} forwards`,
+            opacity: 0,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function NavButton({ label, theme, onClick }: { label: string; theme: Required<MazeTheme>; onClick: () => void }) {
   const [hover, setHover] = useState(false);
   return (
@@ -173,6 +233,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const [itemNotice, setItemNotice] = useState<string | null>(null);
   const [attackFlash, setAttackFlash] = useState(false);
   const [defeatEffect, setDefeatEffect] = useState(false);
+  const [healSparkleKey, setHealSparkleKey] = useState(0);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousBattleRef = useRef(state.battle);
   const showingBattleItems = !!state.battle && itemPanelMode === 'battle';
@@ -199,6 +260,9 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const handleUseItem = useCallback((itemId: string, itemName: string) => {
     const effect = config.itemEffects?.[itemId];
     if (effect?.attackEnemy !== undefined && !state.battle) return;
+    if (effect?.healHp !== undefined) {
+      setHealSparkleKey(prev => prev + 1);
+    }
     setState(prev => useItemInMaze(prev, itemId, itemName, effect));
     setSelectedItemId(null);
     if (state.battle) {
@@ -484,6 +548,16 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             35% { opacity: 1; transform: translate(-50%, -50%) rotate(-18deg) scaleX(1); }
             100% { opacity: 0; transform: translate(-50%, -50%) rotate(-18deg) scaleX(1.15); }
           }
+          @keyframes maze-heal-aura {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.55); filter: blur(1px); }
+            22% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0); }
+            100% { opacity: 0; transform: translate(-50%, -62%) scale(1.28); filter: blur(4px); }
+          }
+          @keyframes maze-heal-sparkle {
+            0% { opacity: 0; transform: translate(-50%, 18px) rotate(45deg) scale(0.25); }
+            28% { opacity: 1; transform: translate(-50%, -50%) rotate(45deg) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -70px) rotate(45deg) scale(0.2); }
+          }
         `}</style>
         {/* タイトルバー */}
         <div
@@ -525,6 +599,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                 }}
               >
                 <MazeView state={state} theme={theme} />
+
+                {healSparkleKey > 0 && <HealSparkleEffect key={healSparkleKey} />}
 
                 {state.battle && (
                   <>
@@ -611,7 +687,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                 {/* ミニマップ + コンパス — 横並び */}
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', justifyContent: 'center' }}>
                   <div style={{ border: `1px solid ${theme.uiBorder}` }}>
-                    <MiniMap state={state} />
+                    <MiniMap state={state} mode={config.minimapMode} />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <div

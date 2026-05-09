@@ -35,7 +35,7 @@ scenes:
         voice_character_id: null
       - text: でも、あの日の笑い声はまだ耳に残っている。
         voice_character_id: char_hero
-      - text: おばちゃんが全力で走って、みんなが名前を呼んでいた。
+      - text: おばちゃんが全力で走って、みんなが応援していた。
         voice_character_id: null
       - text: こんな日は、赤羽をぶらぶらしてみようか。
         voice_character_id: char_hero
@@ -191,9 +191,7 @@ scenes:
     talkable:
       - character_id: char_college_student
         scene_id: scene_ch4_station_college_talk
-    messages:
-      - text: 駅前に来ると、坂にいたはずの大学生がいた。
-        voice_character_id: char_hero
+    messages: []
     next_scene: null
   - id: scene_ch4_station_college_talk
     location_id: loc_station
@@ -548,21 +546,21 @@ scenes:
     characters: []
     clickable_areas:
       - id: area_park_bench_cat
-        x: 300
-        "y": 350
-        width: 200
-        height: 100
-        label: ベンチの下を覗く
+        x: 49
+        "y": 372
+        width: 91
+        height: 47
+        label: ベンチの下
         next_scene: scene_ch4_park_find_cat
         condition:
           flag: flag_ch4_detective_solved
           value: false
       - id: area_park_bench_wallet
-        x: 300
-        "y": 350
-        width: 200
-        height: 100
-        label: もう一度覗く
+        x: 51
+        "y": 375
+        width: 91
+        height: 44
+        label: ベンチの下
         next_scene: scene_ch4_park_find_wallet
         condition:
           and:
@@ -626,7 +624,7 @@ scenes:
         voice_character_id: char_detective
       - text: 探偵はポケットからグミをひとつ取り出して、名残惜しそうに一度だけ眺めた。
         voice_character_id: null
-      - text: 「……本当は夜食にするつもりだったが、約束は約束じゃ」
+      - text: 「……本当は夜食にするつもりだったが、約束は約束だ」
         voice_character_id: char_detective
       - text: グミを受け取った。
         voice_character_id: null
@@ -1234,23 +1232,23 @@ scenes:
         voice_character_id: null
       - text: 男は自動販売機の下をのぞきこんで、落ちていた十円玉をすばやくポケットに入れた。
         voice_character_id: null
-      - text: 「……おや、見たかね。これは現場保存というやつじゃ」
+      - text: 「……おや、見てたか。これは現場保存というやつだ」
         voice_character_id: char_detective
       - text: 「え、探偵さん？」
         voice_character_id: char_hero
-      - text: 「そうじゃ。赤羽の探偵、と呼んでくれ。交番には顔が利く。主に、怒られる方でな」
+      - text: 「そうだ。赤羽の探偵、と呼んでくれ。交番には顔が利く。主に、怒られる方でな」
         voice_character_id: char_detective
-      - text: 「わしのロケットペンダント、さっきここのベンチで子猫に取られてしもうたんじゃ。大事な形見でな」
+      - text: 「俺のロケットペンダント、さっきここのベンチで子猫に取られてしまったんだ。大事な形見でな」
         voice_character_id: char_detective
       - text: 「子猫が……ペンダントを？」
         voice_character_id: char_hero
-      - text: 「そうじゃ。赤羽のどこかに逃げたはずじゃが……わしは今、駅員に見つかると少々まずい」
+      - text: 「そうだ。赤羽のどこかに逃げたはずだが……俺は今、駅員に見つかるとちょっとまずい」
         voice_character_id: char_detective
       - text: 「何したんですか」
         voice_character_id: char_hero
-      - text: 「切符をなくしただけじゃ。たぶん。細かいことはいい。情報を集めて、どこへ行ったか突き止めてくれんかね。礼はするぞ」
+      - text: 「切符をなくしただけだ。たぶん。細かいことはいい。情報を集めて、どこへ行ったか突き止めてくれないか。礼はするぞ」
         voice_character_id: char_detective
-      - text: 「子猫は団地への坂道あたりから来たんじゃ。まずあのあたりにいる人に聞いてみてくれ」
+      - text: 「子猫は団地への坂道あたりへ走ったように見えた。まずあのあたりにいる人に聞いてみてくれ」
         voice_character_id: char_detective
       - text: 「わかりました。調べてみます」
         voice_character_id: char_hero
@@ -1264,13 +1262,13 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「どうじゃ、坂道あたりで何か分かったかね」
+      - text: 「どうだ、坂道あたりで何か分かったか」
         voice_character_id: char_detective
       - text: 探偵おやじは売店の試食品を、やけに堂々と三つ食べていた。
         voice_character_id: null
       - text: 「まだで……」
         voice_character_id: char_hero
-      - text: 「団地への坂に若い大学生がよくいるじゃろ。あやつに聞いてみなさい」
+      - text: 「団地への坂に若い大学生がよくいるだろ。あいつに聞いてみてくれ」
         voice_character_id: char_detective
     next_scene: null
   - id: scene_ch4_detective_wait_clue2
@@ -1282,7 +1280,7 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「大学生から話を聞いたじゃろ。次は団地のおばちゃんに聞いてみなさい。あの方は、この辺りを一番よく見ておる」
+      - text: 「大学生から話を聞いたか。次は団地のおばちゃんに聞いてみてくれ。あの人は、この辺りを一番よく見てる」
         voice_character_id: char_detective
     next_scene: null
   - id: scene_ch4_detective_wait_clue3
@@ -1294,7 +1292,7 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「おばちゃんから梅の木公園と聞いたか。次はあの公園じゃ。あのあたりに詳しい者がいるはずじゃ」
+      - text: 「おばちゃんから梅の木公園と聞いたか。次はあの公園だ。あのあたりに詳しいやつがいるはずだ」
         voice_character_id: char_detective
     next_scene: null
   - id: scene_ch4_detective_wait_clue4
@@ -1306,7 +1304,7 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「もうあとは赤羽公園のベンチの下を確認するだけじゃ。急ぎなさい」
+      - text: 「もうあとは赤羽公園のベンチの下を確認するだけだ。急いでくれ」
         voice_character_id: char_detective
     next_scene: null
   - id: scene_ch4_detective_done
@@ -1463,9 +1461,6 @@ scenes:
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
     bgm: audio/bgm/station.mp3
-    flags_set:
-      - flag: flag_ch4_maze_appeared
-        value: true
     characters:
       - character_id: char_oyaji
         position: center
@@ -1591,6 +1586,7 @@ scenes:
       transition: rift
       config:
         map: dungeon_03
+        minimapMode: visited
         name: 一番街の霊気
         bgm: audio/bgm/dungeon.mp3
         battleBgm: audio/bgm/buttle.mp3
@@ -1728,9 +1724,13 @@ scenes:
       - item_id: item_gummy_6
         condition: null
     messages:
-      - text: 「クリアしたか！　やるじゃないか」
+      - text: 「ああああ　またやってしもうた。飲みすぎた」
         voice_character_id: char_oyaji
-      - text: 「約束のグミじゃ。しっかり使えよ」
+      - text: おじさん、しっかりしてよ。こっちは大変なんだから。
+        voice_character_id: char_hero
+      - text: 飲みすぎると、こうなるの、、？
+        voice_character_id: char_yui
+      - text: 「このグミをやるから、かんにんしておくれ」
         voice_character_id: char_oyaji
       - text: グミを受け取った。
         voice_character_id: null

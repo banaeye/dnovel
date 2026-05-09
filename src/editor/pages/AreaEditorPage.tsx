@@ -14,10 +14,21 @@ export function AreaEditorPage({ dirHandle, rawScenes, error, saveScenes }: Shar
   const allSceneIds = collectAllSceneIds(rawScenes);
   const currentScene: RawScene | null = selectedSceneId ? findScene(rawScenes, selectedSceneId) : null;
 
-  // 背景画像は Vite devサーバーの /assets/ か、window.location.origin 基準で取得
-  const backgroundSrc = currentScene?.background
-    ? `${window.location.origin}/assets/${currentScene.background}`
-    : null;
+  // child_scenes は background を持たないため、親から継承した背景を探す
+  function findEffectiveBackground(scenes: RawScene[], id: string, parentBg: string | null = null): string | null | undefined {
+    for (const s of scenes) {
+      const bg = (s.background as string | undefined) ?? parentBg ?? null;
+      if (s.id === id) return bg;
+      if (s.child_scenes) {
+        const result = findEffectiveBackground(s.child_scenes as RawScene[], id, bg);
+        if (result !== undefined) return result;
+      }
+    }
+    return undefined;
+  }
+
+  const effectiveBg = selectedSceneId ? (findEffectiveBackground(rawScenes, selectedSceneId) ?? null) : null;
+  const backgroundSrc = effectiveBg ? `${window.location.origin}/assets/${effectiveBg}` : null;
 
   useEffect(() => {
     const areas = (currentScene?.clickable_areas as RawArea[] | undefined) ?? [];

@@ -47,11 +47,9 @@ export function AreaCanvas({ backgroundSrc, areas, selectedId, onSelect, onAreaC
   const [cursor, setCursor] = useState<string>('default');
 
   useEffect(() => {
-    if (!backgroundSrc) {
-      bgRef.current = null;
-      setBgLoaded(false);
-      return;
-    }
+    bgRef.current = null;
+    setBgLoaded(false);
+    if (!backgroundSrc) return;
     const img = new Image();
     img.onload = () => { bgRef.current = img; setBgLoaded(true); };
     img.onerror = () => { bgRef.current = null; setBgLoaded(false); };
