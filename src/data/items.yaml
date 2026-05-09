@@ -89,8 +89,8 @@ items:
     category: key_item
 
   - id: item_gummy_2
-    name: "梅のグミ"
-    description: "梅の木公園でアメちゃんと交換してもらったグミ。（2/7）"
+    name: "少年のグミ"
+    description: "少年にアメちゃんと交換してもらったグミ。（2/7）"
     icon: null
     usable: false
     use_scene: null

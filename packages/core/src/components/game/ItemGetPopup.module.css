@@ -1,0 +1,103 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup {
+  pointer-events: auto;
+  background: linear-gradient(160deg, #1a1030 0%, #0e0820 100%);
+  border: 2px solid #c8a020;
+  border-radius: 8px;
+  padding: 18px 28px 18px 20px;
+  min-width: 300px;
+  max-width: 420px;
+  box-shadow: 0 0 24px rgba(200, 160, 32, 0.35), 0 4px 20px rgba(0,0,0,0.7);
+  cursor: pointer;
+  animation: popIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.popup.leaving {
+  animation: popOut 0.3s ease-in both;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes popOut {
+  from { opacity: 1; transform: translateY(0)    scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.96); }
+}
+
+.header {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #c8a020;
+  margin-bottom: 10px;
+  text-align: center;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.iconBox {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border: 1px solid #6040a0;
+  border-radius: 6px;
+  background: #12093a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.iconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.iconDefault {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 17px;
+  font-weight: bold;
+  color: #f0d060;
+  margin-bottom: 4px;
+  font-family: 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemDesc {
+  font-size: 11px;
+  color: #a890c0;
+  line-height: 1.5;
+  font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+

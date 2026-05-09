@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../../context/GameStoreContext';
 import { useAssets } from '../../context/AssetContext';
 import { audioManager } from '../../audio/AudioManager';
@@ -17,6 +17,7 @@ import { InventoryPanel } from '../inventory/InventoryPanel';
 import { SystemMenu } from '../system/SystemMenu';
 import { CgSequencePlayer } from './CgSequencePlayer';
 import { EndingSequence } from './EndingSequence';
+import { ItemGetPopup } from './ItemGetPopup';
 import styles from './GameScreen.module.css';
 
 interface GameScreenProps {
@@ -58,6 +59,21 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const speakingCharId = currentMessage?.voice_character_id ?? null;
   const effectiveIsSpeaking = isSpeaking && state.phase === 'message';
+
+  const prevInventoryRef = useRef<string[]>(state.inventory);
+  const [popupQueue, setPopupQueue] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (state.phase === 'message') return; // message 中は prevRef を更新しない
+    const prev = prevInventoryRef.current;
+    const gained = state.inventory.filter((id) => !prev.includes(id));
+    prevInventoryRef.current = state.inventory;
+    if (gained.length > 0) setPopupQueue((q) => [...q, ...gained]);
+  }, [state.inventory, state.phase]);
+
+  const dismissPopup = useCallback(() => {
+    setPopupQueue((q) => q.slice(1));
+  }, []);
 
   const currentBgmRef = useRef<string | null>(null);
   useEffect(() => {
@@ -202,6 +218,14 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
         <CgSequencePlayer
           frames={scene.cg_sequence}
           onComplete={completeCgSequence}
+        />
+      )}
+
+      {popupQueue.length > 0 && state.phase !== 'ending' && masterData.items[popupQueue[0]!] && (
+        <ItemGetPopup
+          key={popupQueue[0]}
+          item={masterData.items[popupQueue[0]!]!}
+          onDismiss={dismissPopup}
         />
       )}
 
