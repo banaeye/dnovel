@@ -404,6 +404,22 @@ scenes:
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
     bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_mentor
+        position: center
+        expression: normal
+    messages:
+      - text: 「田中メンター……一番街に変な霧が出てて、迷路みたいになってて」
+        voice_character_id: char_hero
+      - text: 「え、本当に？　それはまずいんじゃないかな」
+        voice_character_id: char_mentor
+      - text: メンターはカバンをごそごそ探って、折り畳まれた紙を取り出した。
+        voice_character_id: null
+    next_scene: scene_ch4_coderdojo_ofuda_give
+  - id: scene_ch4_coderdojo_ofuda_give
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/station.mp3
     overlay_image: cg/get_superitem.jpg
     characters:
       - character_id: char_mentor
@@ -413,12 +429,6 @@ scenes:
       - item_id: item_kinchu_hikari
         condition: null
     messages:
-      - text: 「田中メンター……一番街に変な霧が出てて、迷路みたいになってて」
-        voice_character_id: char_hero
-      - text: 「え、本当に？　それはまずいんじゃないかな」
-        voice_character_id: char_mentor
-      - text: メンターはカバンをごそごそ探って、折り畳まれた紙を取り出した。
-        voice_character_id: null
       - text: 「これ、知り合いにもらったおふだだよ。よくわからないけど、一応持っておいて」
         voice_character_id: char_mentor
       - text: 「悪霊退散って書いてある……」
@@ -566,8 +576,8 @@ scenes:
           and:
             - flag: flag_ch4_detective_solved
               value: true
-            - has_item: item_wallet
-              negate: true
+            - flag: flag_ch4_wallet_found
+              value: false
     messages:
       - text: 赤羽公園。ベンチの下に何かいるような気がする。
         voice_character_id: char_hero
@@ -575,6 +585,9 @@ scenes:
     child_scenes:
       - id: scene_ch4_park_find_wallet
         location_id: loc_park
+        flags_set:
+          - flag: flag_ch4_wallet_found
+            value: true
         item_give:
           - item_id: item_wallet
             condition: null
@@ -692,11 +705,24 @@ scenes:
       type: auto
       choices:
         - condition:
+            flag: flag_ch4_detective_clue3
+            value: true
+          next_scene: scene_ch4_slope_no_college
+        - condition:
             flag: flag_ch4_gummy_quest
             value: true
           next_scene: null
         - condition: null
           next_scene: scene_ch4_slope_first
+  - id: scene_ch4_slope_no_college
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters: []
+    messages:
+      - text: 坂に大学生の姿はなかった。
+        voice_character_id: null
+    next_scene: null
   - id: scene_ch4_slope_first
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -1571,6 +1597,39 @@ scenes:
         - label: 「少し準備してから来る」
           next_scene: null
   - id: scene_ch4_maze_enter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            has_item: item_kinchu_hikari
+          next_scene: scene_ch4_maze_enter_go
+        - condition: null
+          next_scene: scene_ch4_maze_no_ofuda
+  - id: scene_ch4_maze_no_ofuda
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 「ちょっと待って」
+        voice_character_id: char_yui
+      - text: 「おふだ、持ってる？　あれないと悪霊に対抗できないよ」
+        voice_character_id: char_yui
+      - text: 「おふだってどこかでもらえたっけ、、」
+        voice_character_id: char_yui
+    next_scene: null
+  - id: scene_ch4_maze_enter_go
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
     bgm: audio/bgm/dungeon.mp3

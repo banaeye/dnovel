@@ -99,8 +99,8 @@ items:
     category: key_item
 
   - id: item_gummy_3
-    name: "記憶のグミ"
-    description: "ミュージアムの受付との神経衰弱で勝ってもらったグミ。（3/7）"
+    name: "計算のグミ"
+    description: "ミュージアムの受付との勝負で勝ってもらったグミ。（3/7）"
     icon: null
     usable: false
     use_scene: null

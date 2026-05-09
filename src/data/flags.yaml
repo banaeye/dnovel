@@ -204,6 +204,11 @@ flags:
     default: false
     description: "ユイが迷路の前に現れて初回の説明を済ませた"
 
+  - id: flag_ch4_wallet_found
+    type: boolean
+    default: false
+    description: "赤羽公園のベンチ下で財布を発見した（重複取得防止）"
+
   - id: flag_ch4_cleared
     type: boolean
     default: false
