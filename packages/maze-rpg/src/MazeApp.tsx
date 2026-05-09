@@ -175,9 +175,15 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const [defeatEffect, setDefeatEffect] = useState(false);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousBattleRef = useRef(state.battle);
+  const showingBattleItems = !!state.battle && itemPanelMode === 'battle';
 
   const dispatch = useCallback((key: string) => {
     setState(prev => handleKey(prev, key));
+  }, []);
+
+  const closeBattleItems = useCallback(() => {
+    setItemPanelMode('explore');
+    setSelectedItemId(null);
   }, []);
 
   const attackEnemy = useCallback(() => {
@@ -195,7 +201,9 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     if (effect?.attackEnemy !== undefined && !state.battle) return;
     setState(prev => useItemInMaze(prev, itemId, itemName, effect));
     setSelectedItemId(null);
-    if (!state.battle) {
+    if (state.battle) {
+      setItemPanelMode('explore');
+    } else {
       if (noticeTimerRef.current) clearTimeout(noticeTimerRef.current);
       const notice = effect?.healHp === 'full'
         ? `${itemName}を使った！ HP全回復！`
@@ -212,6 +220,10 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(e.key)) {
         e.preventDefault();
       }
+      if (itemPanelMode === 'battle') {
+        if (e.key === 'Escape') closeBattleItems();
+        return;
+      }
       const confirm = e.key === 'Enter' || e.key === ' ';
       setState(prev => {
         if (prev.battle?.phase === 'select' && prev.battle.cursorIndex === 2 && confirm) {
@@ -223,7 +235,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [closeBattleItems, itemPanelMode]);
 
   useEffect(() => {
     if (!state.battle) setItemPanelMode('explore');
@@ -592,72 +604,76 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             {/* HP バー — 常時表示 */}
             <HpRow hp={state.playerHp} maxHp={state.playerMaxHp} theme={theme} />
 
-            <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
+            {!showingBattleItems && (
+              <>
+                <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
 
-            {/* ミニマップ + コンパス — 横並び */}
-            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', justifyContent: 'center' }}>
-              <div style={{ border: `1px solid ${theme.uiBorder}` }}>
-                <MiniMap state={state} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '24px 24px 24px',
-                    gridTemplateRows: '24px 24px 24px',
-                    gap: 2,
-                    textAlign: 'center',
-                  }}
-                >
-                  {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
-                  {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
-                  {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
+                {/* ミニマップ + コンパス — 横並び */}
+                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', justifyContent: 'center' }}>
+                  <div style={{ border: `1px solid ${theme.uiBorder}` }}>
+                    <MiniMap state={state} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '24px 24px 24px',
+                        gridTemplateRows: '24px 24px 24px',
+                        gap: 2,
+                        textAlign: 'center',
+                      }}
+                    >
+                      {['', 'N', ''].map((d, i) => <CompassCell key={`t${i}`} label={d} dir={state.dir} theme={theme} />)}
+                      {['W', '', 'E'].map((d, i) => <CompassCell key={`m${i}`} label={d} dir={state.dir} theme={theme} />)}
+                      {['', 'S', ''].map((d, i) => <CompassCell key={`b${i}`} label={d} dir={state.dir} theme={theme} />)}
+                    </div>
+                    <div style={{ fontSize: 11, color: theme.uiAccent, letterSpacing: '0.05em' }}>
+                      {DIR_LABEL[state.dir]}
+                    </div>
+                    <div style={{ fontSize: 9, color: theme.uiBorder, letterSpacing: '0.04em' }}>
+                      ({state.pos.x},{state.pos.y})
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, color: theme.uiAccent, letterSpacing: '0.05em' }}>
-                  {DIR_LABEL[state.dir]}
-                </div>
-                <div style={{ fontSize: 9, color: theme.uiBorder, letterSpacing: '0.04em' }}>
-                  ({state.pos.x},{state.pos.y})
-                </div>
-              </div>
-            </div>
 
-            <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
+                <div style={{ borderTop: `1px solid ${theme.uiBorder}`, flexShrink: 0 }} />
 
-            {/* バトル中 → BattleView / 探索中 → 方向ボタン */}
-            {state.battle ? (
-              <BattleView
-                state={state}
-                theme={theme}
-                font={FONT}
-                onSelectCommand={i => setState(prev => {
-                  if (!prev.battle || prev.battle.phase !== 'select') return prev;
-                  return { ...prev, battle: { ...prev.battle, cursorIndex: i } };
-                })}
-                onCommand={i => {
-                  if (i === 2) {
-                    setItemPanelMode('battle');
-                    return;
-                  }
-                  setItemPanelMode('explore');
-                  setState(prev => {
-                    if (!prev.battle || prev.battle.phase !== 'select') return prev;
-                    const withCursor = { ...prev, battle: { ...prev.battle, cursorIndex: i } };
-                    return handleKey(withCursor, 'Enter');
-                  });
-                }}
-              />
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div style={{ display: 'flex' }}>
-                  <NavButton label="↑ 前進" theme={theme} onClick={() => dispatch('ArrowUp')} />
-                </div>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <NavButton label="← 左"  theme={theme} onClick={() => dispatch('ArrowLeft')} />
-                  <NavButton label="↓ 後退" theme={theme} onClick={() => dispatch('ArrowDown')} />
-                  <NavButton label="→ 右"  theme={theme} onClick={() => dispatch('ArrowRight')} />
-                </div>
-              </div>
+                {/* バトル中 → BattleView / 探索中 → 方向ボタン */}
+                {state.battle ? (
+                  <BattleView
+                    state={state}
+                    theme={theme}
+                    font={FONT}
+                    onSelectCommand={i => setState(prev => {
+                      if (!prev.battle || prev.battle.phase !== 'select') return prev;
+                      return { ...prev, battle: { ...prev.battle, cursorIndex: i } };
+                    })}
+                    onCommand={i => {
+                      if (i === 2) {
+                        setItemPanelMode('battle');
+                        return;
+                      }
+                      setItemPanelMode('explore');
+                      setState(prev => {
+                        if (!prev.battle || prev.battle.phase !== 'select') return prev;
+                        const withCursor = { ...prev, battle: { ...prev.battle, cursorIndex: i } };
+                        return handleKey(withCursor, 'Enter');
+                      });
+                    }}
+                  />
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ display: 'flex' }}>
+                      <NavButton label="↑ 前進" theme={theme} onClick={() => dispatch('ArrowUp')} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <NavButton label="← 左"  theme={theme} onClick={() => dispatch('ArrowLeft')} />
+                      <NavButton label="↓ 後退" theme={theme} onClick={() => dispatch('ArrowDown')} />
+                      <NavButton label="→ 右"  theme={theme} onClick={() => dispatch('ArrowRight')} />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* アイテムパネル */}
@@ -666,10 +682,12 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
               itemDefs={config.items ?? []}
               theme={theme}
               mode={state.battle ? itemPanelMode : 'explore'}
+              expanded={showingBattleItems}
               itemEffects={config.itemEffects}
               selectedItemId={selectedItemId}
               onSelect={setSelectedItemId}
               onUse={handleUseItem}
+              onClose={showingBattleItems ? closeBattleItems : undefined}
               notification={itemNotice ?? undefined}
               font={FONT}
             />

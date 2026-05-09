@@ -288,9 +288,6 @@ scenes:
     bgm: audio/bgm/station.mp3
     overlay_image: cg/give_ticket.jpg
     characters:
-      - character_id: char_candy_kid
-        position: left
-        expression: normal
       - character_id: char_obachan
         position: right
         expression: talking

@@ -243,7 +243,7 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 「赤羽公園のベンチあたりに行きましたよ、確かに！　早く！」
+      - text: 「公園が怪しいと思うよ！」
         voice_character_id: char_college_student
     next_scene: null
   - id: scene_coderdojo_default
@@ -557,10 +557,37 @@ scenes:
         condition:
           flag: flag_ch4_detective_solved
           value: false
+      - id: area_park_bench_wallet
+        x: 300
+        "y": 350
+        width: 200
+        height: 100
+        label: もう一度覗く
+        next_scene: scene_ch4_park_find_wallet
+        condition:
+          and:
+            - flag: flag_ch4_detective_solved
+              value: true
+            - has_item: item_wallet
+              negate: true
     messages:
       - text: 赤羽公園。ベンチの下に何かいるような気がする。
         voice_character_id: char_hero
     next_scene: null
+    child_scenes:
+      - id: scene_ch4_park_find_wallet
+        location_id: loc_park
+        item_give:
+          - item_id: item_wallet
+            condition: null
+        messages:
+          - text: ベンチの下をもう一度よく覗いてみた。
+            voice_character_id: null
+          - text: ——小さな財布が、奥に挟まるように落ちていた。さっきは子猫の陰になっていて気づかなかったようだ。
+            voice_character_id: null
+          - text: （これ……梅の木公園のバイトのひとが探してたやつだ。届けに行かないと）
+            voice_character_id: char_hero
+        next_scene: null
   - id: scene_ch4_park_find_cat
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -569,28 +596,28 @@ scenes:
       - flag: flag_ch4_detective_solved
         value: true
     characters:
-      - character_id: char_detective
-        position: left
-        expression: normal
       - character_id: char_hero
         position: right
         expression: normal
     item_give:
       - item_id: item_gummy_4
         condition: null
-      - item_id: item_wallet
-        condition: null
     messages:
       - text: ベンチの下を覗いてみると——小さな子猫がまるまって、金属のペンダントを前足で押さえていた。
         voice_character_id: null
-      - text: そのすぐ隣に、小さな財布も落ちていた。
-        voice_character_id: null
       - text: 「あっ……！」
         voice_character_id: char_hero
-      - text: 「見つけたぞ！！」
-        voice_character_id: char_detective
       - text: 後ろから探偵おやじが走ってきた。途中で柱に頭をぶつけたが、気にしていないようだった。
         voice_character_id: null
+        characters:
+          - character_id: char_detective
+            position: left
+            expression: normal
+          - character_id: char_hero
+            position: right
+            expression: normal
+      - text: 「見つけたぞ！！」
+        voice_character_id: char_detective
       - text: 「子猫よ……戻ってきてくれたか」
         voice_character_id: char_detective
       - text: 探偵はペンダントをそっと受け取り、大切そうに胸にしまった。
@@ -603,8 +630,8 @@ scenes:
         voice_character_id: char_detective
       - text: グミを受け取った。
         voice_character_id: null
-      - text: （財布……これ、梅の木公園のバイトのひとが探してたやつだ。届けに行かないと）
-        voice_character_id: char_hero
+      - text: ——子猫が去り、ベンチの下が静かになった。なんとなく、まだ何か落ちていそうな気がする。
+        voice_character_id: null
     next_scene: null
   - id: scene_ch4_park_no_quest
     location_id: loc_park
@@ -1203,7 +1230,7 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: ホームの端に、コートを着た中年男性が立っていた。
+      - text: ホームの端に、中年男性が立っていた。
         voice_character_id: null
       - text: 男は自動販売機の下をのぞきこんで、落ちていた十円玉をすばやくポケットに入れた。
         voice_character_id: null
@@ -1491,6 +1518,8 @@ scenes:
     flags_set:
       - flag: flag_ch4_yui_maze_met
         value: true
+      - flag: flag_ch4_maze_appeared
+        value: true
     characters:
       - character_id: char_yui
         position: center
@@ -1515,6 +1544,9 @@ scenes:
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
     bgm: audio/bgm/dungeon.mp3
+    flags_set:
+      - flag: flag_ch4_maze_appeared
+        value: true
     characters:
       - character_id: char_yui
         position: center

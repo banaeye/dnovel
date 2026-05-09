@@ -14,10 +14,12 @@ interface ItemPanelProps {
   itemDefs: MazeItemDef[];
   theme: Required<MazeTheme>;
   mode: 'explore' | 'battle';
+  expanded?: boolean;
   itemEffects?: Record<string, ItemEffect>;
   selectedItemId: string | null;
   onSelect: (itemId: string | null) => void;
   onUse: (itemId: string, itemName: string) => void;
+  onClose?: () => void;
   notification?: string;
   font: string;
 }
@@ -61,7 +63,8 @@ function ItemRow({
         alignItems: 'center',
         width: '100%',
         fontSize: 12,
-        padding: '5px 8px',
+        minHeight: 30,
+        padding: '6px 8px',
         borderRadius: 3,
         cursor: 'pointer',
         background: selected ? theme.uiBorder : 'transparent',
@@ -74,7 +77,7 @@ function ItemRow({
       }}
     >
       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
-      <span style={{ fontSize: 10, opacity: 0.6 }}>
+      <span style={{ fontSize: 10, opacity: 0.65, flexShrink: 0, marginLeft: 6 }}>
         {count > 1 ? `x${count}` : ''}
       </span>
     </button>
@@ -86,10 +89,12 @@ export function ItemPanel({
   itemDefs,
   theme,
   mode,
+  expanded = false,
   itemEffects,
   selectedItemId,
   onSelect,
   onUse,
+  onClose,
   notification,
   font,
 }: ItemPanelProps) {
@@ -104,19 +109,45 @@ export function ItemPanel({
   const useState = getUseState(selectedDef, selectedEffect, mode);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, minHeight: 0, flex: 1 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minHeight: 0, flex: 1 }}>
       <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 8,
         borderTop: `1px solid ${theme.uiBorder}`,
         paddingTop: 8,
+        flexShrink: 0,
         fontSize: 10,
         color: theme.uiBorder,
         letterSpacing: '0.08em',
         fontFamily: font,
       }}>
-        アイテム
-        <span style={{ marginLeft: 8, color: theme.uiAccent, opacity: 0.7 }}>
-          {mode === 'battle' ? '戦闘中' : '探索中'}
-        </span>
+        <div>
+          アイテム
+          <span style={{ marginLeft: 8, color: theme.uiAccent, opacity: 0.7 }}>
+            {mode === 'battle' ? '戦闘中' : '探索中'}
+          </span>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              flexShrink: 0,
+              border: `1px solid ${theme.uiBorder}`,
+              background: 'transparent',
+              color: theme.uiAccent,
+              borderRadius: 3,
+              padding: '4px 10px',
+              cursor: 'pointer',
+              fontFamily: font,
+              fontSize: 11,
+            }}
+          >
+            戻る
+          </button>
+        )}
       </div>
 
       {notification && (
@@ -127,6 +158,7 @@ export function ItemPanel({
           background: `${theme.uiBorder}55`,
           borderRadius: 3,
           fontFamily: font,
+          flexShrink: 0,
         }}>
           {notification}
         </div>
@@ -137,7 +169,17 @@ export function ItemPanel({
           持ち物なし
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 96, overflow: 'auto', paddingRight: 2 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+            flex: expanded ? '1 1 210px' : '1 1 128px',
+            minHeight: expanded ? 190 : 112,
+            overflow: 'auto',
+            paddingRight: 2,
+          }}
+        >
           {uniqueIds.map(itemId => {
             const def = defMap.get(itemId);
             const effect = itemEffects?.[itemId];
@@ -160,7 +202,8 @@ export function ItemPanel({
 
       <div
         style={{
-          minHeight: 118,
+          flex: expanded ? '0 0 190px' : '0 0 150px',
+          minHeight: expanded ? 190 : 150,
           border: `1px solid ${theme.uiBorder}`,
           borderRadius: 3,
           background: 'rgba(0,0,0,0.18)',
@@ -168,7 +211,8 @@ export function ItemPanel({
           fontFamily: font,
           display: 'flex',
           flexDirection: 'column',
-          gap: 5,
+          gap: 6,
+          overflow: 'hidden',
         }}
       >
         {selectedId ? (
@@ -179,7 +223,7 @@ export function ItemPanel({
                 {categoryLabel(selectedDef?.category)} {counts.get(selectedId)! > 1 ? `x${counts.get(selectedId)}` : ''}
               </span>
             </div>
-            <div style={{ color: '#e8d5aa', fontSize: 11, lineHeight: 1.45, minHeight: 31 }}>
+            <div style={{ color: '#e8d5aa', fontSize: 11, lineHeight: 1.45, minHeight: 44, overflow: 'auto', paddingRight: 2 }}>
               {selectedDef?.description ?? '説明はない。'}
             </div>
             <div style={{ color: theme.uiAccent, fontSize: 11, opacity: 0.85 }}>
@@ -192,7 +236,7 @@ export function ItemPanel({
                 onClick={() => onUse(selectedId, selectedName)}
                 style={{
                   flex: '0 0 76px',
-                  padding: '6px 0',
+                  padding: expanded ? '8px 0' : '6px 0',
                   borderRadius: 3,
                   border: `1px solid ${useState.canUse ? theme.uiAccent : theme.uiBorder}`,
                   background: useState.canUse ? theme.uiBorder : 'transparent',
