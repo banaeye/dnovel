@@ -57,7 +57,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter4',
     title: '第4章へ',
-    chapterTitle: '（タイトル未定）',
+    chapterTitle: '七つのグミ',
     masterData: chapter4MasterData,
     initialSceneId: 'scene_ch4_start',
     initialLocationId: 'loc_danchi',
@@ -75,7 +75,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter5',
     title: '第5章へ',
-    chapterTitle: 'ミュージアムの横スクロール',
+    chapterTitle: '美術館の迷宮',
     masterData: chapter5MasterData,
     initialSceneId: 'scene_ch5_start',
     initialLocationId: 'loc_danchi',
