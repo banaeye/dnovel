@@ -12,7 +12,7 @@ export interface EngineTransition {
   returnEngineId?: string;
   returnConfig?: unknown;
   returnTransition?: string;
-  /** 遷移エフェクト: 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'numberstorm' | 'none' */
+  /** 遷移エフェクト: 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'numberstorm' | 'timing' | 'none' */
   transition?: string;
 }
 

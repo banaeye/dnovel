@@ -24,7 +24,6 @@ scenes:
       - text: 第5章
         voice_character_id: null
     next_scene: scene_ch5_danchi_intro
-
   - id: scene_ch5_danchi_intro
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -36,9 +35,6 @@ scenes:
       - character_id: char_hero
         position: left
         expression: normal
-      - character_id: char_museum_part_timer
-        position: right
-        expression: normal
     messages:
       - text: 予定のない午後だった。
         voice_character_id: null
@@ -48,6 +44,13 @@ scenes:
         voice_character_id: char_hero
       - text: そのとき、ミュージアムの方から誰かがよろめきながら走ってきた。
         voice_character_id: null
+        characters:
+          - character_id: char_hero
+            position: left
+            expression: normal
+          - character_id: char_museum_part_timer
+            position: right
+            expression: normal
       - text: ミュージアムのバイトさんだった。服はほこりだらけで、手には折れた案内板を抱えている。
         voice_character_id: null
       - text: 「ケンさん……！　よかった、ここにいてくれて」
@@ -56,9 +59,7 @@ scenes:
         voice_character_id: char_hero
       - text: 「ミュージアムで異変が起きたんです。展示室の床が動いて、ケースが飛び出して、もう何がなんだか」
         voice_character_id: char_museum_part_timer
-      - text: 「マリオみたいな……？」
-        voice_character_id: char_hero
-      - text: 「たぶん、そういう感じです！　受付さんが様子を見に行ったんですけど、戻ってこなくて……」
+      - text: 「受付さんが様子を見に行ったんですけど、戻ってこなくて……」
         voice_character_id: char_museum_part_timer
       - text: バイトさんの声が震えていた。ほこりのついた袖を、ぎゅっと握っている。
         voice_character_id: null
@@ -66,10 +67,9 @@ scenes:
         voice_character_id: char_hero
       - text: 「僕も行きます。一緒にミュージアムへ行きましょう」
         voice_character_id: char_hero
-      - text: 「はい……！　私、案内します。たぶん、道はまだ覚えてます！」
+      - text: 「はい……！　一緒に行きましょう」
         voice_character_id: char_museum_part_timer
     next_scene: null
-
   - id: scene_danchi_morning
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -91,7 +91,6 @@ scenes:
           next_scene: null
         - condition: null
           next_scene: scene_ch5_danchi_intro
-
   - id: scene_ch5_talk_part_timer_at_danchi
     location_id: loc_danchi
     background: backgrounds/danchimae.jpg
@@ -101,7 +100,7 @@ scenes:
         position: center
         expression: talking
     messages:
-      - text: 「受付さん、いつもならすぐ戻ってくるんです。変なことがあっても、詩みたいな説明をしながら……」
+      - text: 「受付さん、強いから簡単にはやられないはずですが、、」
         voice_character_id: char_museum_part_timer
       - text: 「それが、戻ってこないんですね」
         voice_character_id: char_hero
@@ -110,7 +109,6 @@ scenes:
       - text: （説明はよく分からないけど、大変なのは分かる）
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_museum_default
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -125,7 +123,6 @@ scenes:
           next_scene: scene_ch5_museum_after_clear
         - condition: null
           next_scene: scene_ch5_museum_arrival
-
   - id: scene_ch5_museum_arrival
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -141,12 +138,9 @@ scenes:
         voice_character_id: null
       - text: 「ここから先です。受付さんは、この奥へ行ったまま戻ってきません」
         voice_character_id: char_museum_part_timer
-      - text: （本当に、ゲームのステージみたいだ）
-        voice_character_id: char_hero
       - text: 奥の額縁が光った。そこから、アメちゃんと展示ケースが交互に飛び出してくる。
         voice_character_id: null
     next_scene: scene_ch5_museum_enter_action
-
   - id: scene_ch5_museum_enter_action
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -161,13 +155,12 @@ scenes:
     branches:
       type: choice
       choices:
-        - label: 横スクロールの展示室へ入る
+        - label: 美術館の建物へ入る
           condition: null
           next_scene: scene_ch5_museum_action_start
         - label: いったん戻る
           condition: null
           next_scene: null
-
   - id: scene_ch5_museum_action_start
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -196,7 +189,6 @@ scenes:
           ground: "#38403a"
           accent: "#f2d16b"
       return_scene: scene_ch5_museum_action_result
-
   - id: scene_ch5_museum_action_result
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -215,7 +207,6 @@ scenes:
           next_scene: scene_ch5_museum_action_gameover
         - condition: null
           next_scene: scene_ch5_museum_enter_action
-
   - id: scene_ch5_museum_action_gameover
     location_id: loc_museum
     background: backgrounds/museum.jpg
@@ -229,10 +220,9 @@ scenes:
       - text: 足元の敵も、空中の敵も、上から踏むタイミングを見れば進めるはずだ。
         voice_character_id: null
     next_scene: scene_ch5_museum_enter_action
-
   - id: scene_ch5_museum_action_clear
-    location_id: loc_museum
-    background: backgrounds/museum.jpg
+    location_id: loc_museum_core
+    background: backgrounds/center_musium.png
     bgm: audio/bgm/museum.mp3
     flags_set:
       - flag: flag_ch5_action_cleared
@@ -247,25 +237,22 @@ scenes:
         voice_character_id: null
       - text: （受付さんは、この先にいるのかな）
         voice_character_id: char_hero
-    next_scene: scene_ch5_move_to_core
-
+    next_scene: scene_museum_core_default
   - id: scene_ch5_museum_after_clear
-    location_id: loc_museum
-    background: backgrounds/museum.jpg
+    location_id: loc_museum_core
+    background: backgrounds/center_musium.png
     bgm: audio/bgm/museum.mp3
     characters: []
     messages:
       - text: 展示室の入口は静かになっている。奥へ続く通路から、淡い光が漏れている。
         voice_character_id: null
-    next_scene: scene_ch5_move_to_core
-
+    next_scene: scene_museum_core_default
   - id: scene_ch5_move_to_core
     location_id: loc_museum
     background: backgrounds/museum.jpg
     bgm: audio/bgm/museum.mp3
     messages: []
     next_scene: scene_museum_core_default
-
   - id: scene_museum_core_default
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -312,7 +299,6 @@ scenes:
           next_scene: scene_ch5_museum_core_possessed_command
         - condition: null
           next_scene: scene_ch5_museum_core_command
-
   - id: scene_ch5_museum_core_command
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -324,7 +310,6 @@ scenes:
       - text: 三つの扉が、静かにこちらを見ているみたいだ。
         voice_character_id: null
     next_scene: null
-
   - id: scene_ch5_museum_core_possessed_command
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -337,7 +322,6 @@ scenes:
       - text: 三つの部屋の悪霊が、まだこの場所にも影を落としているみたいだ。
         voice_character_id: null
     next_scene: null
-
   - id: scene_museum_history_room_default
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -357,7 +341,6 @@ scenes:
           next_scene: scene_ch5_history_detective_after
         - condition: null
           next_scene: scene_ch5_history_detective_possessed
-
   - id: scene_ch5_history_detective_first
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -374,11 +357,11 @@ scenes:
     messages:
       - text: 「赤羽の歴史」の部屋には、探偵がいた。
         voice_character_id: null
-      - text: 「おお、ケン。よいところに来た。出口を推理しておったのじゃが、出口がわしを避けておる」
+      - text: 「おお、ケン。ちょうどよかった。出口を推理してたんだが、どうも出口の方がこっちを避けてるんだ」
         voice_character_id: char_detective
       - text: 「探偵さんでも出られないんですか」
         voice_character_id: char_hero
-      - text: 「うむ。まったく分からん。こういう時は、分からんことを正直に言うのも推理じゃ」
+      - text: 「まったく分からん。こういう時は、分からないと正直に言うのも推理のうちだ」
         voice_character_id: char_detective
       - text: 探偵は古い写真を見上げたまま、困ったように笑った。
         voice_character_id: null
@@ -386,7 +369,6 @@ scenes:
         voice_character_id: char_hero
       - text: 移動すれば中心部へ戻れそうだ。
         voice_character_id: null
-
   - id: scene_museum_portrait_room_default
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -406,7 +388,6 @@ scenes:
           next_scene: scene_ch5_portrait_student_after
         - condition: null
           next_scene: scene_ch5_portrait_student_possessed
-
   - id: scene_ch5_portrait_student_first
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -435,7 +416,6 @@ scenes:
         voice_character_id: char_hero
       - text: 移動すれば中心部へ戻れそうだ。
         voice_character_id: null
-
   - id: scene_museum_storage_room_default
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -455,7 +435,6 @@ scenes:
           next_scene: scene_ch5_storage_sister_after
         - condition: null
           next_scene: scene_ch5_storage_sister_possessed
-
   - id: scene_ch5_storage_sister_first
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -484,7 +463,6 @@ scenes:
         voice_character_id: char_hero
       - text: 移動すれば中心部へ戻れそうだ。
         voice_character_id: null
-
   - id: scene_ch5_staff_reappears
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -504,18 +482,17 @@ scenes:
         voice_character_id: char_museum_staff
       - text: 「受付さん！　無事だったんですね」
         voice_character_id: char_hero
-      - text: 「このミュージアムは、悪霊に取りつかれています」
+      - text: 「この記憶の美術館が……悪意の影に塗りつぶされています」
         voice_character_id: char_museum_staff
       - text: 「悪霊……」
         voice_character_id: char_hero
-      - text: 「脱出するには、三つの部屋に潜んだ悪霊を倒さなければなりません。今会った三人は、次に行けば取りつかれているはずです」
+      - text: 「三つの部屋に潜む影を払わなければ、出口は開きません。さきほどすれ違った三人は、いまごろ別の顔をしているはずです」
         voice_character_id: char_museum_staff
       - text: 「三つの部屋で、それぞれ悪霊を倒す……」
         voice_character_id: char_hero
       - text: 「はい。記憶と計算と観察力。あなたの力で、心の額縁を取り戻してください」
         voice_character_id: char_museum_staff
     next_scene: null
-
   - id: scene_ch5_history_detective_possessed
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -527,7 +504,7 @@ scenes:
     messages:
       - text: 歴史の部屋に戻ると、探偵の体が赤く光っていた。
         voice_character_id: null
-      - text: 「ふ、ふふ……数字の足跡が見えるぞ。わしの推理に勝てるかね」
+      - text: 「ふ、ふふ……数字の足跡が見えるぞ。俺の推理に勝てるか」
         voice_character_id: char_detective
       - text: 「探偵さん、悪霊に……！」
         voice_character_id: char_hero
@@ -540,7 +517,6 @@ scenes:
         difficulty: normal
         rounds: 5
       return_scene: scene_ch5_detective_battle_result
-
   - id: scene_ch5_detective_battle_result
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -555,7 +531,6 @@ scenes:
           next_scene: scene_ch5_detective_purified
         - condition: null
           next_scene: scene_ch5_detective_battle_retry
-
   - id: scene_ch5_detective_battle_retry
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -565,12 +540,11 @@ scenes:
         position: center
         expression: possessed
     messages:
-      - text: 「まだじゃ。まだ数字の霧は晴れんぞ」
+      - text: 「まだだ。数字の霧は晴れんぞ」
         voice_character_id: char_detective
       - text: 「もう一回、やります」
         voice_character_id: char_hero
     next_scene: scene_ch5_history_detective_possessed
-
   - id: scene_ch5_detective_purified
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -585,12 +559,11 @@ scenes:
     messages:
       - text: 赤い光がほどけ、探偵はその場にへたりこんだ。
         voice_character_id: null
-      - text: 「助かったぞ、ケン。いやはや、悪霊とは数字にも弱いのじゃな」
+      - text: 「助かったぞ、ケン。悪霊というやつは数字にも弱いんだな」
         voice_character_id: char_detective
       - text: 「中心部へ戻ります」
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch5_history_detective_after
     location_id: loc_museum_history_room
     background: backgrounds/musium_room01.jpg
@@ -602,10 +575,9 @@ scenes:
     messages:
       - text: 探偵は古い写真の前で、慎重に出口を推理している。
         voice_character_id: null
-      - text: 「わしはもう大丈夫じゃ。ほかの部屋へ急ぐのじゃ、ケン」
+      - text: 「俺はもう大丈夫だ。ほかの部屋へ急いでくれ、ケン」
         voice_character_id: char_detective
     next_scene: null
-
   - id: scene_ch5_portrait_student_possessed
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -643,7 +615,6 @@ scenes:
           - あれ、写真が動いた？
           - 記憶違いでした
       return_scene: scene_ch5_student_battle_result
-
   - id: scene_ch5_student_battle_result
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -658,7 +629,6 @@ scenes:
           next_scene: scene_ch5_student_purified
         - condition: null
           next_scene: scene_ch5_student_battle_retry
-
   - id: scene_ch5_student_battle_retry
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -673,7 +643,6 @@ scenes:
       - text: 「もう一回です」
         voice_character_id: char_hero
     next_scene: scene_ch5_portrait_student_possessed
-
   - id: scene_ch5_student_purified
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -693,7 +662,6 @@ scenes:
       - text: 「無事でよかったです」
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ch5_portrait_student_after
     location_id: loc_museum_portrait_room
     background: backgrounds/musium_room01.jpg
@@ -708,7 +676,6 @@ scenes:
       - text: 「僕は大丈夫です。ほかの部屋、お願いします」
         voice_character_id: char_college_student
     next_scene: null
-
   - id: scene_ch5_storage_sister_possessed
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -740,7 +707,6 @@ scenes:
           - difference/obachan01_m.png
           - difference/obachan02_m.png
       return_scene: scene_ch5_sister_battle_result
-
   - id: scene_ch5_sister_battle_result
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -755,7 +721,6 @@ scenes:
           next_scene: scene_ch5_sister_purified
         - condition: null
           next_scene: scene_ch5_sister_battle_retry
-
   - id: scene_ch5_sister_battle_retry
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -770,7 +735,6 @@ scenes:
       - text: 「次は見つけます」
         voice_character_id: char_hero
     next_scene: scene_ch5_storage_sister_possessed
-
   - id: scene_ch5_sister_purified
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -792,7 +756,6 @@ scenes:
       - text: 「うん。ほんとに大好きなの。困ったくらい」
         voice_character_id: char_candy_sister
     next_scene: null
-
   - id: scene_ch5_storage_sister_after
     location_id: loc_museum_storage_room
     background: backgrounds/musium_room01.jpg
@@ -807,7 +770,6 @@ scenes:
       - text: 「私は大丈夫。ほかの人も助けてあげて」
         voice_character_id: char_candy_sister
     next_scene: null
-
   - id: scene_ch5_all_spirits_purified
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -834,7 +796,6 @@ scenes:
     talkable:
       - character_id: char_museum_staff
         scene_id: scene_ch5_staff_deep_path
-
   - id: scene_ch5_after_purify_center_command
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -852,7 +813,6 @@ scenes:
     talkable:
       - character_id: char_museum_staff
         scene_id: scene_ch5_staff_deep_path
-
   - id: scene_ch5_staff_deep_path
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -863,16 +823,15 @@ scenes:
         position: center
         expression: talking
     messages:
-      - text: 「三つの部屋は浄化されました。ですが、中心部の奥へ道が伸びています」
+      - text: 「三枚の額縁は、取り戻しました。……でも奥を見てください。闇がまだ、道を作っています」
         voice_character_id: char_museum_staff
       - text: 「まだ、走らないといけないんですね」
         voice_character_id: char_hero
-      - text: 「ええ。今度は悪霊の核へ向かう道です。」
+      - text: 「その先にあるのは、すべての影の根。核を砕けば、美術館は目を覚まします」
         voice_character_id: char_museum_staff
       - text: 「行きましょう」
         voice_character_id: char_hero
     next_scene: scene_ch5_deep_run_start
-
   - id: scene_ch5_deep_run_start
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -903,7 +862,6 @@ scenes:
           ground: "#32272e"
           accent: "#ff6f91"
       return_scene: scene_ch5_deep_run_result
-
   - id: scene_ch5_deep_run_result
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -919,7 +877,6 @@ scenes:
           next_scene: scene_ch5_deep_run_clear
         - condition: null
           next_scene: scene_ch5_deep_run_retry
-
   - id: scene_ch5_deep_run_retry
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -928,10 +885,9 @@ scenes:
     messages:
       - text: 赤い道に押し戻され、ケンは中心部へ転がり出た。
         voice_character_id: null
-      - text: 「揺れる敵の動きをよく見てください。道はまだ閉じていません」
+      - text: 「揺れる影に怯まないで。その道は、まだあなたを待っています」
         voice_character_id: char_museum_staff
     next_scene: scene_ch5_staff_deep_path
-
   - id: scene_ch5_deep_run_clear
     location_id: loc_museum_core
     background: backgrounds/center_musium.png
@@ -946,7 +902,6 @@ scenes:
       - text: 中心部のさらに奥で、何か大きな気配がうごめいている。
         voice_character_id: null
     next_scene: scene_museum_deep_core_default
-
   - id: scene_museum_deep_core_default
     location_id: loc_museum_deep_core
     background: backgrounds/center_musium.png
@@ -965,7 +920,6 @@ scenes:
           next_scene: scene_ch5_deep_core_all_purified
         - condition: null
           next_scene: scene_ch5_deep_core_command
-
   - id: scene_ch5_deep_core_command
     location_id: loc_museum_deep_core
     background: backgrounds/center_musium.png
@@ -979,7 +933,6 @@ scenes:
         voice_character_id: null
       - text: 左右に、二つの部屋が口を開けている。
         voice_character_id: null
-
   - id: scene_museum_yui_room_default
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -995,7 +948,6 @@ scenes:
           next_scene: scene_ch5_yui_after
         - condition: null
           next_scene: scene_ch5_yui_possessed
-
   - id: scene_ch5_yui_possessed
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -1018,17 +970,18 @@ scenes:
       config:
         stageId: yui_spirit
         title: ユイの違う絵探し
-        timeLimitMs: 32000
+        timeLimitMs: 45000
         targetCount: 5
-        gridSize: 24
+        gridSize: 36
         gridColumns: 6
-        cellSize: 68
+        cellSize: 62
         cellGap: 12
         imagePool:
           - difference/obachan01_m.png
           - difference/obachan02_m.png
+          - difference/obachan03_m.png
+          - difference/obachan04_m.png
       return_scene: scene_ch5_yui_battle_result
-
   - id: scene_ch5_yui_battle_result
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -1044,7 +997,6 @@ scenes:
           next_scene: scene_ch5_yui_purified
         - condition: null
           next_scene: scene_ch5_yui_retry
-
   - id: scene_ch5_yui_retry
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -1060,7 +1012,6 @@ scenes:
       - text: 「ケン、もう一回……」
         voice_character_id: char_yui
     next_scene: scene_ch5_yui_possessed
-
   - id: scene_ch5_yui_purified
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -1079,7 +1030,6 @@ scenes:
         voice_character_id: char_yui
       - text: 「まだ奥に何かいる。気をつけて」
         voice_character_id: char_yui
-
   - id: scene_ch5_yui_after
     location_id: loc_museum_yui_room
     background: backgrounds/musium_room01.jpg
@@ -1094,7 +1044,6 @@ scenes:
       - text: 「私は大丈夫。おじさんの部屋も見て」
         voice_character_id: char_yui
     next_scene: null
-
   - id: scene_museum_oyaji_room_default
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1110,7 +1059,6 @@ scenes:
           next_scene: scene_ch5_oyaji_after
         - condition: null
           next_scene: scene_ch5_oyaji_possessed
-
   - id: scene_ch5_oyaji_possessed
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1129,7 +1077,7 @@ scenes:
         voice_character_id: char_hero
     next_engine:
       id: timing_game
-      transition: spotlight
+      transition: timing
       config:
         stageId: oyaji_spirit
         title: おじさんのタイミング勝負
@@ -1138,7 +1086,6 @@ scenes:
         cycleMs: 1750
         targetWidth: 0.2
       return_scene: scene_ch5_oyaji_battle_result
-
   - id: scene_ch5_oyaji_battle_result
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1154,7 +1101,6 @@ scenes:
           next_scene: scene_ch5_oyaji_purified
         - condition: null
           next_scene: scene_ch5_oyaji_retry
-
   - id: scene_ch5_oyaji_retry
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1170,7 +1116,6 @@ scenes:
       - text: 「すまん、今のはわしも目が回った。もう一度頼む」
         voice_character_id: char_oyaji
     next_scene: scene_ch5_oyaji_possessed
-
   - id: scene_ch5_oyaji_purified
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1189,7 +1134,6 @@ scenes:
         voice_character_id: char_oyaji
       - text: 「中心部へ戻ろう。まだ終わってない気がする」
         voice_character_id: char_hero
-
   - id: scene_ch5_oyaji_after
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
@@ -1204,7 +1148,6 @@ scenes:
       - text: 「わしはもう大丈夫じゃ。中心部を見てきておくれ」
         voice_character_id: char_oyaji
     next_scene: null
-
   - id: scene_ch5_deep_core_all_purified
     location_id: loc_museum_deep_core
     background: backgrounds/center_musium.png
@@ -1219,13 +1162,12 @@ scenes:
       - text: （ここまで来た。もう少しだけ、奥へ）
         voice_character_id: char_hero
     next_scene: scene_ch5_proto_end
-
   - id: scene_ch5_proto_end
     location_id: loc_museum_deep_core
     background: backgrounds/center_musium.png
     background_effect: possessed
     bgm: audio/bgm/ending.mp3
-    ending_title: 第5章　プロトタイプ
+    ending_title: 第5章　美術館の迷宮
     flags_set:
       - flag: flag_ch5_cleared
         value: true
@@ -1237,7 +1179,6 @@ scenes:
       - text: （次は、あの光の先だ）
         voice_character_id: char_hero
     game_end: true
-
   - id: scene_station_default
     location_id: loc_station
     background: backgrounds/akabane.jpg
@@ -1247,7 +1188,6 @@ scenes:
       - text: 駅前はいつも通り人が多い。今はミュージアムへ急いだ方がよさそうだ。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_coderdojo_default
     location_id: loc_coderdojo
     background: backgrounds/coderdojo.jpg
@@ -1257,7 +1197,6 @@ scenes:
       - text: CoderDojoの部屋は静かだった。今日はミュージアムの異変が気になる。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_ichibangai_default
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
@@ -1267,7 +1206,6 @@ scenes:
       - text: 一番街の入口に立つ。今日は霧は出ていない。
         voice_character_id: null
     next_scene: null
-
   - id: scene_arcade_default
     location_id: loc_arcade
     background: backgrounds/archade.jpg
@@ -1277,7 +1215,6 @@ scenes:
       - text: アーケード街はにぎやかだ。けれど、ミュージアムのことが頭から離れない。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_park_default
     location_id: loc_park
     background: backgrounds/park.jpg
@@ -1287,7 +1224,6 @@ scenes:
       - text: 公園のベンチに風が通る。少し休んだら、団地へ戻ろう。
         voice_character_id: null
     next_scene: null
-
   - id: scene_slope_default
     location_id: loc_slope
     background: backgrounds/slope_day.jpg
@@ -1297,7 +1233,6 @@ scenes:
       - text: 坂の上から団地を見下ろすと、ミュージアムの窓だけが妙に明るく見えた。
         voice_character_id: null
     next_scene: null
-
   - id: scene_plum_park_default
     location_id: loc_plum_park
     background: backgrounds/umenoki_park.jpg
@@ -1307,7 +1242,6 @@ scenes:
       - text: 梅の木公園は静かだ。今はここに異変はないみたいだ。
         voice_character_id: char_hero
     next_scene: null
-
   - id: scene_station_end_default
     location_id: loc_station_end
     background: backgrounds/ekihaji.jpg

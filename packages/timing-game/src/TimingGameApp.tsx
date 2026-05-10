@@ -8,6 +8,7 @@ export interface TimingGameConfig {
   targetHits?: number;
   cycleMs?: number;
   targetWidth?: number;
+  timingGrace?: number;
   _novelReturn?: unknown;
 }
 
@@ -42,6 +43,7 @@ function TimingGameComponent({ context, config, onExit }: EngineProps<TimingGame
   const targetHits = Math.max(1, Math.min(rounds, config.targetHits ?? 4));
   const cycleMs = Math.max(900, config.cycleMs ?? 1700);
   const targetWidth = Math.max(0.08, Math.min(0.34, config.targetWidth ?? 0.18));
+  const timingGrace = Math.max(0, Math.min(0.08, config.timingGrace ?? 0.018));
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [now, setNow] = useState(() => Date.now());
   const [round, setRound] = useState(0);
@@ -95,9 +97,12 @@ function TimingGameComponent({ context, config, onExit }: EngineProps<TimingGame
 
   const attempt = useCallback(() => {
     if (finished || feedback) return;
-    const ok = marker >= target.left && marker <= target.right;
+    const attemptNow = Date.now();
+    const currentMarker = markerRatio(attemptNow, startedAt, cycleMs);
+    const ok = currentMarker >= target.left - timingGrace && currentMarker <= target.right + timingGrace;
     const nextRound = round + 1;
     const nextHits = hits + (ok ? 1 : 0);
+    setNow(attemptNow);
     setFeedback(ok ? 'hit' : 'miss');
     window.setTimeout(() => {
       setFeedback(null);
@@ -116,7 +121,7 @@ function TimingGameComponent({ context, config, onExit }: EngineProps<TimingGame
       setMisses((value) => value + (ok ? 0 : 1));
       setStartedAt(Date.now());
     }, 520);
-  }, [feedback, finished, hits, marker, round, rounds, target.left, target.right, targetHits]);
+  }, [cycleMs, feedback, finished, hits, round, rounds, startedAt, target.left, target.right, targetHits, timingGrace]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

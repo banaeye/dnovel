@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameContext, EngineTransition, IGameEngine } from './types';
 
-type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'numberstorm' | 'none';
+type TransitionEffect = 'fade' | 'wipe' | 'flash' | 'speedline' | 'rift' | 'cardflip' | 'numberstorm' | 'timing' | 'none';
 type TransitionPhase = 'idle' | 'out' | 'in';
 
 const DURATION: Record<TransitionEffect, number> = {
@@ -12,6 +12,7 @@ const DURATION: Record<TransitionEffect, number> = {
   rift: 820,
   cardflip: 680,
   numberstorm: 860,
+  timing: 760,
   none:  0,
 };
 
@@ -83,6 +84,25 @@ const KEYFRAMES = `
 }
 @keyframes hub-number-pulse {
   0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.84; }
+  50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+}
+@keyframes hub-timing-out {
+  0%   { opacity: 0; transform: scale(1.12); filter: brightness(1); }
+  42%  { opacity: 1; transform: scale(1.02); filter: brightness(1.55); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(0.88); }
+}
+@keyframes hub-timing-in {
+  0%   { opacity: 1; transform: scale(1); filter: brightness(0.88); }
+  48%  { opacity: 0.88; transform: scale(1.05); filter: brightness(1.45); }
+  100% { opacity: 0; transform: scale(1.16); filter: brightness(1); }
+}
+@keyframes hub-timing-sweep {
+  0%   { transform: translateX(-58vw); opacity: 0; }
+  14%  { opacity: 1; }
+  100% { transform: translateX(58vw); opacity: 0; }
+}
+@keyframes hub-timing-ring {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.66; }
   50%      { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
 }
 `;
@@ -194,6 +214,12 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
                 'repeating-linear-gradient(116deg, rgba(255,223,92,0.17) 0 2px, transparent 2px 34px)',
                 '#11183c',
               ].join(', ')
+            : effect === 'timing'
+              ? [
+                  'radial-gradient(circle at 50% 50%, rgba(255,246,160,0.95) 0 5%, rgba(255,80,124,0.58) 16%, rgba(18,12,32,0.96) 68%, #05050a 100%)',
+                  'repeating-linear-gradient(90deg, rgba(255,235,120,0.28) 0 3px, transparent 3px 54px)',
+                  'repeating-linear-gradient(0deg, rgba(255,95,135,0.16) 0 2px, transparent 2px 42px)',
+                ].join(', ')
       : '#000';
 
   const overlayStyle: React.CSSProperties = overlayActive ? {
@@ -210,6 +236,8 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
           ? '100% 100%, 80px 100%, 100% 112px, 100% 100%'
           : effect === 'numberstorm'
             ? '100% 100%, 120px 120px, 150px 150px, 100% 100%'
+            : effect === 'timing'
+              ? '100% 100%, 54px 100%, 100% 42px'
         : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
   } : {
@@ -315,6 +343,69 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
                 {digit.value}
               </span>
             ))}
+          </>
+        )}
+        {overlayActive && effect === 'timing' && (
+          <>
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 260,
+                height: 260,
+                borderRadius: '50%',
+                border: '5px solid rgba(255,232,112,0.86)',
+                boxShadow: '0 0 28px rgba(255,232,112,0.86), inset 0 0 48px rgba(255,88,132,0.38)',
+                animation: 'hub-timing-ring 420ms ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 16,
+                height: 330,
+                marginLeft: -8,
+                marginTop: -165,
+                borderRadius: 999,
+                background: '#ff5f87',
+                boxShadow: '0 0 20px rgba(255,95,135,0.95)',
+                transformOrigin: '50% 50%',
+                transform: `rotate(${phase === 'out' ? -36 : 36}deg)`,
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: 560,
+                height: 14,
+                marginLeft: -280,
+                marginTop: -7,
+                borderRadius: 999,
+                background: 'linear-gradient(90deg, transparent, rgba(255,244,172,0.95), transparent)',
+                animation: 'hub-timing-sweep 620ms cubic-bezier(0.2, 0.9, 0.2, 1) infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff6b0',
+                fontFamily: "'Arial Black', 'Impact', sans-serif",
+                fontSize: 70,
+                letterSpacing: 0,
+                textShadow: '0 0 18px rgba(255,232,112,0.95), 0 7px 0 rgba(0,0,0,0.42)',
+              }}
+            >
+              TIMING!
+            </div>
           </>
         )}
       </div>
