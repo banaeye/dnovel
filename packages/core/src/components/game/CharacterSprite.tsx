@@ -18,6 +18,7 @@ export function CharacterSprite({ display, character, isSpeaking }: CharacterSpr
     isSpeaking && character.sprites?.['talking'] ? 'talking' : display.expression;
   const spritePath = character.sprites?.[expression] ?? character.sprites?.['normal'];
   const src = spritePath ? resolveAsset(spritePath) : null;
+  const possessed = display.expression === 'possessed';
 
   const posClass =
     display.position === 'left'
@@ -29,7 +30,7 @@ export function CharacterSprite({ display, character, isSpeaking }: CharacterSpr
   const bottomPx = 120 + (display.y_offset ?? character.y_offset ?? 0);
 
   return (
-    <div className={`${styles.root} ${posClass}`} style={{ bottom: `${bottomPx}px` }}>
+    <div className={`${styles.root} ${posClass} ${possessed ? styles.possessed : ''}`} style={{ bottom: `${bottomPx}px` }}>
       {src && !imgError ? (
         <img
           className={styles.img}

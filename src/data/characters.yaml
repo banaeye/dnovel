@@ -58,10 +58,19 @@ characters:
       normal: characters/kozo/kozo.png
       talking: characters/kozo/kozo.png
 
+  - id: char_candy_sister
+    name: "お姉さん"
+    name_flag: null
+    voicevox_speaker_id: 58
+    y_offset: -220
+    sprites:
+      normal: characters/onee/onee.png
+      talking: characters/onee/onee_talking.png
+
   - id: char_museum_staff
     name: "ミュージアムの受付"
     name_flag: null
-    voicevox_speaker_id: 49
+    voicevox_speaker_id: 87
     y_offset: -250
     sprites:
       normal: characters/muse/muse_onesan.png
@@ -70,7 +79,7 @@ characters:
   - id: char_museum_part_timer
     name: "バイト"
     name_flag: null
-    voicevox_speaker_id: 3
+    voicevox_speaker_id: 23
     y_offset: -250
     sprites:
       normal: characters/bite/bite.png

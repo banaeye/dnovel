@@ -119,6 +119,7 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
       <SceneBackground
         backgroundPath={scene?.background}
         locationName={location?.name}
+        possessed={scene?.background_effect === 'possessed' || state.currentCharacters.some((display) => display.expression === 'possessed')}
       />
 
       {state.phase !== 'examine' && state.currentCharacters.map((display) => {

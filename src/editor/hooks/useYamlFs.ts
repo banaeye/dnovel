@@ -102,7 +102,7 @@ export interface SharedFsProps {
   saveScenes: (scenes: RawScene[]) => Promise<void>;
 }
 
-const SCENE_FILENAMES = ['scenes_ch1.yaml', 'scenes_ch2.yaml', 'scenes_ch3.yaml', 'scenes_ch4.yaml'];
+const SCENE_FILENAMES = ['scenes_ch1.yaml', 'scenes_ch2.yaml', 'scenes_ch3.yaml', 'scenes_ch4.yaml', 'scenes_ch5.yaml'];
 
 export function useYamlFs() {
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);

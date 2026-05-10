@@ -191,6 +191,127 @@ locations:
         condition: null
     entry_scene: scene_museum_default
 
+  - id: loc_museum_core
+    name: "ミュージアム中心部"
+    description: "三つの展示室へ続く円形ホール。床に淡い光の線が走っている。"
+    background_default: backgrounds/center_musium.png
+    default_commands:
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_history_room
+        label: "「赤羽の歴史」の部屋へ"
+        condition:
+          flag: flag_chapter
+          value: 5
+      - location_id: loc_museum_portrait_room
+        label: "「人々の肖像」の部屋へ"
+        condition:
+          flag: flag_chapter
+          value: 5
+      - location_id: loc_museum_storage_room
+        label: "「収蔵庫」の部屋へ"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_core_default
+
+  - id: loc_museum_history_room
+    name: "赤羽の歴史の部屋"
+    description: "赤羽の古い写真や年表が並ぶ展示室。"
+    background_default: backgrounds/musium_room01.jpg
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_core
+        label: "中心部へ戻る"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_history_room_default
+
+  - id: loc_museum_portrait_room
+    name: "人々の肖像の部屋"
+    description: "赤羽に暮らしてきた人々の肖像が並ぶ展示室。"
+    background_default: backgrounds/musium_room01.jpg
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_core
+        label: "中心部へ戻る"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_portrait_room_default
+
+  - id: loc_museum_storage_room
+    name: "収蔵庫"
+    description: "展示されていない品物が静かにしまわれている部屋。"
+    background_default: backgrounds/musium_room01.jpg
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_core
+        label: "中心部へ戻る"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_storage_room_default
+
+  - id: loc_museum_deep_core
+    name: "ミュージアム奥の中心部"
+    description: "入口側とよく似た円形ホール。壁の赤い光は、前よりも濃く脈打っている。"
+    background_default: backgrounds/center_musium.png
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_yui_room
+        label: "「記憶の展示室」へ"
+        condition:
+          flag: flag_chapter
+          value: 5
+      - location_id: loc_museum_oyaji_room
+        label: "「古い道具の部屋」へ"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_deep_core_default
+
+  - id: loc_museum_yui_room
+    name: "記憶の展示室"
+    description: "小さな絵が壁一面に並ぶ、静かな展示室。"
+    background_default: backgrounds/musium_room01.jpg
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_deep_core
+        label: "奥の中心部へ戻る"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_yui_room_default
+
+  - id: loc_museum_oyaji_room
+    name: "古い道具の部屋"
+    description: "昔の道具や看板が並ぶ展示室。床の赤い光が妙に速い。"
+    background_default: backgrounds/musium_room01.jpg
+    default_commands:
+      - cmd_move
+      - cmd_inventory
+    connections:
+      - location_id: loc_museum_deep_core
+        label: "奥の中心部へ戻る"
+        condition:
+          flag: flag_chapter
+          value: 5
+    entry_scene: scene_museum_oyaji_room_default
+
   - id: loc_slope
     name: "団地への坂"
     description: "CoderDojoから団地へ続く緩やかな坂道。赤羽の街が見渡せる。"

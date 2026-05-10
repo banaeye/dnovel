@@ -938,6 +938,78 @@ scenes:
           ground: "#2a2d32"
           accent: "#f2d16b"
       return_scene: scene_ch3_after_runner
+
+  - id: scene_museum_deep_core_default
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    messages:
+      - text: ミュージアムの奥は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_yui_room_default
+    location_id: loc_museum_yui_room
+    background: backgrounds/musium_room01.jpg
+    messages:
+      - text: 記憶の展示室は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_oyaji_room_default
+    location_id: loc_museum_oyaji_room
+    background: backgrounds/musium_room01.jpg
+    messages:
+      - text: 古い道具の部屋は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_plum_park_default
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    messages:
+      - text: 梅の木公園は、今日は静まり返っている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_station_end_default
+    location_id: loc_station_end
+    background: backgrounds/ekihaji.jpg
+    messages:
+      - text: 駅の端は、今日は特に変わったことはなさそうだ。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_core_default
+    location_id: loc_museum_core
+    background: backgrounds/center_musium.png
+    messages:
+      - text: ミュージアムの中心部は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_history_room_default
+    location_id: loc_museum_history_room
+    background: backgrounds/musium_room01.jpg
+    messages:
+      - text: 「赤羽の歴史」の部屋は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_portrait_room_default
+    location_id: loc_museum_portrait_room
+    background: backgrounds/musium_room01.jpg
+    messages:
+      - text: 「人々の肖像」の部屋は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_storage_room_default
+    location_id: loc_museum_storage_room
+    background: backgrounds/musium_room01.jpg
+    messages:
+      - text: 収蔵庫は、今日は閉じられている。
+        voice_character_id: null
+    next_scene: null
   - id: scene_ch3_after_runner
     location_id: loc_arcade
     background: backgrounds/archade.jpg

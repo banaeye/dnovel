@@ -213,3 +213,103 @@ flags:
     type: boolean
     default: false
     description: "第4章クリア済み"
+
+  - id: flag_ch5_museum_alarm
+    type: boolean
+    default: false
+    description: "第5章でミュージアムの異変を聞いた"
+
+  - id: flag_ch5_action_cleared
+    type: boolean
+    default: false
+    description: "第5章のミュージアム横スクロール入口を突破した"
+
+  - id: flag_ch5_room_history_cleared
+    type: boolean
+    default: false
+    description: "第5章ミュージアム中心部の歴史の部屋を調べた"
+
+  - id: flag_ch5_room_portrait_cleared
+    type: boolean
+    default: false
+    description: "第5章ミュージアム中心部の肖像の部屋を調べた"
+
+  - id: flag_ch5_room_storage_cleared
+    type: boolean
+    default: false
+    description: "第5章ミュージアム中心部の収蔵庫を調べた"
+
+  - id: flag_ch5_detective_talked
+    type: boolean
+    default: false
+    description: "第5章で探偵と初回会話した"
+
+  - id: flag_ch5_student_talked
+    type: boolean
+    default: false
+    description: "第5章で大学生と初回会話した"
+
+  - id: flag_ch5_sister_talked
+    type: boolean
+    default: false
+    description: "第5章でお姉さんと初回会話した"
+
+  - id: flag_ch5_staff_explained_spirits
+    type: boolean
+    default: false
+    description: "第5章で受付から悪霊と三部屋の説明を聞いた"
+
+  - id: flag_ch5_detective_purified
+    type: boolean
+    default: false
+    description: "第5章で探偵に取りついた悪霊を払った"
+
+  - id: flag_ch5_student_purified
+    type: boolean
+    default: false
+    description: "第5章で大学生に取りついた悪霊を払った"
+
+  - id: flag_ch5_sister_purified
+    type: boolean
+    default: false
+    description: "第5章でお姉さんに取りついた悪霊を払った"
+
+  - id: flag_ch5_all_spirits_purified_seen
+    type: boolean
+    default: false
+    description: "第5章で三体浄化後の中心部イベントを見た"
+
+  - id: flag_ch5_deep_run_cleared
+    type: boolean
+    default: false
+    description: "第5章の中心部奥へ続くランゲームを突破した"
+
+  - id: flag_ch5_yui_purified
+    type: boolean
+    default: false
+    description: "第5章奥エリアでユイに取りついた悪霊を払った"
+
+  - id: flag_ch5_oyaji_purified
+    type: boolean
+    default: false
+    description: "第5章奥エリアでおじさんに取りついた悪霊を払った"
+
+  - id: spot_difference_result_sister_spirit
+    type: string
+    default: ""
+    description: "第5章お姉さん悪霊戦の違う絵探し結果"
+
+  - id: spot_difference_result_yui_spirit
+    type: string
+    default: ""
+    description: "第5章ユイ悪霊戦の違う絵探し結果"
+
+  - id: timing_game_result_oyaji_spirit
+    type: string
+    default: ""
+    description: "第5章おじさん悪霊戦のタイミングゲーム結果"
+
+  - id: flag_ch5_cleared
+    type: boolean
+    default: false
+    description: "第5章プロトタイプをクリア済み"

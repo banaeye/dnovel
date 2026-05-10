@@ -36,7 +36,6 @@ export function transitionTo(
   }
 
   next = { ...next, flags: applyFlagsSet(scene.flags_set, next.flags) };
-  next = tryGiveItems(scene.item_give, next);
   if (scene.item_remove) {
     for (const itemId of scene.item_remove) next = removeItem(itemId, next);
   }
@@ -77,58 +76,55 @@ function resolveAfterMessages(
   scene: Scene,
   masterData: MasterData,
 ): GameState {
+  const s = tryGiveItems(scene.item_give, state);
+
   if (scene.game_end) {
-    return { ...state, phase: 'ending' };
+    return { ...s, phase: 'ending' };
   }
 
   if (scene.next_engine) {
-    return { ...state, phase: 'engine_transition', pendingEngineTransition: scene.next_engine };
+    return { ...s, phase: 'engine_transition', pendingEngineTransition: scene.next_engine };
   }
 
   const branches = scene.branches;
+  const ctx = {
+    flags: s.flags,
+    inventory: s.inventory,
+    locationId: s.currentLocationId,
+  };
 
   if (branches?.type === 'choice' && branches.choices && branches.choices.length > 0) {
-    const ctx = {
-      flags: state.flags,
-      inventory: state.inventory,
-      locationId: state.currentLocationId,
-    };
     const available = branches.choices.filter((c) => evaluateCondition(c.condition, ctx));
     if (available.length === 1 && available[0].next_scene) {
-      return transitionTo(available[0].next_scene, state, masterData);
+      return transitionTo(available[0].next_scene, s, masterData);
     }
-    return { ...state, phase: 'choice' };
+    return { ...s, phase: 'choice' };
   }
 
   if (branches?.type === 'auto' && branches.choices) {
-    const ctx = {
-      flags: state.flags,
-      inventory: state.inventory,
-      locationId: state.currentLocationId,
-    };
     for (const choice of branches.choices) {
       if (evaluateCondition(choice.condition, ctx)) {
         if (choice.next_scene) {
-          return transitionTo(choice.next_scene, state, masterData);
+          return transitionTo(choice.next_scene, s, masterData);
         }
         if (choice.next_scene === null) {
-          return goBack(state, masterData);
+          return goBack(s, masterData);
         }
-        return toCommandPhase(state, scene, masterData);
+        return toCommandPhase(s, scene, masterData);
       }
     }
-    return goBack(state, masterData);
+    return goBack(s, masterData);
   }
 
   if (scene.next_scene) {
-    return transitionTo(scene.next_scene, state, masterData);
+    return transitionTo(scene.next_scene, s, masterData);
   }
 
   if (scene.next_scene === null) {
-    return goBack(state, masterData);
+    return goBack(s, masterData);
   }
 
-  return toCommandPhase(state, scene, masterData);
+  return toCommandPhase(s, scene, masterData);
 }
 
 export function selectChoice(
@@ -162,6 +158,7 @@ function goBack(state: GameState, masterData: MasterData): GameState {
     currentMessageIndex: 0,
     sceneHistory: history,
     phase,
+    currentCharacters: [],
   };
 }
 

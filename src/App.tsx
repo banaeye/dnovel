@@ -4,12 +4,15 @@ import { MazeRpgEngine } from '@novel-engine/maze-rpg';
 import { RunnerActionEngine } from '@novel-engine/runner-action';
 import { MemoryGameEngine } from '@novel-engine/memory-game';
 import { FlashCalcEngine } from '@novel-engine/flash-calc';
+import { SpotDifferenceEngine } from '@novel-engine/spot-difference';
+import { TimingGameEngine } from '@novel-engine/timing-game';
 import type { ChapterConfig } from '@novel-engine/core';
 
 const masterData = getMasterData();
 const chapter2MasterData = getMasterData('chapter2');
 const chapter3MasterData = getMasterData('chapter3');
 const chapter4MasterData = getMasterData('chapter4');
+const chapter5MasterData = getMasterData('chapter5');
 const ASSETS_BASE = `${import.meta.env.BASE_URL}assets`;
 
 const CHAPTERS: ChapterConfig[] = [
@@ -69,6 +72,25 @@ const CHAPTERS: ChapterConfig[] = [
       flag_ch3_museum_unlocked: true,
     },
   },
+  {
+    id: 'chapter5',
+    title: '第5章へ',
+    chapterTitle: 'ミュージアムの横スクロール',
+    masterData: chapter5MasterData,
+    initialSceneId: 'scene_ch5_start',
+    initialLocationId: 'loc_danchi',
+    unlockFlag: 'flag_ch4_cleared',
+    initialFlags: {
+      flag_chapter: 5,
+      flag_chapter1_cleared: true,
+      flag_ch2_cleared: true,
+      flag_ch3_cleared: true,
+      flag_ch4_cleared: true,
+      flag_station_explored: true,
+      flag_visited_slope: true,
+      flag_ch3_museum_unlocked: true,
+    },
+  },
 ];
 
 export default function App() {
@@ -80,6 +102,8 @@ export default function App() {
         runner_action: RunnerActionEngine,
         memory_game: MemoryGameEngine,
         flash_calc: FlashCalcEngine,
+        spot_difference: SpotDifferenceEngine,
+        timing_game: TimingGameEngine,
       }}
       initial={{
         engineId: 'novel',

@@ -13,6 +13,8 @@ export default defineConfig({
       '@novel-engine/runner-action': path.resolve(__dirname, 'packages/runner-action/src/index.ts'),
       '@novel-engine/memory-game':   path.resolve(__dirname, 'packages/memory-game/src/index.ts'),
       '@novel-engine/flash-calc':    path.resolve(__dirname, 'packages/flash-calc/src/index.ts'),
+      '@novel-engine/spot-difference': path.resolve(__dirname, 'packages/spot-difference/src/index.ts'),
+      '@novel-engine/timing-game': path.resolve(__dirname, 'packages/timing-game/src/index.ts'),
     },
   },
   build: {

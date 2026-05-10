@@ -92,6 +92,7 @@ export interface Scene {
   id: string;
   location_id?: string;
   background?: string;
+  background_effect?: 'possessed';
   bgm?: string;
   ending_title?: string;
   characters?: CharacterDisplay[];

@@ -1,0 +1,208 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { EngineProps, IGameEngine } from '@novel-engine/hub';
+
+export interface SpotDifferenceConfig {
+  stageId: string;
+  title?: string;
+  timeLimitMs?: number;
+  targetCount?: number;
+  gridSize?: number;
+  gridColumns?: number;
+  cellSize?: number;
+  cellGap?: number;
+  imagePool?: string[];
+  assetsBaseUrl?: string;
+  _novelReturn?: unknown;
+}
+
+interface Problem {
+  base: string;
+  odd: string;
+  baseImage?: string;
+  oddImage?: string;
+  oddIndex: number;
+  tint: string;
+}
+
+const W = 800;
+const H = 600;
+const FONT = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
+const SYMBOLS = ['●', '◆', '▲', '★', '✚', '■', '⬟', '✦'];
+const COLORS = ['#f4c95d', '#7dd3fc', '#f0abfc', '#86efac', '#fca5a5', '#c4b5fd'];
+
+function useGameScale() {
+  const get = () => Math.min(1, Math.min(window.innerWidth / W, window.innerHeight / H));
+  const [scale, setScale] = useState(get);
+  useEffect(() => {
+    const update = () => setScale(get());
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return scale;
+}
+
+function resolveAsset(assetsBaseUrl: string | undefined, path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^(https?:|data:|blob:)/.test(path)) return path;
+  const base = (assetsBaseUrl ?? '').replace(/\/$/, '');
+  const clean = path.replace(/^\//, '');
+  return base ? `${base}/${clean}` : `/${clean}`;
+}
+
+function makeProblem(round: number, gridSize: number, images: string[]): Problem {
+  const base = SYMBOLS[round % SYMBOLS.length];
+  const odd = SYMBOLS[(round + 3) % SYMBOLS.length];
+  const oddIndex = (round * 11 + 7) % gridSize;
+  if (images.length >= 2) {
+    const baseIndex = round % images.length;
+    const oddIndexInPool = (baseIndex + 1 + (round % (images.length - 1))) % images.length;
+    return {
+      base,
+      odd,
+      baseImage: images[baseIndex],
+      oddImage: images[oddIndexInPool],
+      oddIndex,
+      tint: COLORS[round % COLORS.length],
+    };
+  }
+  return { base, odd, oddIndex, tint: COLORS[round % COLORS.length] };
+}
+
+function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDifferenceConfig>) {
+  const scale = useGameScale();
+  const stageId = config.stageId || 'default';
+  const timeLimitMs = Math.max(5000, config.timeLimitMs ?? 30000);
+  const targetCount = Math.max(1, config.targetCount ?? 5);
+  const gridSize = Math.max(4, config.gridSize ?? 36);
+  const cols = Math.max(2, Math.min(gridSize, config.gridColumns ?? 6));
+  const cell = Math.max(36, Math.min(112, config.cellSize ?? 62));
+  const gap = Math.max(4, Math.min(20, config.cellGap ?? 12));
+  const images = useMemo(
+    () => (config.imagePool ?? []).map((path) => resolveAsset(config.assetsBaseUrl, path)).filter((path): path is string => Boolean(path)),
+    [config.assetsBaseUrl, config.imagePool],
+  );
+  const [startedAt] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  const [round, setRound] = useState(0);
+  const [score, setScore] = useState(0);
+  const [misses, setMisses] = useState(0);
+  const [finished, setFinished] = useState<'win' | 'lose' | null>(null);
+  const problem = useMemo(() => makeProblem(round, gridSize, images), [round, gridSize, images]);
+
+  const remainingMs = Math.max(0, timeLimitMs - (now - startedAt));
+
+  useEffect(() => {
+    if (finished) return;
+    const id = window.setInterval(() => setNow(Date.now()), 100);
+    return () => window.clearInterval(id);
+  }, [finished]);
+
+  useEffect(() => {
+    if (!finished && remainingMs <= 0) setFinished(score >= targetCount ? 'win' : 'lose');
+  }, [finished, remainingMs, score, targetCount]);
+
+  useEffect(() => {
+    if (!finished) return;
+    const id = window.setTimeout(() => {
+      onExit({
+        ...context,
+        flags: {
+          ...context.flags,
+          spot_difference_result: finished,
+          [`spot_difference_result_${stageId}`]: finished,
+          spot_difference_score: score,
+          [`spot_difference_score_${stageId}`]: score,
+        },
+        playerStats: {
+          ...context.playerStats,
+          spotDifferenceScore: score,
+        },
+      });
+    }, 1600);
+    return () => window.clearTimeout(id);
+  }, [context, finished, onExit, score, stageId]);
+
+  const choose = useCallback((idx: number) => {
+    if (finished) return;
+    if (idx === problem.oddIndex) {
+      const nextScore = score + 1;
+      if (nextScore >= targetCount) {
+        setScore(nextScore);
+        setFinished('win');
+      } else {
+        setScore(nextScore);
+        setRound((r) => r + 1);
+      }
+    } else {
+      setMisses((m) => m + 1);
+    }
+  }, [finished, problem.oddIndex, score, targetCount]);
+
+  const gridW = cols * cell + (cols - 1) * gap;
+  const rows = Math.ceil(gridSize / cols);
+  const gridH = rows * cell + (rows - 1) * gap;
+  const gridX = (W - gridW) / 2;
+  const gridY = Math.max(112, 320 - gridH / 2);
+
+  return (
+    <div style={{ width: '100vw', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05060a', overflow: 'hidden' }}>
+      <div style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: 'center center', position: 'relative', overflow: 'hidden', fontFamily: FONT, background: 'linear-gradient(180deg,#16151d,#2d2632 55%,#101018)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 25%, rgba(255,90,110,0.24), transparent 44%)' }} />
+        <div style={{ position: 'absolute', top: 24, left: 28, right: 28, height: 70, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(0,0,0,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', color: '#f7f2dc' }}>
+          <span style={{ fontSize: 20 }}>{config.title ?? '違う絵探し'}</span>
+          <span>残り {Math.ceil(remainingMs / 1000)} 秒</span>
+          <span>発見 {score} / {targetCount}</span>
+        </div>
+        {Array.from({ length: gridSize }, (_, idx) => {
+          const col = idx % cols;
+          const row = Math.floor(idx / cols);
+          const odd = idx === problem.oddIndex;
+          const image = odd ? problem.oddImage : problem.baseImage;
+          const imageMode = Boolean(image);
+          return (
+            <button
+              key={`${round}-${idx}`}
+              onClick={() => choose(idx)}
+              style={{
+                position: 'absolute',
+                left: gridX + col * (cell + gap),
+                top: gridY + row * (cell + gap),
+                width: cell,
+                height: cell,
+                borderRadius: 8,
+                border: imageMode || !odd ? '2px solid rgba(255,255,255,0.16)' : `2px solid ${problem.tint}`,
+                backgroundColor: imageMode ? '#111' : 'rgba(8,8,14,0.74)',
+                backgroundImage: imageMode ? `url("${image}")` : undefined,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                color: odd ? '#fff7cc' : problem.tint,
+                fontSize: 30,
+                cursor: finished ? 'default' : 'pointer',
+                boxShadow: imageMode || !odd ? '0 4px 12px rgba(0,0,0,0.35)' : `0 0 24px ${problem.tint}44`,
+                overflow: 'hidden',
+                padding: 0,
+              }}
+            >
+              {imageMode ? <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.18))' }} /> : (odd ? problem.odd : problem.base)}
+            </button>
+          );
+        })}
+        <div style={{ position: 'absolute', left: 40, bottom: 28, right: 40, color: '#d8d0c4', display: 'flex', justifyContent: 'space-between', fontSize: 15 }}>
+          <span>{gridSize}枚の中から違う絵を探す</span>
+          <span>ミス {misses}</span>
+        </div>
+        {finished && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(5,5,10,0.86)', color: finished === 'win' ? '#fff176' : '#ef9a9a', fontSize: 48, letterSpacing: '0.18em' }}>
+            {finished === 'win' ? '浄　化' : '失　敗'}
+            <span style={{ marginTop: 18, color: '#d8d0c4', fontSize: 18, letterSpacing: 0 }}>{score} / {targetCount}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const SpotDifferenceEngine: IGameEngine<SpotDifferenceConfig> = {
+  component: SpotDifferenceComponent,
+};

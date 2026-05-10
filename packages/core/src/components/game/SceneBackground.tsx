@@ -5,9 +5,10 @@ import styles from './SceneBackground.module.css';
 interface SceneBackgroundProps {
   backgroundPath?: string;
   locationName?: string;
+  possessed?: boolean;
 }
 
-export function SceneBackground({ backgroundPath, locationName }: SceneBackgroundProps) {
+export function SceneBackground({ backgroundPath, locationName, possessed = false }: SceneBackgroundProps) {
   const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
 
@@ -16,7 +17,7 @@ export function SceneBackground({ backgroundPath, locationName }: SceneBackgroun
   useEffect(() => { setImgError(false); }, [src]);
 
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} ${possessed ? styles.possessed : ''}`}>
       {src && !imgError ? (
         <img
           className={styles.img}
