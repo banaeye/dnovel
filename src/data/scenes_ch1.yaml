@@ -270,6 +270,7 @@ scenes:
                 voice_character_id: null
               - text: 「CoderDojo赤羽　本日開催！　参加無料　午前9時30分より」
                 voice_character_id: null
+                focus_overlay_image: cg/coderdojo_akabane_flyer.svg
               - text: チラシを一枚拾った！
                 voice_character_id: null
             item_give:
