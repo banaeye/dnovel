@@ -60,6 +60,7 @@ scenes:
             voice_character_id: null
           - text: 「CoderDojo赤羽、本日開催中——」
             voice_character_id: null
+            focus_overlay_image: cg/coderdojo_akabane_flyer.svg
           - text: そうか、CoderDojoか。あそこなら何かヒントがあるかもしれない。
             voice_character_id: char_hero
         flags_set:
