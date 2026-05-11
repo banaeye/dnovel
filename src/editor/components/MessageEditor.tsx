@@ -73,6 +73,13 @@ export function MessageEditor({ messages, characters, onChange }: MessageEditorP
             style={{ resize: 'vertical' }}
             onChange={(e) => update(i, { text: e.target.value })}
           />
+
+          <input
+            value={msg.focus_overlay_image ?? ''}
+            placeholder="注目画像 cg/xxx.png"
+            onChange={(e) => update(i, { focus_overlay_image: e.target.value || undefined })}
+            style={{ marginTop: 6 }}
+          />
         </div>
       ))}
 

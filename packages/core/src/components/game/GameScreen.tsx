@@ -142,6 +142,16 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
         />
       )}
 
+      {state.phase === 'message' && currentMessage?.focus_overlay_image && (
+        <div className={styles.focusOverlay}>
+          <img
+            className={styles.focusOverlayImage}
+            src={resolveAsset(currentMessage.focus_overlay_image)}
+            alt=""
+          />
+        </div>
+      )}
+
       {state.phase === 'examine' && (
         <ClickableAreaOverlay
           areas={scene?.clickable_areas ?? []}

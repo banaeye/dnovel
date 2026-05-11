@@ -18,6 +18,31 @@
   animation: cgFadeIn 0.3s ease;
 }
 
+.focusOverlay {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  width: min(360px, calc(100% - 96px));
+  height: 240px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cgFadeIn 0.2s ease;
+}
+
+.focusOverlayImage {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid rgba(200, 168, 90, 0.72);
+  border-radius: 4px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+}
+
 @keyframes cgFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }

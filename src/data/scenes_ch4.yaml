@@ -596,6 +596,7 @@ scenes:
             voice_character_id: null
           - text: ——小さな財布が、奥に挟まるように落ちていた。さっきは子猫の陰になっていて気づかなかったようだ。
             voice_character_id: null
+            focus_overlay_image: cg/ch4_bench_wallet.png
           - text: （これ……梅の木公園のバイトのひとが探してたやつだ。届けに行かないと）
             voice_character_id: char_hero
         next_scene: null
@@ -616,6 +617,7 @@ scenes:
     messages:
       - text: ベンチの下を覗いてみると——小さな子猫がまるまって、金属のペンダントを前足で押さえていた。
         voice_character_id: null
+        focus_overlay_image: cg/ch4_bench_cat_pendant.png
       - text: 「あっ……！」
         voice_character_id: char_hero
       - text: 後ろから探偵おやじが走ってきた。途中で柱に頭をぶつけたが、気にしていないようだった。
