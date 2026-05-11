@@ -24,6 +24,7 @@ export interface RawMessage {
   text: string;
   voice_character_id: string | null;
   voice_style?: string;
+  focus_overlay_image?: string;
   characters?: RawCharacterDisplay[];
 }
 
