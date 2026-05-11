@@ -25,9 +25,12 @@ export interface RunnerActionConfig {
   opponentImage?: string;
   opponentWidth?: number;
   opponentHeight?: number;
+  bossImage?: string;
+  bossWidth?: number;
+  bossHeight?: number;
   objectSpeedMultiplier?: number;
   stompEnemies?: boolean;
-  enemySet?: 'entrance' | 'deep';
+  enemySet?: 'entrance' | 'deep' | 'boss';
   lives?: number;
   chaseStartDistance?: number;
   chaseCatchRate?: number;
@@ -56,12 +59,12 @@ interface RunnerState {
 
 interface FlyingObject {
   id: string;
-  type: 'candy' | 'pot' | 'dog' | 'bird';
+  type: 'candy' | 'pot' | 'dog' | 'bird' | 'hitodama';
   spawnMs: number;
   laneY: number;
   speed: number;
   size: number;
-  pattern?: 'straight' | 'diagonalDrop' | 'wobble';
+  pattern?: 'straight' | 'diagonalDrop' | 'wobble' | 'bossShot';
 }
 
 interface DefeatedObject {
@@ -146,6 +149,39 @@ const STOMP_OBJECTS: FlyingObject[] = [
   { id: 'drop_03', type: 'bird', spawnMs: 14800, laneY: 165, speed: 0.43, size: 48, pattern: 'diagonalDrop' },
   { id: 'drop_04', type: 'bird', spawnMs: 20700, laneY: 150, speed: 0.48, size: 50, pattern: 'diagonalDrop' },
   { id: 'drop_05', type: 'bird', spawnMs: 26200, laneY: 160, speed: 0.52, size: 50, pattern: 'diagonalDrop' },
+];
+
+const BOSS_OBJECTS: FlyingObject[] = [
+  // Wave 1
+  { id: 'boss_g01',  type: 'bird',     spawnMs: 1200,  laneY: 340, speed: 0.40, size: 46, pattern: 'wobble' },
+  { id: 'boss_d01',  type: 'dog',      spawnMs: 2600,  laneY: 392, speed: 0.44, size: 50 },
+  { id: 'hdm_01',    type: 'hitodama', spawnMs: 3400,  laneY: 445, speed: 0.38, size: 38, pattern: 'bossShot' },
+  { id: 'boss_dp01', type: 'bird',     spawnMs: 4000,  laneY: 100, speed: 0.42, size: 46, pattern: 'diagonalDrop' },
+  // Wave 2
+  { id: 'boss_d02',  type: 'dog',      spawnMs: 5800,  laneY: 392, speed: 0.48, size: 52 },
+  { id: 'hdm_02',    type: 'hitodama', spawnMs: 6600,  laneY: 445, speed: 0.40, size: 38, pattern: 'bossShot' },
+  { id: 'boss_g02',  type: 'bird',     spawnMs: 7200,  laneY: 320, speed: 0.46, size: 48, pattern: 'wobble' },
+  { id: 'boss_dp02', type: 'bird',     spawnMs: 8800,  laneY: 90,  speed: 0.46, size: 48, pattern: 'diagonalDrop' },
+  // Wave 3
+  { id: 'hdm_03',    type: 'hitodama', spawnMs: 9700,  laneY: 445, speed: 0.42, size: 38, pattern: 'bossShot' },
+  { id: 'boss_g03',  type: 'bird',     spawnMs: 10600, laneY: 350, speed: 0.50, size: 46, pattern: 'wobble' },
+  { id: 'boss_d03',  type: 'dog',      spawnMs: 12000, laneY: 392, speed: 0.52, size: 52 },
+  { id: 'boss_dp03', type: 'bird',     spawnMs: 13600, laneY: 80,  speed: 0.50, size: 50, pattern: 'diagonalDrop' },
+  { id: 'hdm_04',    type: 'hitodama', spawnMs: 14400, laneY: 445, speed: 0.44, size: 38, pattern: 'bossShot' },
+  { id: 'boss_d04',  type: 'dog',      spawnMs: 15300, laneY: 392, speed: 0.54, size: 54 },
+  // Wave 4 — harder
+  { id: 'hdm_05',    type: 'hitodama', spawnMs: 16200, laneY: 445, speed: 0.46, size: 40, pattern: 'bossShot' },
+  { id: 'boss_g04',  type: 'bird',     spawnMs: 17000, laneY: 335, speed: 0.54, size: 48, pattern: 'wobble' },
+  { id: 'boss_dp04', type: 'bird',     spawnMs: 18600, laneY: 85,  speed: 0.54, size: 50, pattern: 'diagonalDrop' },
+  { id: 'hdm_06',    type: 'hitodama', spawnMs: 19700, laneY: 445, speed: 0.48, size: 40, pattern: 'bossShot' },
+  { id: 'boss_d05',  type: 'dog',      spawnMs: 20200, laneY: 392, speed: 0.58, size: 54 },
+  { id: 'boss_g05',  type: 'bird',     spawnMs: 21800, laneY: 325, speed: 0.58, size: 50, pattern: 'wobble' },
+  // Wave 5 — final push
+  { id: 'hdm_07',    type: 'hitodama', spawnMs: 22700, laneY: 445, speed: 0.50, size: 40, pattern: 'bossShot' },
+  { id: 'boss_dp05', type: 'bird',     spawnMs: 23400, laneY: 90,  speed: 0.58, size: 52, pattern: 'diagonalDrop' },
+  { id: 'boss_d06',  type: 'dog',      spawnMs: 24900, laneY: 392, speed: 0.62, size: 56 },
+  { id: 'hdm_08',    type: 'hitodama', spawnMs: 25600, laneY: 445, speed: 0.52, size: 40, pattern: 'bossShot' },
+  { id: 'boss_g06',  type: 'bird',     spawnMs: 26400, laneY: 345, speed: 0.62, size: 48, pattern: 'wobble' },
 ];
 
 const DEEP_STOMP_OBJECTS: FlyingObject[] = [
@@ -349,11 +385,30 @@ function playStompSound() {
   window.setTimeout(() => void audioContext.close().catch(() => {}), 220);
 }
 
+const BOSS_SHOT_DROP_MS = 580;
+
 function objectX(object: FlyingObject, elapsedMs: number, speedMultiplier = 1): number {
+  if (object.pattern === 'bossShot') {
+    if (elapsedMs <= object.spawnMs) return WIDTH + 200;
+    const elapsed = elapsedMs - object.spawnMs;
+    if (elapsed < BOSS_SHOT_DROP_MS) return BOSS_SHOT_START_X;
+    const horizontalTravel = (elapsed - BOSS_SHOT_DROP_MS) * object.speed * speedMultiplier;
+    return BOSS_SHOT_START_X - horizontalTravel;
+  }
   return WIDTH + 80 - Math.max(0, elapsedMs - object.spawnMs) * object.speed * speedMultiplier;
 }
 
 function objectY(object: FlyingObject, elapsedMs = object.spawnMs, speedMultiplier = 1): number {
+  if (object.pattern === 'bossShot') {
+    if (elapsedMs <= object.spawnMs) return BOSS_SHOT_START_Y;
+    const elapsed = elapsedMs - object.spawnMs;
+    const groundY = GROUND_Y - object.size - 4;
+    if (elapsed < BOSS_SHOT_DROP_MS) {
+      const t = elapsed / BOSS_SHOT_DROP_MS;
+      return BOSS_SHOT_START_Y + (groundY - BOSS_SHOT_START_Y) * (t * t);
+    }
+    return groundY;
+  }
   if (object.pattern === 'wobble') {
     const travel = Math.max(0, elapsedMs - object.spawnMs) * object.speed * speedMultiplier;
     return object.laneY + Math.sin(travel * 0.032) * 26;
@@ -366,8 +421,154 @@ function objectY(object: FlyingObject, elapsedMs = object.spawnMs, speedMultipli
 }
 
 function getObjects(mode: RunnerActionMode, stompEnemies: boolean, enemySet: RunnerActionConfig['enemySet'] = 'entrance'): FlyingObject[] {
-  if (stompEnemies) return enemySet === 'deep' ? DEEP_STOMP_OBJECTS : STOMP_OBJECTS;
+  if (stompEnemies) {
+    if (enemySet === 'boss') return BOSS_OBJECTS;
+    if (enemySet === 'deep') return DEEP_STOMP_OBJECTS;
+    return STOMP_OBJECTS;
+  }
   return mode === 'chase' ? CHASE_OBJECTS : COLLECT_OBJECTS;
+}
+
+const BOSS_DIRECTOR_X = 658;
+const BOSS_DIRECTOR_BASE_Y = 86;
+const BOSS_SHOT_START_X = BOSS_DIRECTOR_X;
+const BOSS_SHOT_START_Y = BOSS_DIRECTOR_BASE_Y + 42;
+
+function drawMuseumDirectorBoss(
+  ctx: CanvasRenderingContext2D,
+  time: number,
+  defeatProgress?: number,
+  bossImg?: HTMLImageElement | null,
+  bossImgW = 72,
+  bossImgH = 120,
+) {
+  if (defeatProgress !== undefined && defeatProgress >= 1) return;
+
+  const fadeOut = defeatProgress !== undefined ? 1 - defeatProgress : 1;
+  const shatter = defeatProgress !== undefined && defeatProgress > 0;
+
+  // Defeat explosion burst
+  if (shatter) {
+    const burst = defeatProgress!;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, 0.8 * (1 - burst));
+    const blastGrd = ctx.createRadialGradient(
+      BOSS_DIRECTOR_X, BOSS_DIRECTOR_BASE_Y, 0,
+      BOSS_DIRECTOR_X, BOSS_DIRECTOR_BASE_Y, 120 * burst,
+    );
+    blastGrd.addColorStop(0, 'rgba(255,200,80,0.9)');
+    blastGrd.addColorStop(0.4, 'rgba(255,80,40,0.6)');
+    blastGrd.addColorStop(1, 'rgba(100,0,0,0)');
+    ctx.fillStyle = blastGrd;
+    ctx.beginPath();
+    ctx.arc(BOSS_DIRECTOR_X, BOSS_DIRECTOR_BASE_Y, 120 * burst, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Particle shards flying outward
+    for (let i = 0; i < 10; i += 1) {
+      const angle = (i / 10) * Math.PI * 2;
+      const r = burst * 100;
+      const px = BOSS_DIRECTOR_X + Math.cos(angle) * r;
+      const py = BOSS_DIRECTOR_BASE_Y + Math.sin(angle) * r;
+      ctx.globalAlpha = Math.max(0, 0.9 * (1 - burst));
+      ctx.fillStyle = i % 2 === 0 ? '#ff5a20' : '#ffd060';
+      ctx.beginPath();
+      ctx.arc(px, py, 5 * (1 - burst * 0.7), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  const float = shatter ? 0 : Math.sin(time * 0.007) * 10;
+  const pulse = 0.88 + Math.sin(time * 0.013) * 0.1;
+  const bossY = BOSS_DIRECTOR_BASE_Y + float;
+  const auraAlpha = (0.52 + Math.sin(time * 0.018) * 0.16) * fadeOut;
+
+  ctx.save();
+  ctx.globalAlpha = fadeOut;
+
+  // Red aura halo
+  const grd = ctx.createRadialGradient(BOSS_DIRECTOR_X, bossY, 6, BOSS_DIRECTOR_X, bossY, 60);
+  grd.addColorStop(0, `rgba(255,60,80,${auraAlpha})`);
+  grd.addColorStop(0.55, `rgba(180,15,40,${auraAlpha * 0.45})`);
+  grd.addColorStop(1, 'rgba(100,0,20,0)');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(BOSS_DIRECTOR_X, bossY + 20, 60, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = 'rgba(255,40,70,0.85)';
+  ctx.shadowBlur = 20;
+
+  if (bossImg) {
+    // Image-based body: draw sprite centered at boss position
+    const imgX = BOSS_DIRECTOR_X - bossImgW / 2;
+    const imgY = bossY - bossImgH + 30;
+    ctx.drawImage(bossImg, imgX, imgY, bossImgW, bossImgH);
+  } else {
+    // Procedural fallback
+    ctx.fillStyle = `rgba(18,4,10,${pulse})`;
+    ctx.fillRect(BOSS_DIRECTOR_X - 17, bossY - 50, 34, 8);
+    ctx.fillRect(BOSS_DIRECTOR_X - 11, bossY - 66, 22, 18);
+
+    ctx.fillStyle = `rgba(45,12,22,${pulse})`;
+    ctx.beginPath();
+    ctx.arc(BOSS_DIRECTOR_X, bossY - 24, 19, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowColor = 'rgba(255,20,20,1)';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = '#ff2020';
+    ctx.beginPath();
+    ctx.arc(BOSS_DIRECTOR_X - 7, bossY - 26, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(BOSS_DIRECTOR_X + 7, bossY - 26, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(255,40,70,0.7)';
+
+    ctx.fillStyle = `rgba(20,5,14,${pulse})`;
+    ctx.beginPath();
+    ctx.moveTo(BOSS_DIRECTOR_X - 17, bossY - 8);
+    ctx.lineTo(BOSS_DIRECTOR_X - 20, bossY + 36);
+    ctx.quadraticCurveTo(
+      BOSS_DIRECTOR_X - 28 + Math.sin(time * 0.016) * 7, bossY + 66,
+      BOSS_DIRECTOR_X - 12 + Math.sin(time * 0.011) * 9, bossY + 80,
+    );
+    ctx.lineTo(BOSS_DIRECTOR_X, bossY + 70);
+    ctx.lineTo(
+      BOSS_DIRECTOR_X + 12 + Math.sin(time * 0.014) * 9, bossY + 80,
+    );
+    ctx.quadraticCurveTo(
+      BOSS_DIRECTOR_X + 28 + Math.sin(time * 0.016) * 7, bossY + 66,
+      BOSS_DIRECTOR_X + 20, bossY + 36,
+    );
+    ctx.lineTo(BOSS_DIRECTOR_X + 17, bossY - 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(255,40,70,0.7)';
+
+  // Orbiting release particles (hidden during defeat)
+  if (!shatter) {
+    ctx.shadowBlur = 8;
+    for (let i = 0; i < 5; i += 1) {
+      const angle = (time * 0.026 + i * (Math.PI * 2) / 5) % (Math.PI * 2);
+      const r = 28 + Math.sin(time * 0.04 + i * 1.3) * 8;
+      const px = BOSS_DIRECTOR_X + Math.cos(angle) * r;
+      const py = bossY + 24 + Math.sin(angle) * r * 0.45;
+      ctx.fillStyle = `rgba(255,${60 + i * 22},${100 - i * 12},0.72)`;
+      ctx.beginPath();
+      ctx.arc(px, py, 3 + i * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
 }
 
 function rectsOverlap(
@@ -572,8 +773,62 @@ function drawBadKid(ctx: CanvasRenderingContext2D, distance: number, time: numbe
   ctx.restore();
 }
 
+function drawHitodama(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, time: number) {
+  const pulse = 0.78 + Math.sin(time * 0.022) * 0.2;
+  const flicker = 0.88 + Math.sin(time * 0.046 + x * 0.01) * 0.1;
+
+  ctx.save();
+  ctx.translate(x + size / 2, y + size / 2);
+
+  // Trailing glow behind the shot (left side)
+  ctx.globalAlpha = 0.28 * flicker;
+  ctx.fillStyle = 'rgba(210,100,255,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(size * 0.52, 0, size * 0.34, size * 0.16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Outer glow
+  ctx.globalAlpha = 0.88 * flicker;
+  ctx.shadowColor = 'rgba(190,60,255,0.95)';
+  ctx.shadowBlur = 20;
+
+  const grad = ctx.createRadialGradient(-size * 0.08, -size * 0.12, 0, 0, 0, size * 0.48);
+  grad.addColorStop(0, `rgba(255,245,255,${pulse})`);
+  grad.addColorStop(0.38, `rgba(205,90,255,${pulse * 0.9})`);
+  grad.addColorStop(1, `rgba(120,15,200,${pulse * 0.45})`);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.46, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Bright core
+  ctx.shadowBlur = 10;
+  ctx.globalAlpha = 0.96;
+  ctx.fillStyle = 'rgba(255,252,255,0.96)';
+  ctx.beginPath();
+  ctx.arc(-size * 0.1, -size * 0.12, size * 0.15, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Tail flame
+  ctx.globalAlpha = 0.58 * flicker;
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = 'rgba(170,50,240,0.72)';
+  ctx.beginPath();
+  ctx.moveTo(size * 0.38, size * 0.06);
+  ctx.quadraticCurveTo(size * 0.66, size * 0.28, size * 0.54, size * 0.52);
+  ctx.quadraticCurveTo(size * 0.42, size * 0.3, size * 0.22, size * 0.16);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
 function drawFlyingObject(ctx: CanvasRenderingContext2D, object: FlyingObject, x: number, time: number, speedMultiplier = 1) {
   const y = objectY(object, time, speedMultiplier);
+  if (object.type === 'hitodama') {
+    drawHitodama(ctx, x, y, object.size, time);
+    return;
+  }
   if (object.pattern === 'wobble') {
     drawGhost(ctx, x, y, object.size, time);
   } else if (object.type === 'candy') {
@@ -699,6 +954,9 @@ function drawRunner(
     opponentImageFailed: boolean;
     playerWidth: number;
     playerHeight: number;
+    bossImage: HTMLImageElement | null;
+    bossWidth: number;
+    bossHeight: number;
   },
 ) {
   const progress = Math.min(1, state.elapsedMs / config.durationMs);
@@ -714,6 +972,15 @@ function drawRunner(
 
   if (config.stompEnemies) {
     drawMuseumBackground(ctx, scroll, theme);
+    if (config.enemySet === 'boss') {
+      const defeatProgress = state.clearRunAtMs !== null
+        ? Math.min(1, (state.elapsedMs - state.clearRunAtMs) / 950)
+        : undefined;
+      drawMuseumDirectorBoss(
+        ctx, state.elapsedMs, defeatProgress,
+        assets.bossImage, assets.bossWidth, assets.bossHeight,
+      );
+    }
   } else if (assets.backgroundImage) {
     const aspectWidth = assets.backgroundImage.width * (PLAY_HEIGHT / assets.backgroundImage.height);
     const loopWidth = Math.max(1, assets.backgroundLoopWidth, aspectWidth);
@@ -894,15 +1161,19 @@ function RunnerActionAppComponent({
   const backgroundImageSrc = resolveAsset(config.assetsBaseUrl, config.backgroundImage);
   const playerImageSrc = resolveAsset(config.assetsBaseUrl, config.playerImage);
   const opponentImageSrc = resolveAsset(config.assetsBaseUrl, config.opponentImage);
+  const bossImageSrc = resolveAsset(config.assetsBaseUrl, config.bossImage);
   useRunnerBgm(config.assetsBaseUrl, config.bgm, config.bgmVolume);
   const backgroundAsset = useImage(backgroundImageSrc);
   const playerAsset = useImage(playerImageSrc);
   const opponentAsset = useImage(opponentImageSrc);
+  const bossAsset = useImage(bossImageSrc);
   const backgroundLoopWidth = Math.max(1, config.backgroundLoopWidth ?? WIDTH);
   const playerWidth = Math.max(1, config.playerWidth ?? 74);
   const playerHeight = Math.max(1, config.playerHeight ?? 104);
   const opponentWidth = Math.max(1, config.opponentWidth ?? 58);
   const opponentHeight = Math.max(1, config.opponentHeight ?? 84);
+  const bossWidth = Math.max(1, config.bossWidth ?? 72);
+  const bossHeight = Math.max(1, config.bossHeight ?? 120);
   const objectSpeedMultiplier = Math.max(0.1, config.objectSpeedMultiplier ?? 1);
   const stompEnemies = config.stompEnemies ?? false;
   const enemySet = config.enemySet ?? 'entrance';
@@ -986,6 +1257,9 @@ function RunnerActionAppComponent({
             opponentImageFailed: opponentAsset.failed,
             playerWidth,
             playerHeight,
+            bossImage: bossAsset.image,
+            bossWidth,
+            bossHeight,
           });
         }
         setElapsedMs(elapsed);
@@ -1017,6 +1291,9 @@ function RunnerActionAppComponent({
             opponentImageFailed: opponentAsset.failed,
             playerWidth,
             playerHeight,
+            bossImage: bossAsset.image,
+            bossWidth,
+            bossHeight,
           });
         }
         setElapsedMs(elapsed);
@@ -1136,6 +1413,9 @@ function RunnerActionAppComponent({
           opponentImageFailed: opponentAsset.failed,
           playerWidth,
           playerHeight,
+          bossImage: bossAsset.image,
+          bossWidth,
+          bossHeight,
         });
       }
 
@@ -1163,6 +1443,10 @@ function RunnerActionAppComponent({
     backgroundAsset.image,
     backgroundImageSrc,
     backgroundLoopWidth,
+    bossAsset.failed,
+    bossAsset.image,
+    bossWidth,
+    bossHeight,
     chaseCatchRate,
     chaseHitDistancePenalty,
     chaseStartDistance,

@@ -289,10 +289,10 @@ flags:
     default: false
     description: "第5章奥エリアでユイに取りついた悪霊を払った"
 
-  - id: flag_ch5_oyaji_purified
+  - id: flag_ch5_candykid_purified
     type: boolean
     default: false
-    description: "第5章奥エリアでおじさんに取りついた悪霊を払った"
+    description: "第5章奥エリアでアメ好きっ子に取りついた悪霊を払った"
 
   - id: spot_difference_result_sister_spirit
     type: string
@@ -304,12 +304,22 @@ flags:
     default: ""
     description: "第5章ユイ悪霊戦の違う絵探し結果"
 
-  - id: timing_game_result_oyaji_spirit
+  - id: timing_game_result_candy_spirit
     type: string
     default: ""
-    description: "第5章おじさん悪霊戦のタイミングゲーム結果"
+    description: "第5章アメ好きっ子悪霊戦のタイミングゲーム結果"
+
+  - id: flag_ch5_director_purified
+    type: boolean
+    default: false
+    description: "館長の悪霊が浄化された"
+
+  - id: runner_action_result_museum_final_boss
+    type: string
+    default: ""
+    description: "第5章館長ボス戦のランナー結果"
 
   - id: flag_ch5_cleared
     type: boolean
     default: false
-    description: "第5章プロトタイプをクリア済み"
+    description: "第5章クリア済み"

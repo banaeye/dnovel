@@ -915,7 +915,7 @@ scenes:
             and:
               - flag: flag_ch5_yui_purified
                 value: true
-              - flag: flag_ch5_oyaji_purified
+              - flag: flag_ch5_candykid_purified
                 value: true
           next_scene: scene_ch5_deep_core_all_purified
         - condition: null
@@ -1041,7 +1041,7 @@ scenes:
     messages:
       - text: ユイは展示室の壁にもたれて、息を整えている。
         voice_character_id: null
-      - text: 「私は大丈夫。おじさんの部屋も見て」
+      - text: 「私は大丈夫。アメ好きっ子の部屋も見て」
         voice_character_id: char_yui
     next_scene: null
   - id: scene_museum_oyaji_room_default
@@ -1054,39 +1054,41 @@ scenes:
       type: auto
       choices:
         - condition:
-            flag: flag_ch5_oyaji_purified
+            flag: flag_ch5_candykid_purified
             value: true
-          next_scene: scene_ch5_oyaji_after
+          next_scene: scene_ch5_candykid_after
         - condition: null
-          next_scene: scene_ch5_oyaji_possessed
-  - id: scene_ch5_oyaji_possessed
+          next_scene: scene_ch5_candykid_possessed
+  - id: scene_ch5_candykid_possessed
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
     background_effect: possessed
     bgm: audio/bgm/museum.mp3
     characters:
-      - character_id: char_oyaji
+      - character_id: char_candy_kid
         position: center
         expression: possessed
     messages:
-      - text: 古い看板の前で、おじさんがふらふらと揺れていた。
+      - text: アメちゃんの包み紙が並ぶ展示室で、アメ好きっ子がぐるぐると走り回っていた。
         voice_character_id: null
-      - text: 「あああ……止まらん。世界が、右へ左へ、ぐるぐるじゃ」
-        voice_character_id: char_oyaji
-      - text: 「タイミングを合わせれば、悪霊を止められるかもしれない」
+      - text: 「アメだ！アメがある！全部食べる！全部ぼくのだ！」
+        voice_character_id: char_candy_kid
+      - text: 赤い光がアメ好きっ子のまわりをせわしなく回っている。目が合わない。
+        voice_character_id: null
+      - text: （タイミングを合わせれば、止められるかもしれない）
         voice_character_id: char_hero
     next_engine:
       id: timing_game
       transition: timing
       config:
-        stageId: oyaji_spirit
-        title: おじさんのタイミング勝負
+        stageId: candy_spirit
+        title: アメ好きっ子のタイミング勝負
         rounds: 6
         targetHits: 4
-        cycleMs: 1750
+        cycleMs: 1650
         targetWidth: 0.2
-      return_scene: scene_ch5_oyaji_battle_result
-  - id: scene_ch5_oyaji_battle_result
+      return_scene: scene_ch5_candykid_battle_result
+  - id: scene_ch5_candykid_battle_result
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
     background_effect: possessed
@@ -1096,57 +1098,61 @@ scenes:
       type: auto
       choices:
         - condition:
-            flag: timing_game_result_oyaji_spirit
+            flag: timing_game_result_candy_spirit
             value: win
-          next_scene: scene_ch5_oyaji_purified
+          next_scene: scene_ch5_candykid_purified
         - condition: null
-          next_scene: scene_ch5_oyaji_retry
-  - id: scene_ch5_oyaji_retry
+          next_scene: scene_ch5_candykid_retry
+  - id: scene_ch5_candykid_retry
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
     background_effect: possessed
     bgm: audio/bgm/museum.mp3
     characters:
-      - character_id: char_oyaji
+      - character_id: char_candy_kid
         position: center
         expression: possessed
     messages:
-      - text: 赤い光がおじさんのまわりをまた回りはじめた。
+      - text: 赤い光がアメ好きっ子のまわりをまた速く回りはじめた。
         voice_character_id: null
-      - text: 「すまん、今のはわしも目が回った。もう一度頼む」
-        voice_character_id: char_oyaji
-    next_scene: scene_ch5_oyaji_possessed
-  - id: scene_ch5_oyaji_purified
+      - text: 「アメ！もっとよこせ！ぜんぶよこせ！」
+        voice_character_id: char_candy_kid
+    next_scene: scene_ch5_candykid_possessed
+  - id: scene_ch5_candykid_purified
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
     bgm: audio/bgm/museum.mp3
     flags_set:
-      - flag: flag_ch5_oyaji_purified
+      - flag: flag_ch5_candykid_purified
         value: true
     characters:
-      - character_id: char_oyaji
+      - character_id: char_candy_kid
         position: center
         expression: normal
     messages:
-      - text: タイミングが合った瞬間、赤い光がおじさんから弾け飛んだ。
+      - text: タイミングが合った瞬間、赤い光がアメ好きっ子からはじけ飛んだ。
         voice_character_id: null
-      - text: 「はあ……助かった。飲んでもおらんのに、酔うところじゃった」
-        voice_character_id: char_oyaji
-      - text: 「中心部へ戻ろう。まだ終わってない気がする」
+      - text: 「……あれ？　ケン兄ちゃん？　なんでここにいんの」
+        voice_character_id: char_candy_kid
+      - text: 「悪霊に取り憑かれてたんだよ。もう大丈夫だから」
         voice_character_id: char_hero
-  - id: scene_ch5_oyaji_after
+      - text: 「取り憑かれてたの？　なんか、すごくお腹すいた……」
+        voice_character_id: char_candy_kid
+      - text: 「中心部へ戻ろう。まだ終わってない」
+        voice_character_id: char_hero
+  - id: scene_ch5_candykid_after
     location_id: loc_museum_oyaji_room
     background: backgrounds/musium_room01.jpg
     bgm: audio/bgm/museum.mp3
     characters:
-      - character_id: char_oyaji
+      - character_id: char_candy_kid
         position: center
         expression: normal
     messages:
-      - text: おじさんは古い道具の棚のそばで、目をぱちぱちさせている。
+      - text: アメ好きっ子は展示ケースの前で、ぼうっと包み紙を眺めている。
         voice_character_id: null
-      - text: 「わしはもう大丈夫じゃ。中心部を見てきておくれ」
-        voice_character_id: char_oyaji
+      - text: 「ぼく大丈夫。でもなんかお腹すいた……アメ食べたい」
+        voice_character_id: char_candy_kid
     next_scene: null
   - id: scene_ch5_deep_core_all_purified
     location_id: loc_museum_deep_core
@@ -1155,28 +1161,204 @@ scenes:
     bgm: audio/bgm/museum.mp3
     characters: []
     messages:
-      - text: ユイとおじさんを浄化すると、奥の中心部の赤い光が一つに集まった。
+      - text: ユイとアメ好きっ子を浄化すると、奥の中心部の赤い光が一つに集まった。
         voice_character_id: null
       - text: それでも、ミュージアムのいちばん奥には、まだ細い光の道が残っている。
         voice_character_id: null
       - text: （ここまで来た。もう少しだけ、奥へ）
         voice_character_id: char_hero
-    next_scene: scene_ch5_proto_end
-  - id: scene_ch5_proto_end
+    next_scene: scene_ch5_find_staff
+  - id: scene_ch5_find_staff
     location_id: loc_museum_deep_core
     background: backgrounds/center_musium.png
     background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    characters:
+      - character_id: char_museum_staff
+        position: center
+        expression: normal
+    messages:
+      - text: 奥の細い光の道を進むと、壁際にうずくまっている人がいた。
+        voice_character_id: null
+      - text: 受付さんだった。
+        voice_character_id: null
+      - text: 「受付さん！　大丈夫ですか」
+        voice_character_id: char_hero
+      - text: 「……ケンさん？　来てくれたんですか」
+        voice_character_id: char_museum_staff
+      - text: 「館長が……急に様子がおかしくなって、私を奥に閉じ込めてしまって」
+        voice_character_id: char_museum_staff
+      - text: 「館長が？」
+        voice_character_id: char_hero
+      - text: 「ミュージアムに何かが入り込んでいるんです。館長はその奥にいる。でも今の館長は……」
+        voice_character_id: char_museum_staff
+      - text: 受付さんの声がふるえた。
+        voice_character_id: null
+      - text: 「ケンさんなら、きっと止められます。お願いします」
+        voice_character_id: char_museum_staff
+      - text: （館長……受付さんを助けにきたのに、こんな場所まで来てしまった）
+        voice_character_id: char_hero
+      - text: 「分かりました。行ってきます」
+        voice_character_id: char_hero
+    next_scene: scene_ch5_director_appears
+  - id: scene_ch5_director_appears
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 赤い光が一点に集まったとき、ミュージアムのいちばん奥から、重く沈んだ声が響いた。
+        voice_character_id: null
+      - text: 「……よくぞ、ここまで来た」
+        voice_character_id: char_museum_director
+        characters:
+          - character_id: char_museum_director
+            position: center
+            expression: possessed
+      - text: 館長だった。足が床から浮いており、体のまわりを赤い光が激しく渦巻いている。
+        voice_character_id: null
+      - text: 「このミュージアムは、悪霊のものだ。子ども一人に止めることなど、できはせん」
+        voice_character_id: char_museum_director
+      - text: （受付さんを助けに来たのに……館長まで取り憑かれてる）
+        voice_character_id: char_hero
+      - text: 「来い。最後の試練を受けてみよ！」
+        voice_character_id: char_museum_director
+    next_scene: scene_ch5_final_run
+  - id: scene_ch5_final_run
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    messages: []
+    next_engine:
+      id: runner_action
+      config:
+        stageId: museum_final_boss
+        durationMs: 28000
+        stompEnemies: true
+        enemySet: boss
+        lives: 4
+        bgm: synth:runner
+        bgmVolume: 0.26
+        objectSpeedMultiplier: 1.1
+        playerImage: runner/hero.png
+        playerWidth: 74
+        playerHeight: 104
+        name: 館長との最終決戦
+        bossImage: runner/kancho2.png
+        bossWidth: 160
+        bossHeight: 160
+        theme:
+          sky: "#1a0a14"
+          ground: "#2e1c26"
+          accent: "#ff4060"
+      return_scene: scene_ch5_final_run_result
+  - id: scene_ch5_final_run_result
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: runner_action_result_museum_final_boss
+            value: complete
+          next_scene: scene_ch5_final_run_clear
+        - condition: null
+          next_scene: scene_ch5_final_run_retry
+  - id: scene_ch5_final_run_retry
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 悪霊の群れに押し返され、ケンは中心部へ転がり出た。
+        voice_character_id: null
+      - text: 「まだか……もう一度だ！」
+        voice_character_id: char_museum_director
+    next_scene: scene_ch5_final_run
+  - id: scene_ch5_final_run_clear
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    background_effect: possessed
+    bgm: audio/bgm/museum.mp3
+    flags_set:
+      - flag: flag_ch5_director_purified
+        value: true
+    characters: []
+    messages:
+      - text: 最後の悪霊を踏み越えたとき、館長の体を包む赤い光が爆ぜた。
+        voice_character_id: null
+      - text: 「ぐ……！　こんな子どもに……」
+        voice_character_id: char_museum_director
+      - text: 赤い光が消えるにつれ、館長の足がゆっくりと床に下りていく。
+        voice_character_id: null
+    next_scene: scene_ch5_director_awakening
+  - id: scene_ch5_director_awakening
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 「……ここは。わたしは何を……」
+        voice_character_id: char_museum_director
+      - text: 「気を失っていたようです。あなたが助けてくれたのかね、坊や」
+        voice_character_id: char_museum_director
+      - text: 「はい……館長さん、大丈夫ですか」
+        voice_character_id: char_hero
+      - text: 「ふう。ミュージアムの悪霊を、ひとりで片付けるとは。大したものだ」
+        voice_character_id: char_museum_director
+      - text: ミュージアム中の赤い光が、一斉に消えた。廊下の向こうがにわかに明るくなる。
+        voice_character_id: null
+      - text: 「ケンさんっ！　ケンさん、無事ですか？！」
+        voice_character_id: char_museum_part_timer
+      - text: バイトさんが駆けてくる声がした。受付さんも一緒だった。
+        voice_character_id: null
+        characters:
+          - character_id: char_museum_staff
+            position: right
+            expression: normal
+      - text: 「ケンさんが来てくれたから、助かった。本当にありがとう」
+        voice_character_id: char_museum_staff
+      - text: （受付さんも、バイトさんも……よかった）
+        voice_character_id: char_hero
+      - text: ユイとアメ好きっ子も、廊下を歩いてきた。
+        voice_character_id: null
+        characters:
+          - character_id: char_yui
+            position: left
+            expression: normal
+          - character_id: char_museum_staff
+            position: right
+            expression: normal
+      - text: 「ケン、終わった？」
+        voice_character_id: char_yui
+      - text: 「うん。終わったよ」
+        voice_character_id: char_hero
+    next_scene: scene_ch5_final_ending
+  - id: scene_ch5_final_ending
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
     bgm: audio/bgm/ending.mp3
     ending_title: 第5章　美術館の迷宮
     flags_set:
       - flag: flag_ch5_cleared
         value: true
+    characters: []
     messages:
-      - text: こうして、奥の中心部にいた二人も、悪霊から解き放たれた。
+      - text: ミュージアムは、ふだんの静けさを取り戻した。
         voice_character_id: null
-      - text: でも、さらに奥へ続く細い光は、まだ消えていない。
+      - text: 壁の赤い光は消え、展示ケースは元の場所に収まり、廊下には普通の照明が灯っていた。
         voice_character_id: null
-      - text: （次は、あの光の先だ）
+      - text: （悪霊は、全部倒した。ユイも、アメ好きっ子も、館長も、みんな助けられた）
+        voice_character_id: char_hero
+      - text: ケンは廊下に腰を下ろして、しばらくその感覚を味わっていた。
+        voice_character_id: null
+      - text: （赤羽のみんなが、一緒にいてくれた。そのおかげで、ここまで来れた）
         voice_character_id: char_hero
     game_end: true
   - id: scene_station_default

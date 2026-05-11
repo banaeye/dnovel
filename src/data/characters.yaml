@@ -110,3 +110,12 @@ characters:
     sprites:
       normal: characters/college_student/daigakusei_normal.png
       talking: characters/college_student/daigakusei_normal.png
+
+  - id: char_museum_director
+    name: "館長"
+    name_flag: null
+    voicevox_speaker_id: 81
+    y_offset: -300
+    sprites:
+      normal: characters/kancho/kancho.png
+      talking: characters/kancho/kancho_talking.png

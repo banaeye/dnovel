@@ -11,15 +11,22 @@ locations:
     connections:
       - location_id: loc_station
         label: "赤羽駅前へ"
-        condition: null
+        condition:
+          flag: flag_chapter
+          value: 5
+          negate: true
       - location_id: loc_slope
         label: "団地への坂へ"
         condition:
-          or:
-            - flag: flag_visited_slope
-              value: true
+          and:
+            - or:
+                - flag: flag_visited_slope
+                  value: true
+                - flag: flag_chapter
+                  value: 4
             - flag: flag_chapter
-              value: 4
+              value: 5
+              negate: true
       - location_id: loc_museum
         label: "団地のミュージアムへ"
         condition:
@@ -276,7 +283,7 @@ locations:
           flag: flag_chapter
           value: 5
       - location_id: loc_museum_oyaji_room
-        label: "「古い道具の部屋」へ"
+        label: "「アメちゃん展示室」へ"
         condition:
           flag: flag_chapter
           value: 5
@@ -298,8 +305,8 @@ locations:
     entry_scene: scene_museum_yui_room_default
 
   - id: loc_museum_oyaji_room
-    name: "古い道具の部屋"
-    description: "昔の道具や看板が並ぶ展示室。床の赤い光が妙に速い。"
+    name: "アメちゃん展示室"
+    description: "懐かしいアメ菓子の包み紙や道具が並ぶ展示室。床の赤い光が妙に速い。"
     background_default: backgrounds/musium_room01.jpg
     default_commands:
       - cmd_move
