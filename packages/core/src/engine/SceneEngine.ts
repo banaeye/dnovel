@@ -1,5 +1,5 @@
 import type { GameState, GamePhase } from '../types/gameState';
-import type { Scene } from '../types/scene';
+import type { CharacterDisplay, Scene } from '../types/scene';
 import type { MasterData } from '../loaders/dataLoader';
 import { applyFlagsSet } from './FlagEngine';
 import { tryGiveItems, removeItem } from './ItemEngine';
@@ -158,8 +158,20 @@ function goBack(state: GameState, masterData: MasterData): GameState {
     currentMessageIndex: 0,
     sceneHistory: history,
     phase,
-    currentCharacters: [],
+    currentCharacters: getSceneCommandCharacters(prevScene),
   };
+}
+
+function getSceneCommandCharacters(scene: Scene | undefined): CharacterDisplay[] {
+  if (!scene) return [];
+
+  let characters = scene.characters ?? [];
+  for (const message of scene.messages) {
+    if (message.characters !== undefined) {
+      characters = message.characters;
+    }
+  }
+  return characters;
 }
 
 function toCommandPhase(
