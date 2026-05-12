@@ -2,7 +2,7 @@ import type { MazeState, BattleState } from './types.js';
 import { randomEnemy, bossEnemy } from './enemies.js';
 
 export function startBattle(state: MazeState): MazeState {
-  const enemy = randomEnemy(state.mapId);
+  const enemy = randomEnemy(state.mapId, state.floor);
   if (!enemy) return state;
   const battle: BattleState = {
     enemy,

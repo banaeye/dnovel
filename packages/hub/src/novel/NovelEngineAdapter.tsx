@@ -48,6 +48,20 @@ function NovelEngineComponent({
 
       // playerCharacterId / opponentCharacterId をキャラクター定義から自動解決
       const specConfig = (spec.config as Record<string, unknown>) ?? {};
+
+      // 迷路マップ ID が分かれば、以前の探索済みセットをフラグから復元する
+      const mapId = typeof specConfig.map === 'string' ? specConfig.map : null;
+      const parseJsonArray = (raw: unknown): string[] | undefined => {
+        if (typeof raw !== 'string' || !raw) return undefined;
+        try { return JSON.parse(raw) as string[]; } catch { return undefined; }
+      };
+      const savedVisited  = mapId ? parseJsonArray(flags[`maze_visited_${mapId}`])  : undefined;
+      const savedTriggered = mapId ? parseJsonArray(flags[`maze_triggered_${mapId}`]) : undefined;
+      const savedOpenedSeals = mapId ? parseJsonArray(flags[`maze_opened_seals_${mapId}`]) : undefined;
+      const savedOpenedTreasures = mapId ? parseJsonArray(flags[`maze_opened_treasures_${mapId}`]) : undefined;
+      const savedFloor = mapId && typeof flags[`maze_floor_${mapId}`] === 'number'
+        ? flags[`maze_floor_${mapId}`] as number
+        : undefined;
       const resolvedCharFields: Record<string, unknown> = {};
       const resolveChar = (charId: unknown, prefix: 'player' | 'opponent') => {
         if (typeof charId !== 'string') return;
@@ -79,6 +93,12 @@ function NovelEngineComponent({
           assetsBaseUrl: config.assetsBaseUrl,
           items: itemDefs,
           ...resolvedCharFields,          // キャラ定義から解決した値（YAMLで明示すれば上書き可）
+          // 以前の探索済みセットを自動復元（YAML側で明示すれば上書き可）
+          ...(savedFloor !== undefined ? { initialFloor: savedFloor } : {}),
+          ...(savedVisited   ? { initialVisited:         savedVisited   } : {}),
+          ...(savedTriggered ? { initialTriggeredEvents: savedTriggered } : {}),
+          ...(savedOpenedSeals ? { initialOpenedSeals: savedOpenedSeals } : {}),
+          ...(savedOpenedTreasures ? { initialOpenedTreasures: savedOpenedTreasures } : {}),
           ...(spec.config as object ?? {}),
           _novelReturn,
         },

@@ -76,15 +76,26 @@ locations:
         condition:
           flag: flag_chapter
           value: 4
+      - location_id: loc_slope
+        label: "団地への坂へ"
+        condition:
+          flag: flag_chapter
+          value: 6
       - location_id: loc_station_end
         label: "駅の端へ"
         condition:
-          has_item: item_gummy_2
+          or:
+            - has_item: item_gummy_2
+            - flag: flag_chapter
+              value: 6
       - location_id: loc_park
         label: "赤羽公園へ"
         condition:
-          flag: flag_ch4_detective_clue4
-          value: true
+          or:
+            - flag: flag_ch4_detective_clue4
+              value: true
+            - flag: flag_chapter
+              value: 6
     entry_scene: scene_station_default
 
   - id: loc_coderdojo
@@ -113,6 +124,8 @@ locations:
                   value: true
             - flag: flag_chapter
               value: 4
+            - flag: flag_chapter
+              value: 6
     entry_scene: scene_coderdojo_default
 
   - id: loc_ichibangai
@@ -335,8 +348,11 @@ locations:
       - location_id: loc_station
         label: "駅前へ下る"
         condition:
-          flag: flag_chapter
-          value: 4
+          or:
+            - flag: flag_chapter
+              value: 4
+            - flag: flag_chapter
+              value: 6
       - location_id: loc_danchi
         label: "団地へ上る"
         condition: null

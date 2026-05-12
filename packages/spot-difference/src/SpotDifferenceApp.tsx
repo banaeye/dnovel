@@ -36,25 +36,61 @@ const EFFECT_STYLES = `
   to { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
 }
 @keyframes sdCorrectBurst {
-  0% { opacity: 0; transform: scale(0.55); }
-  35% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.55); }
+  0%   { opacity: 0; transform: scale(0.3); filter: brightness(3); }
+  20%  { opacity: 1; transform: scale(1.1); filter: brightness(2); }
+  55%  { opacity: 0.85; transform: scale(2.2); filter: brightness(1.3); }
+  100% { opacity: 0; transform: scale(3.4); filter: brightness(1); }
+}
+@keyframes sdCorrectRing {
+  0%   { opacity: 0.95; transform: scale(0.25); border-width: 10px; }
+  55%  { opacity: 0.55; transform: scale(2.0); border-width: 4px; }
+  100% { opacity: 0;    transform: scale(3.2); border-width: 1px; }
+}
+@keyframes sdCorrectSparkle {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0) rotate(0deg); }
+  25%  { opacity: 1; transform: translate(-50%,-50%) scale(1.2) rotate(60deg); }
+  100% { opacity: 0; transform: translate(var(--sx),var(--sy)) scale(0.15) rotate(220deg); }
+}
+@keyframes sdCorrectScreen {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.52; }
+  100% { opacity: 0; }
 }
 @keyframes sdPenaltyFloat {
-  0% { opacity: 0; transform: translateY(12px) scale(0.9); }
-  18% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-38px) scale(1.04); }
+  0%   { opacity: 0; transform: translateY(8px) scale(0.75); }
+  14%  { opacity: 1; transform: translateY(-4px) scale(1.15); }
+  50%  { opacity: 1; transform: translateY(-12px) scale(1); }
+  100% { opacity: 0; transform: translateY(-58px) scale(0.9); }
 }
 @keyframes sdWrongShake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  45% { transform: translateX(8px); }
-  70% { transform: translateX(-5px); }
+  0%   { transform: translateX(0) rotate(0deg); }
+  10%  { transform: translateX(-18px) rotate(-4deg); }
+  25%  { transform: translateX(18px) rotate(4deg); }
+  40%  { transform: translateX(-15px) rotate(-3deg); }
+  57%  { transform: translateX(14px) rotate(2.5deg); }
+  72%  { transform: translateX(-9px) rotate(-1.5deg); }
+  86%  { transform: translateX(6px) rotate(0.8deg); }
+  100% { transform: translateX(0) rotate(0deg); }
 }
-.sd-cell-in { animation: sdProblemIn 360ms ease both; }
-.sd-correct-burst { animation: sdCorrectBurst 620ms ease-out both; }
-.sd-penalty-float { animation: sdPenaltyFloat 820ms ease-out both; }
-.sd-wrong-shake { animation: sdWrongShake 300ms ease both; }
+@keyframes sdWrongCellFlash {
+  0%   { opacity: 0; }
+  18%  { opacity: 0.88; }
+  100% { opacity: 0; }
+}
+@keyframes sdWrongScreen {
+  0%   { opacity: 0; }
+  16%  { opacity: 0.46; }
+  100% { opacity: 0; }
+}
+.sd-cell-in        { animation: sdProblemIn 360ms ease both; }
+.sd-correct-burst  { animation: sdCorrectBurst 780ms ease-out both; }
+.sd-correct-ring   { animation: sdCorrectRing  700ms ease-out both; }
+.sd-correct-screen { animation: sdCorrectScreen 680ms ease-out both; }
+.sd-sparkle        { animation: sdCorrectSparkle 640ms ease-out both; }
+.sd-penalty-float  { animation: sdPenaltyFloat 920ms ease-out both; }
+.sd-wrong-shake    { animation: sdWrongShake 440ms ease both; }
+.sd-wrong-flash    { animation: sdWrongCellFlash 480ms ease-out both; }
+.sd-wrong-screen   { animation: sdWrongScreen 520ms ease-out both; }
 `;
 
 function useGameScale() {
@@ -116,6 +152,7 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
   const [misses, setMisses] = useState(0);
   const [penaltyMs, setPenaltyMs] = useState(0);
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; index: number; seq: number } | null>(null);
+  const [screenFlash, setScreenFlash] = useState<{ type: 'correct' | 'wrong'; seq: number } | null>(null);
   const [finished, setFinished] = useState<'win' | 'lose' | null>(null);
   const problem = useMemo(() => makeProblem(round, gridSize, images), [round, gridSize, images]);
 
@@ -156,7 +193,9 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
     if (finished || feedback) return;
     if (idx === problem.oddIndex) {
       const nextScore = score + 1;
-      setFeedback({ type: 'correct', index: idx, seq: Date.now() });
+      const seq = Date.now();
+      setFeedback({ type: 'correct', index: idx, seq });
+      setScreenFlash({ type: 'correct', seq });
       window.setTimeout(() => {
         setScore(nextScore);
         setFeedback(null);
@@ -165,12 +204,14 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
         } else {
           setRound((r) => r + 1);
         }
-      }, 680);
+      }, 780);
     } else {
-      setFeedback({ type: 'wrong', index: idx, seq: Date.now() });
+      const seq = Date.now();
+      setFeedback({ type: 'wrong', index: idx, seq });
+      setScreenFlash({ type: 'wrong', seq });
       setMisses((m) => m + 1);
       setPenaltyMs((ms) => ms + timePenaltyMs);
-      window.setTimeout(() => setFeedback(null), 540);
+      window.setTimeout(() => setFeedback(null), 580);
     }
   }, [feedback, finished, problem.oddIndex, score, targetCount, timePenaltyMs]);
 
@@ -185,6 +226,24 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
       <div style={{ width: W, height: H, transform: `scale(${scale})`, transformOrigin: 'center center', position: 'relative', overflow: 'hidden', fontFamily: FONT, background: 'linear-gradient(180deg,#16151d,#2d2632 55%,#101018)' }}>
         <style>{EFFECT_STYLES}</style>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 25%, rgba(255,90,110,0.24), transparent 44%)' }} />
+
+        {/* 画面フラッシュ オーバーレイ */}
+        {screenFlash && (
+          <div
+            key={screenFlash.seq}
+            className={screenFlash.type === 'correct' ? 'sd-correct-screen' : 'sd-wrong-screen'}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: screenFlash.type === 'correct'
+                ? 'radial-gradient(ellipse at 50% 50%, rgba(255,240,100,0.82), rgba(255,180,60,0.5) 45%, transparent 72%)'
+                : 'radial-gradient(ellipse at 50% 50%, rgba(255,30,30,0.78), rgba(180,0,0,0.48) 48%, transparent 72%)',
+              pointerEvents: 'none',
+              zIndex: 40,
+            }}
+          />
+        )}
+
         <div style={{ position: 'absolute', top: 24, left: 28, right: 28, height: 70, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(0,0,0,0.34)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', color: '#f7f2dc' }}>
           <span style={{ fontSize: 20 }}>{config.title ?? '違う絵探し'}</span>
           <span>残り {Math.ceil(remainingMs / 1000)} 秒</span>
@@ -229,36 +288,90 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
               }}
             >
               {imageMode ? <span style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.18))' }} /> : (odd ? problem.odd : problem.base)}
-              {isFeedbackTarget && feedback?.type === 'correct' && (
+              {isFeedbackTarget && feedback?.type === 'correct' && (<>
+                {/* メイン爆発 */}
                 <span
                   className="sd-correct-burst"
                   style={{
                     position: 'absolute',
-                    inset: -18,
+                    inset: -24,
                     borderRadius: 999,
-                    background: 'radial-gradient(circle, rgba(255,247,180,0.95), rgba(255,120,165,0.42) 45%, transparent 70%)',
+                    background: 'radial-gradient(circle, rgba(255,252,180,1) 0%, rgba(255,200,60,0.85) 30%, rgba(255,100,160,0.5) 55%, transparent 72%)',
+                    boxShadow: '0 0 32px rgba(255,230,80,0.9), 0 0 64px rgba(255,150,50,0.5)',
                     pointerEvents: 'none',
                   }}
                 />
-              )}
-              {isFeedbackTarget && feedback?.type === 'wrong' && (
+                {/* 拡散リング */}
+                <span
+                  className="sd-correct-ring"
+                  style={{
+                    position: 'absolute',
+                    inset: -16,
+                    borderRadius: 999,
+                    border: '8px solid rgba(255,230,80,0.9)',
+                    boxShadow: '0 0 18px rgba(255,200,60,0.8)',
+                    pointerEvents: 'none',
+                  }}
+                />
+                {/* スパークル 6本 */}
+                {[0, 60, 120, 180, 240, 300].map((deg) => {
+                  const rad = (deg * Math.PI) / 180;
+                  const dist = cell * 1.1;
+                  return (
+                    <span
+                      key={deg}
+                      className="sd-sparkle"
+                      style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        width: 10,
+                        height: 10,
+                        borderRadius: 2,
+                        background: deg % 120 === 0 ? '#fff9c4' : '#ffd54f',
+                        boxShadow: '0 0 8px rgba(255,220,60,1)',
+                        pointerEvents: 'none',
+                        // CSS変数でアニメーション終点を渡す
+                        ['--sx' as string]: `calc(-50% + ${Math.cos(rad) * dist}px)`,
+                        ['--sy' as string]: `calc(-50% + ${Math.sin(rad) * dist}px)`,
+                        animationDelay: `${deg * 0.5}ms`,
+                      }}
+                    />
+                  );
+                })}
+              </>)}
+              {isFeedbackTarget && feedback?.type === 'wrong' && (<>
+                {/* セル赤フラッシュ */}
+                <span
+                  className="sd-wrong-flash"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 6,
+                    background: 'rgba(220,30,30,0.82)',
+                    boxShadow: 'inset 0 0 18px rgba(255,60,60,0.9)',
+                    pointerEvents: 'none',
+                  }}
+                />
+                {/* ペナルティテキスト */}
                 <span
                   className="sd-penalty-float"
                   style={{
                     position: 'absolute',
-                    left: -8,
-                    right: -8,
-                    top: -26,
-                    color: '#ff9aa9',
-                    fontSize: 18,
-                    fontWeight: 800,
-                    textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                    left: -14,
+                    right: -14,
+                    top: -36,
+                    color: '#ff4060',
+                    fontSize: 22,
+                    fontWeight: 900,
+                    textShadow: '0 0 12px rgba(255,60,60,0.95), 0 2px 10px rgba(0,0,0,0.9)',
                     pointerEvents: 'none',
+                    letterSpacing: '0.04em',
                   }}
                 >
-                  -{Math.ceil(timePenaltyMs / 1000)}秒
+                  -{Math.ceil(timePenaltyMs / 1000)}秒！
                 </span>
-              )}
+              </>)}
             </button>
           );
         })}

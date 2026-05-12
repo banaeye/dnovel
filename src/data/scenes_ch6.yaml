@@ -1,0 +1,1106 @@
+scenes:
+  - id: scene_ch6_start
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_chapter
+        value: 6
+      - flag: flag_chapter1_cleared
+        value: true
+      - flag: flag_ch2_cleared
+        value: true
+      - flag: flag_ch3_cleared
+        value: true
+      - flag: flag_ch4_cleared
+        value: true
+      - flag: flag_ch5_cleared
+        value: true
+      - flag: flag_station_explored
+        value: true
+      - flag: flag_visited_slope
+        value: true
+      - flag: flag_ch3_museum_unlocked
+        value: true
+    messages:
+      - text: 第6章
+        voice_character_id: null
+    next_scene: scene_ch6_danchi_phone
+
+  - id: scene_ch6_danchi_phone
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    flags_set:
+      - flag: flag_ch6_director_call
+        value: true
+    characters:
+      - character_id: char_hero
+        position: left
+        expression: normal
+    messages:
+      - text: ミュージアムの迷宮が消えた、次の日の朝だった。
+        voice_character_id: null
+      - text: 団地の広場に出ると、ケンのスマホが小さく震えた。
+        voice_character_id: null
+      - text: 画面には、団地のミュージアムの番号が出ていた。
+        voice_character_id: null
+      - text: 「もしもし、ケンです」
+        voice_character_id: char_hero
+      - text: 「朝早くすまない。昨日は本当に助かった」
+        voice_character_id: char_museum_director
+      - text: 館長の声は落ち着いていたけれど、少しだけ硬かった。
+        voice_character_id: null
+      - text: 「実は、また一番街の様子がおかしい。昨日の悪霊の残りとは、比べものにならない気配がある」
+        voice_character_id: char_museum_director
+      - text: 「一番街……ですか」
+        voice_character_id: char_hero
+      - text: （また、あの場所だ）
+        voice_character_id: char_hero
+      - text: 「詳しい話をしたい。ミュージアムまで来られるかね」
+        voice_character_id: char_museum_director
+      - text: 「はい。行きます」
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_danchi_morning
+    location_id: loc_danchi
+    background: backgrounds/danchimae.jpg
+    bgm: audio/bgm/danchi.mp3
+    characters: []
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch6_director_call
+            value: true
+          next_scene: null
+        - condition: null
+          next_scene: scene_ch6_danchi_phone
+
+  - id: scene_museum_default
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch6_director_briefed
+            value: true
+          next_scene: scene_ch6_museum_after_briefing
+        - condition: null
+          next_scene: scene_ch6_museum_briefing
+
+  - id: scene_ch6_museum_briefing
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    flags_set:
+      - flag: flag_ch6_director_briefed
+        value: true
+    item_give:
+      - item_id: item_labyrinth_bookmark
+        condition: null
+    characters:
+      - character_id: char_museum_director
+        position: center
+        expression: normal
+    messages:
+      - text: ミュージアムのロビーには、まだ昨日の片付けの跡が残っていた。
+        voice_character_id: null
+      - text: 館長は展示ケースの前で、古い地図を広げて待っていた。
+        voice_character_id: null
+      - text: 「来てくれてありがとう。感じるかね。昨日とは、気配の向きが違う」
+        voice_character_id: char_museum_director
+      - text: 「一番街から来ているんですか」
+        voice_character_id: char_hero
+      - text: 「ああ。かつてない大きな怨霊だ。商店街そのものを、迷宮に変えようとしている」
+        voice_character_id: char_museum_director
+      - text: 館長は地図の端に挟んでいた、色あせたしおりを差し出した。
+        voice_character_id: null
+      - text: 「これは迷宮のしおりだ。迷路の中で使えば、一度外へ出られる。戻るときは、しおりを挟んだ場所から再開できる」
+        voice_character_id: char_museum_director
+      - text: 「そんなものが……」
+        voice_character_id: char_hero
+      - text: 「昨日の礼だ。君なら、使いどころを間違えない」
+        voice_character_id: char_museum_director
+      - text: 迷宮のしおりを受け取った。
+        voice_character_id: null
+      - text: 「一番街へ行く前に、仲間にも声をかけるといい。ひとりで抱えすぎないことだ」
+        voice_character_id: char_museum_director
+      - text: （ユイにも、知らせた方がいい）
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_ch6_museum_after_briefing
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    characters:
+      - character_id: char_museum_director
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_museum_director
+        scene_id: scene_ch6_talk_director
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition: null
+          next_scene: null
+
+  - id: scene_ch6_talk_director
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            has_item: item_labyrinth_bookmark
+            negate: true
+          next_scene: scene_ch6_talk_director_bookmark_refill
+        - condition: null
+          next_scene: scene_ch6_talk_director_bookmark_has
+
+  - id: scene_ch6_talk_director_bookmark_refill
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    item_give:
+      - item_id: item_labyrinth_bookmark
+        condition: null
+    characters:
+      - character_id: char_museum_director
+        position: center
+        expression: talking
+    messages:
+      - text: 「迷宮のしおりを使ったのだね。あれは一度きりの道具だ」
+        voice_character_id: char_museum_director
+      - text: 「はい。外へ出られました。でも、消えてしまって」
+        voice_character_id: char_hero
+      - text: 「では、もう一枚渡しておこう。無理をせず、必要な時は戻ってきなさい」
+        voice_character_id: char_museum_director
+      - text: 迷宮のしおりを受け取った。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_ch6_talk_director_bookmark_has
+    location_id: loc_museum
+    background: backgrounds/museum.jpg
+    bgm: audio/bgm/museum.mp3
+    characters:
+      - character_id: char_museum_director
+        position: center
+        expression: talking
+    messages:
+      - text: 「一番街の気配は、昨日の悪霊より深い。迷宮のしおりは一度使うと消える。使ったら、またここへ来なさい」
+        voice_character_id: char_museum_director
+      - text: 「はい。ありがとうございます」
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_coderdojo_default
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch6_coderdojo_yui_met
+            value: true
+          next_scene: scene_ch6_coderdojo_after_yui
+        - condition:
+            flag: flag_ch6_director_briefed
+            value: true
+          next_scene: scene_ch6_coderdojo_yui
+        - condition: null
+          next_scene: scene_ch6_coderdojo_quiet
+
+  - id: scene_ch6_coderdojo_quiet
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
+    characters: []
+    messages:
+      - text: CoderDojoの部屋は静かだった。今日はまだ誰も来ていない。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_ch6_coderdojo_yui
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
+    flags_set:
+      - flag: flag_ch6_coderdojo_yui_met
+        value: true
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: CoderDojoのドアを開けると、いつもの机がきれいに並んでいた。
+        voice_character_id: null
+      - text: けれど、田中メンターの姿はない。
+        voice_character_id: null
+      - text: 「ケン」
+        voice_character_id: char_yui
+      - text: 奥の席に、ユイがひとりで座っていた。
+        voice_character_id: null
+      - text: 「ユイ。今日、メンター来てないの？」
+        voice_character_id: char_hero
+      - text: 「うん。今日は急に来られなくなったって。さっき連絡があった」
+        voice_character_id: char_yui
+      - text: 「そっか……」
+        voice_character_id: char_hero
+      - text: 「一番街のこと？」
+        voice_character_id: char_yui
+      - text: 「うん。館長さんが、今までで一番大きい怨霊だって」
+        voice_character_id: char_hero
+      - text: ユイは少しだけ黙って、それから立ち上がった。
+        voice_character_id: null
+      - text: 「……わかった。一緒に行く」
+        voice_character_id: char_yui
+      - text: 「危ないかもしれないよ」
+        voice_character_id: char_hero
+      - text: 「だから行く。ケンを一人にしない」
+        voice_character_id: char_yui
+      - text: （ユイがいる。それだけで、少し息がしやすくなる）
+        voice_character_id: char_hero
+    next_scene: scene_ch6_coderdojo_after_yui
+
+  - id: scene_ch6_coderdojo_after_yui
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_ch6_talk_yui_coderdojo
+    commands:
+      - cmd_examine
+      - cmd_talk
+      - cmd_move
+      - cmd_inventory
+    clickable_areas:
+      - id: area_ch6_coderdojo_juice
+        x: 89
+        "y": 394
+        width: 52
+        height: 70
+        label: ジュース
+        next_scene: scene_ch6_coderdojo_examine_juice
+        condition: null
+      - id: area_ch6_coderdojo_milktea
+        x: 704
+        "y": 390
+        width: 87
+        height: 69
+        label: ティー
+        next_scene: scene_ch6_coderdojo_examine_milktea
+        condition: null
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition: null
+          next_scene: null
+    child_scenes:
+      - id: scene_ch6_coderdojo_examine_juice
+        messages: []
+        branches:
+          type: auto
+          choices:
+            - condition:
+                has_item: item_drink
+                negate: true
+              next_scene: scene_ch6_coderdojo_juice_get
+            - condition: null
+              next_scene: scene_ch6_coderdojo_juice_have
+        child_scenes:
+          - id: scene_ch6_coderdojo_juice_get
+            messages:
+              - text: 机の隅に、ジュースが置いてある。
+                voice_character_id: null
+              - text: もらっていいかな。
+                voice_character_id: char_hero
+              - text: ポケットに入れた。
+                voice_character_id: null
+            item_give:
+              - item_id: item_drink
+                condition: null
+            next_scene: null
+          - id: scene_ch6_coderdojo_juice_have
+            messages:
+              - text: 机の隅にジュースがある。もう持っているからいいか。
+                voice_character_id: char_hero
+            next_scene: null
+      - id: scene_ch6_coderdojo_examine_milktea
+        messages: []
+        branches:
+          type: auto
+          choices:
+            - condition:
+                has_item: item_milktea
+                negate: true
+              next_scene: scene_ch6_coderdojo_milktea_get
+            - condition: null
+              next_scene: scene_ch6_coderdojo_milktea_have
+        child_scenes:
+          - id: scene_ch6_coderdojo_milktea_get
+            messages:
+              - text: ペットボトルのミルクティーが置いてある。おいしそう。
+                voice_character_id: null
+              - text: ラッキー。もらっとこう。
+                voice_character_id: char_hero
+            item_give:
+              - item_id: item_milktea
+                condition: null
+            next_scene: null
+          - id: scene_ch6_coderdojo_milktea_have
+            messages:
+              - text: ミルクティーがある。もう持っているからいいか。
+                voice_character_id: char_hero
+            next_scene: null
+
+  - id: scene_ch6_talk_yui_coderdojo
+    location_id: loc_coderdojo
+    background: backgrounds/coderdojo.jpg
+    bgm: audio/bgm/coderdojo.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: talking
+    messages:
+      - text: 「メンターがいないのは不安だけど、館長さんのしおりがあるんでしょ」
+        voice_character_id: char_yui
+      - text: 「うん。迷路から出て、同じ場所から戻れるって」
+        voice_character_id: char_hero
+      - text: 「なら、無理しすぎないで行こう」
+        voice_character_id: char_yui
+    next_scene: null
+
+  - id: scene_ichibangai_default
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            flag: flag_ch6_coderdojo_yui_met
+            value: true
+          next_scene: scene_ch6_ichibangai_arrival
+        - condition:
+            flag: flag_ch6_director_briefed
+            value: true
+          next_scene: scene_ch6_ichibangai_need_yui
+        - condition: null
+          next_scene: scene_ch6_ichibangai_quiet
+
+  - id: scene_ch6_ichibangai_quiet
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: 一番街の入口は、まだ普通の商店街に見えた。
+        voice_character_id: null
+      - text: でも、どこか空気が重い。先に館長の話を聞いた方がよさそうだ。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_ch6_ichibangai_need_yui
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters: []
+    messages:
+      - text: 一番街のゲートの向こうから、冷たい風が吹き出していた。
+        voice_character_id: null
+      - text: （ひとりで入るのは、違う気がする）
+        voice_character_id: char_hero
+      - text: ユイに声をかけてから来よう。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_ch6_ichibangai_arrival
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    flags_set:
+      - flag: flag_ch6_maze_seen
+        value: true
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: ユイと二人で一番街の入口に立った。
+        voice_character_id: null
+      - text: いつものアーケードは、もう見えなかった。
+        voice_character_id: null
+      - text: ゲートの奥に、黒い壁が何重にも折り重なっている。
+        voice_character_id: null
+      - text: それは建物ではなく、巨大な迷宮だった。
+        voice_character_id: null
+      - text: 「……口を開けてるみたい」
+        voice_character_id: char_yui
+      - text: 「うん」
+        voice_character_id: char_hero
+      - text: 迷宮の奥から、低い息のような音がした。
+        voice_character_id: null
+      - text: （館長さんの言っていた、大きな怨霊……この奥にいる）
+        voice_character_id: char_hero
+    next_scene: scene_ch6_ichibangai_challenge
+
+  - id: scene_ch6_ichibangai_challenge
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    talkable:
+      - character_id: char_yui
+        scene_id: scene_ch6_talk_yui_maze_gate
+    messages:
+      - text: 「怖かったら少し休んでもいいよ。ケンが決めて」
+        voice_character_id: char_yui
+    branches:
+      type: choice
+      choices:
+        - label: 迷宮へ入る
+          condition:
+            has_item: item_labyrinth_bookmark
+          next_scene: scene_ch6_maze_enter
+        - label: 迷宮のしおりを取りに戻る
+          condition:
+            has_item: item_labyrinth_bookmark
+            negate: true
+          next_scene: scene_ch6_maze_no_bookmark
+        - label: 少し準備してから来る
+          condition: null
+          next_scene: null
+
+  - id: scene_ch6_talk_yui_maze_gate
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: talking
+    messages:
+      - text: 「メンターがいないなら、私たちでやるしかない」
+        voice_character_id: char_yui
+      - text: 「うん。無理はしないで行こう」
+        voice_character_id: char_hero
+      - text: 「迷宮のしおり、忘れないでね」
+        voice_character_id: char_yui
+    next_scene: null
+
+  - id: scene_ch6_maze_no_bookmark
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 「待って。館長さんにもらった道具、持ってる？」
+        voice_character_id: char_yui
+      - text: 「迷宮のしおり……まだ受け取ってない」
+        voice_character_id: char_hero
+      - text: 「先にミュージアムへ戻ろう。今回は、準備なしで入っちゃだめ」
+        voice_character_id: char_yui
+    next_scene: null
+
+  - id: scene_ch6_maze_enter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 「行こう」
+        voice_character_id: char_hero
+      - text: 「うん。一緒に行く」
+        voice_character_id: char_yui
+      - text: ケンは迷宮のしおりをポケットに確かめ、黒い入口へ足を踏み入れた。
+        voice_character_id: null
+    next_engine:
+      id: maze_rpg
+      transition: rift
+      config:
+        map: ichibangai_abyss_5f
+        minimapMode: visited
+        name: 一番街の巨大迷宮
+        bgm: audio/bgm/dungeon.mp3
+        battleBgm: audio/bgm/buttle.mp3
+        theme:
+          wallFront: "#4a324e"
+          wallSide: "#24152d"
+          ceilTop: "#03000a"
+          ceilBottom: "#12051f"
+          floorTop: "#09030f"
+          floorBottom: "#020105"
+          uiBg: "#05020a"
+          uiAccent: "#d7b3ff"
+          uiBorder: "#53306f"
+          wallDamage: 0.25
+          wallStain: "#1d1026"
+        floorThemes:
+          "1":
+            wallFront: "#4a324e"
+            wallSide: "#24152d"
+            ceilTop: "#03000a"
+            ceilBottom: "#12051f"
+            floorTop: "#09030f"
+            floorBottom: "#020105"
+            uiAccent: "#d7b3ff"
+            uiBorder: "#53306f"
+            wallDamage: 0.22
+            wallStain: "#1d1026"
+          "2":
+            wallFront: "#31465a"
+            wallSide: "#142838"
+            ceilTop: "#020914"
+            ceilBottom: "#071927"
+            floorTop: "#071218"
+            floorBottom: "#020608"
+            uiAccent: "#9fd8ff"
+            uiBorder: "#315b75"
+            wallDamage: 0.34
+            wallStain: "#0f3540"
+          "3":
+            wallFront: "#3c5137"
+            wallSide: "#1d2f20"
+            ceilTop: "#031006"
+            ceilBottom: "#0d1c0e"
+            floorTop: "#071309"
+            floorBottom: "#020602"
+            uiAccent: "#b7e58d"
+            uiBorder: "#426432"
+            wallDamage: 0.48
+            wallStain: "#254017"
+          "4":
+            wallFront: "#5a4032"
+            wallSide: "#2c1b14"
+            ceilTop: "#130604"
+            ceilBottom: "#24100a"
+            floorTop: "#160906"
+            floorBottom: "#060201"
+            uiAccent: "#ffb878"
+            uiBorder: "#744a32"
+            wallDamage: 0.64
+            wallStain: "#3a160d"
+          "5":
+            wallFront: "#3a334a"
+            wallSide: "#18142a"
+            ceilTop: "#01020a"
+            ceilBottom: "#080716"
+            floorTop: "#05040d"
+            floorBottom: "#010104"
+            uiAccent: "#f3edf8"
+            uiBorder: "#675d88"
+            wallDamage: 0.82
+            wallStain: "#0b0818"
+        events:
+          E: scene_ch6_maze_event_heartbeat
+        seals:
+          red:
+            switchTile: r
+            doorTile: R
+            label: 赤い霊符
+          green:
+            switchTile: g
+            doorTile: G
+            label: 緑の霊符
+          purple:
+            switchTile: p
+            doorTile: P
+            label: 紫の霊符
+        treasures:
+          n:
+            itemId: item_onigiri
+            label: お握り
+          h:
+            itemId: item_kinchu_hikari
+            label: 悪霊退散のおふだ
+        itemEffects:
+          item_labyrinth_bookmark:
+            escapeToNovelScene: scene_ch6_maze_escape_landing
+          item_onigiri:
+            healHp: full
+          item_candy:
+            healHp: full
+          item_fushigi_candy:
+            healHp: full
+          item_drink:
+            healHp: full
+          item_milktea:
+            healHp: full
+          item_kinchu_hikari:
+            attackEnemy: 999
+          item_small_ofuda:
+            attackEnemy: 18
+      return_scene: scene_ch6_maze_result
+      gameover_scene: scene_ch6_maze_gameover
+      gameover_boss_scene: scene_ch6_boss_gameover
+      gameover_landing_scene: scene_ichibangai_default
+
+  - id: scene_ch6_maze_event_heartbeat
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 迷宮の壁の向こうで、どくん、と大きな音がした。
+        voice_character_id: null
+      - text: 「今の……心臓みたいだった」
+        voice_character_id: char_yui
+      - text: 「この迷宮、ただの道じゃないんだ」
+        voice_character_id: char_hero
+      - text: 足元の影がゆっくりほどけ、また道の形に戻っていく。
+        voice_character_id: null
+    next_engine:
+      id: __return__
+      transition: rift
+
+  - id: scene_ch6_maze_escape_landing
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 迷宮のしおりが淡く光り、景色が外のゲート前に戻った。
+        voice_character_id: null
+      - text: 「戻れた……」
+        voice_character_id: char_hero
+      - text: 「息を整えよう。道は消えてない」
+        voice_character_id: char_yui
+    branches:
+      type: choice
+      choices:
+        - label: 同じ場所から再開する
+          condition: null
+          next_scene: scene_ch6_maze_resume
+        - label: 少し準備してから戻る
+          condition: null
+          next_scene: null
+
+  - id: scene_ch6_maze_resume
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    messages: []
+    next_engine:
+      id: __return__
+      transition: rift
+
+  - id: scene_ch6_maze_gameover
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 迷宮の外へ、強い風に押し戻された。
+        voice_character_id: null
+      - text: 「ケン……戻ってきた。よかった」
+        voice_character_id: char_yui
+      - text: 「ごめん。奥まで行けなかった」
+        voice_character_id: char_hero
+      - text: 「大丈夫。道は少し分かった。もう一回行こう」
+        voice_character_id: char_yui
+    branches:
+      type: choice
+      choices:
+        - label: もう一回入る
+          condition: null
+          next_scene: scene_ch6_maze_reenter
+        - label: 少し準備してから来る
+          condition: null
+          next_scene: null
+
+  - id: scene_ch6_boss_gameover
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 迷宮の奥から、黒い風に弾き出された。
+        voice_character_id: null
+      - text: 「ボス、強かった。でも、あと少しだった」
+        voice_character_id: char_yui
+      - text: 「うん。次は、しおりで休みながら行く」
+        voice_character_id: char_hero
+    branches:
+      type: choice
+      choices:
+        - label: 同じ場所から再開する
+          condition: null
+          next_scene: scene_ch6_maze_reenter
+        - label: 少し準備してから来る
+          condition: null
+          next_scene: null
+
+  - id: scene_ch6_maze_reenter
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    messages: []
+    next_engine:
+      id: __return__
+      transition: rift
+
+  - id: scene_ch6_maze_result
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    ending_title: 第6章　一番街の迷宮を脱出せよ！
+    flags_set:
+      - flag: flag_ch6_cleared
+        value: true
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: normal
+    messages:
+      - text: 出口の光を抜けた瞬間、黒い迷宮が音を立ててほどけていった。
+        voice_character_id: null
+      - text: 一番街のアーケードに、いつもの看板の色が戻ってくる。
+        voice_character_id: null
+      - text: 「抜けた……」
+        voice_character_id: char_hero
+      - text: 「うん。ケン、脱出できた」
+        voice_character_id: char_yui
+      - text: けれど、迷宮が消えた場所に、まだ冷たい影が一筋だけ残っていた。
+        voice_character_id: null
+      - text: （大きな怨霊は、まだ完全には消えてないのかもしれない）
+        voice_character_id: char_hero
+      - text: それでも今は、ユイと並んで、普通の一番街へ戻ってこられた。
+        voice_character_id: null
+    game_end: true
+
+  - id: scene_use_labyrinth_bookmark
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: 迷宮のしおりは、迷宮の中でだけ力を発揮するみたいだ。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_use_onigiri
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: お握りを食べると、迷宮でこわばっていた体が少し楽になった。
+        voice_character_id: null
+      - text: （よし……もう少し進めそうだ）
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_use_candy
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: アメちゃんを口に入れると、少しだけ気持ちが落ち着いた。
+        voice_character_id: null
+      - text: （うん。まだ行ける）
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_use_small_ofuda
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: ちいさなおふだは、迷宮の中で使った方がよさそうだ。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_use_kinchu_hikari
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: 悪霊退散のおふだは、強い怨霊に向けて使うものみたいだ。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_station_default
+    location_id: loc_station
+    background: backgrounds/akabane.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: 駅前はいつも通り人が多い。一番街の方角だけ、空気が少し重く感じる。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_arcade_default
+    location_id: loc_arcade
+    background: backgrounds/archade.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: アーケード街はにぎやかだ。今は一番街の異変を優先しよう。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_park_default
+    location_id: loc_park
+    background: backgrounds/park.jpg
+    bgm: audio/bgm/station.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            has_item: item_candy
+          next_scene: scene_ch6_park_candy_kid_has
+        - condition: null
+          next_scene: scene_ch6_park_candy_kid_get
+    child_scenes:
+      - id: scene_ch6_park_candy_kid_get
+        characters:
+          - character_id: char_candy_kid
+            position: center
+            expression: normal
+        messages:
+          - text: 公園のベンチのそばで、アメ好きっ子が包み紙を並べていた。
+            voice_character_id: null
+          - text: 「あ、ケン兄ちゃん！一番街、また変なんだって？」
+            voice_character_id: char_candy_kid
+          - text: 「これあげる。アメちゃんは、こわい時に効くんだ」
+            voice_character_id: char_candy_kid
+          - text: ケンはアメちゃんを受け取った。
+            voice_character_id: null
+        item_give:
+          - item_id: item_candy
+            condition: null
+        talkable:
+          - character_id: char_candy_kid
+            scene_id: scene_park_default
+        next_scene: null
+      - id: scene_ch6_park_candy_kid_has
+        characters:
+          - character_id: char_candy_kid
+            position: center
+            expression: normal
+        messages:
+          - text: アメ好きっ子は、ケンのポケットをちらっと見た。
+            voice_character_id: null
+          - text: 「まだ持ってるじゃん。食べたらまたあげるよ」
+            voice_character_id: char_candy_kid
+        talkable:
+          - character_id: char_candy_kid
+            scene_id: scene_park_default
+        next_scene: null
+
+  - id: scene_slope_default
+    location_id: loc_slope
+    background: backgrounds/slope_day.jpg
+    bgm: audio/bgm/slope.mp3
+    messages: []
+    branches:
+      type: auto
+      choices:
+        - condition:
+            has_item: item_small_ofuda
+          next_scene: scene_ch6_slope_college_has
+        - condition: null
+          next_scene: scene_ch6_slope_college_get
+    child_scenes:
+      - id: scene_ch6_slope_college_get
+        characters:
+          - character_id: char_college_student
+            position: center
+            expression: normal
+        messages:
+          - text: 坂の途中で、大学生が一番街の方を見上げていた。
+            voice_character_id: null
+          - text: 「ケンくん、これ持って行ってください。小さいけど、お守り代わりにはなると思います」
+            voice_character_id: char_college_student
+          - text: 大学生は、手のひらに収まるほどのちいさなおふだを渡してくれた。
+            voice_character_id: null
+          - text: 「ありがとうございます」
+            voice_character_id: char_hero
+        item_give:
+          - item_id: item_small_ofuda
+            condition: null
+        talkable:
+          - character_id: char_college_student
+            scene_id: scene_slope_default
+        next_scene: null
+      - id: scene_ch6_slope_college_has
+        characters:
+          - character_id: char_college_student
+            position: center
+            expression: normal
+        messages:
+          - text: 坂の上から見る一番街の方角だけ、空の色が少し暗い。
+            voice_character_id: null
+          - text: 「気をつけてください。あのおふだ、使いどころがあるはずです」
+            voice_character_id: char_college_student
+        talkable:
+          - character_id: char_college_student
+            scene_id: scene_slope_default
+        next_scene: null
+
+  - id: scene_plum_park_default
+    location_id: loc_plum_park
+    background: backgrounds/umenoki_park.jpg
+    bgm: audio/bgm/station.mp3
+    characters: []
+    messages:
+      - text: 梅の木公園は静かだ。今はここに異変はないみたいだ。
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_station_end_default
+    location_id: loc_station_end
+    background: backgrounds/ekihaji.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_detective
+        position: center
+        expression: normal
+    messages:
+      - text: 駅の端まで来た。遠くで電車の音が響いている。
+        voice_character_id: null
+      - text: 赤羽の探偵が、柱の影で腕を組んでいた。
+        voice_character_id: null
+      - text: 「俺は今、見張り中だ。主に、何を見張っているかを考えている」
+        voice_character_id: char_detective
+    talkable:
+      - character_id: char_detective
+        scene_id: scene_ch6_talk_detective_station_end
+    next_scene: null
+
+  - id: scene_ch6_talk_detective_station_end
+    location_id: loc_station_end
+    background: backgrounds/ekihaji.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_detective
+        position: center
+        expression: normal
+    messages:
+      - text: 「迷宮に効きそうなもの、持ってませんか」
+        voice_character_id: char_hero
+      - text: 「持っていたら、今ごろ俺が迷宮を解決している。たぶん」
+        voice_character_id: char_detective
+      - text: 探偵は胸を張ったが、すぐに少しだけ目をそらした。
+        voice_character_id: null
+      - text: 「情報ならある。駅の端は、風が冷たい」
+        voice_character_id: char_detective
+      - text: （それは情報なのかな……）
+        voice_character_id: char_hero
+    next_scene: null
+
+  - id: scene_museum_core_default
+    location_id: loc_museum_core
+    background: backgrounds/center_musium.png
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: ミュージアムの中心部は、昨日の静けさを取り戻している。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_history_room_default
+    location_id: loc_museum_history_room
+    background: backgrounds/musium_room01.jpg
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 赤羽の古い写真が、静かに展示されている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_portrait_room_default
+    location_id: loc_museum_portrait_room
+    background: backgrounds/musium_room01.jpg
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 肖像の部屋は静かだ。今日は誰も取り憑かれていない。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_storage_room_default
+    location_id: loc_museum_storage_room
+    background: backgrounds/musium_room01.jpg
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 収蔵庫の棚は、きちんと元の場所に戻っている。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_deep_core_default
+    location_id: loc_museum_deep_core
+    background: backgrounds/center_musium.png
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 奥の中心部に、昨日の赤い光は残っていない。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_yui_room_default
+    location_id: loc_museum_yui_room
+    background: backgrounds/musium_room01.jpg
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: 記憶の展示室には、小さな絵が静かに並んでいる。
+        voice_character_id: null
+    next_scene: null
+
+  - id: scene_museum_oyaji_room_default
+    location_id: loc_museum_oyaji_room
+    background: backgrounds/musium_room01.jpg
+    bgm: audio/bgm/museum.mp3
+    characters: []
+    messages:
+      - text: アメちゃん展示室は、甘い紙の匂いが少し残っている。
+        voice_character_id: null
+    next_scene: null

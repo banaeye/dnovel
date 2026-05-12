@@ -30,6 +30,7 @@ function effectLabel(effect?: ItemEffect): string {
   if (effect.healHp === 'full') labels.push('HP全回復');
   else if (typeof effect.healHp === 'number') labels.push(`HP+${effect.healHp}`);
   if (typeof effect.attackEnemy === 'number') labels.push(`敵に${effect.attackEnemy}ダメージ`);
+  if (effect.escapeToNovelScene) labels.push('迷宮から一時脱出');
   return labels.length > 0 ? labels.join(' / ') : '迷路内で特別な効果はない';
 }
 
@@ -46,6 +47,7 @@ function categoryLabel(category?: string): string {
 function getUseState(item: MazeItemDef | undefined, effect: ItemEffect | undefined, mode: 'explore' | 'battle') {
   if (!item?.usable) return { canUse: false, reason: '使用できない' };
   if (mode === 'explore' && effect?.attackEnemy !== undefined) return { canUse: false, reason: '戦闘中のみ使用可' };
+  if (mode === 'battle' && effect?.escapeToNovelScene) return { canUse: false, reason: '戦闘中は使用不可' };
   if (mode === 'battle' && !effect?.healHp && effect?.attackEnemy === undefined) return { canUse: false, reason: '戦闘中は効果なし' };
   return { canUse: true, reason: '使用可能' };
 }
@@ -174,8 +176,8 @@ export function ItemPanel({
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
-            flex: expanded ? '1 1 210px' : '1 1 128px',
-            minHeight: expanded ? 190 : 112,
+            flex: expanded ? '1 1 120px' : '1 1 80px',
+            minHeight: expanded ? 80 : 56,
             overflow: 'auto',
             paddingRight: 2,
           }}
@@ -202,8 +204,8 @@ export function ItemPanel({
 
       <div
         style={{
-          flex: expanded ? '0 0 190px' : '0 0 150px',
-          minHeight: expanded ? 190 : 150,
+          flex: expanded ? '0 1 190px' : '0 1 150px',
+          minHeight: 0,
           border: `1px solid ${theme.uiBorder}`,
           borderRadius: 3,
           background: 'rgba(0,0,0,0.18)',
@@ -217,19 +219,19 @@ export function ItemPanel({
       >
         {selectedId ? (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline', flexShrink: 0 }}>
               <strong style={{ color: theme.uiAccent, fontSize: 13, fontWeight: 700 }}>{selectedName}</strong>
               <span style={{ color: theme.uiBorder, fontSize: 10, whiteSpace: 'nowrap' }}>
                 {categoryLabel(selectedDef?.category)} {counts.get(selectedId)! > 1 ? `x${counts.get(selectedId)}` : ''}
               </span>
             </div>
-            <div style={{ color: '#e8d5aa', fontSize: 11, lineHeight: 1.45, minHeight: 44, overflow: 'auto', paddingRight: 2 }}>
+            <div style={{ color: '#e8d5aa', fontSize: 11, lineHeight: 1.45, flex: 1, minHeight: 0, overflow: 'auto', paddingRight: 2 }}>
               {selectedDef?.description ?? '説明はない。'}
             </div>
-            <div style={{ color: theme.uiAccent, fontSize: 11, opacity: 0.85 }}>
+            <div style={{ color: theme.uiAccent, fontSize: 11, opacity: 0.85, flexShrink: 0 }}>
               効果: {effectLabel(selectedEffect)}
             </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, marginTop: 'auto' }}>
               <button
                 type="button"
                 disabled={!useState.canUse}

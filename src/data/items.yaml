@@ -58,12 +58,42 @@ items:
     stackable: false
     category: consumable
 
+  - id: item_onigiri
+    name: "お握り"
+    description: "迷宮の宝箱から見つけたお握り。食べると力が戻ってくる。"
+    icon: null
+    usable: true
+    use_scene: scene_use_onigiri
+    use_condition: null
+    stackable: false
+    category: consumable
+
   - id: item_kinchu_hikari
     name: "悪霊退散のおふだ"
     description: "田中メンターから受け取った御札。かすかに光を帯びていて、迷宮の番人に大ダメージを与えられるらしい。"
     icon: null
     usable: true
     use_scene: scene_use_kinchu_hikari
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_small_ofuda
+    name: "ちいさなおふだ"
+    description: "坂で大学生からもらった小さなおふだ。迷宮の怨霊に少し強い一撃を与えられる。"
+    icon: null
+    usable: true
+    use_scene: scene_use_small_ofuda
+    use_condition: null
+    stackable: false
+    category: consumable
+
+  - id: item_labyrinth_bookmark
+    name: "迷宮のしおり"
+    description: "館長から受け取った古いしおり。迷宮から一度脱出し、同じ場所から再開できる。"
+    icon: null
+    usable: true
+    use_scene: scene_use_labyrinth_bookmark
     use_condition: null
     stackable: false
     category: key_item

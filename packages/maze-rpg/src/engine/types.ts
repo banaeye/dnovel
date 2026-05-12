@@ -14,6 +14,17 @@ export interface Enemy {
   def: number;
 }
 
+export interface MazeSealConfig {
+  switchTile: string;
+  doorTile: string;
+  label: string;
+}
+
+export interface MazeTreasureConfig {
+  itemId: string;
+  label?: string;
+}
+
 export type BattlePhase = 'select' | 'log' | 'win' | 'lose';
 
 export interface BattleState {
@@ -28,7 +39,16 @@ export interface MazeState {
   pos: Vec2;
   dir: Dir;
   map: string[];
+  floors: string[][];
+  floor: number;
   mapId: string;
+  seals: Record<string, MazeSealConfig>;
+  treasures: Record<string, MazeTreasureConfig>;
+  openedSeals: Set<string>;
+  openedTreasures: Set<string>;
+  lastNotice?: string;
+  lastSealOpened?: string;
+  lastTreasureOpened?: string;
   visited: Set<string>;
   atExit: boolean;
   steps: number;

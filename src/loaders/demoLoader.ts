@@ -5,6 +5,7 @@ import scenesCh2Raw from '../data/scenes_ch2.yaml?raw';
 import scenesCh3Raw from '../data/scenes_ch3.yaml?raw';
 import scenesCh4Raw from '../data/scenes_ch4.yaml?raw';
 import scenesCh5Raw from '../data/scenes_ch5.yaml?raw';
+import scenesCh6Raw from '../data/scenes_ch6.yaml?raw';
 import flagsRaw from '../data/flags.yaml?raw';
 import itemsRaw from '../data/items.yaml?raw';
 import locationsRaw from '../data/locations.yaml?raw';
@@ -13,7 +14,7 @@ import commandsRaw from '../data/commands.yaml?raw';
 import { parseMasterData } from '@novel-engine/core';
 import type { MasterData } from '@novel-engine/core';
 
-export type ChapterId = 'chapter1' | 'chapter2' | 'chapter3' | 'chapter4' | 'chapter5';
+export type ChapterId = 'chapter1' | 'chapter2' | 'chapter3' | 'chapter4' | 'chapter5' | 'chapter6';
 
 const sceneSources: Record<ChapterId, string> = {
   chapter1: scenesCh1Raw,
@@ -21,6 +22,7 @@ const sceneSources: Record<ChapterId, string> = {
   chapter3: scenesCh3Raw,
   chapter4: scenesCh4Raw,
   chapter5: scenesCh5Raw,
+  chapter6: scenesCh6Raw,
 };
 
 const cached: Partial<Record<ChapterId, MasterData>> = {};
