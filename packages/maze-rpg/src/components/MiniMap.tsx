@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { MazeState } from '../engine/types.js';
+import { isSealDoor, isSealDoorOpen, isSealSwitch, isTreasureOpen, isTreasureTile } from '../engine/mazeEngine.js';
 
 const CELL = 10;
 const PAD = 3;
@@ -31,8 +32,9 @@ export function MiniMap({ state, mode = 'full' }: { state: MazeState; mode?: Min
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const cell = state.map[y]?.[x] ?? '#';
-        const key = `${x},${y}`;
-        const visited = state.visited.has(key);
+        const key = `${state.floor}:${x},${y}`;
+        const legacyKey = `${x},${y}`;
+        const visited = state.visited.has(key) || state.visited.has(legacyKey);
         const sx = PAD + x * CELL;
         const sy = PAD + y * CELL;
 
@@ -42,15 +44,36 @@ export function MiniMap({ state, mode = 'full' }: { state: MazeState; mode?: Min
           continue;
         }
 
-        if (cell === '#') {
+        const closedSealDoor = isSealDoor(state, cell) && !isSealDoorOpen(state, cell);
+        const closedTreasure = isTreasureTile(state, cell) && !isTreasureOpen(state, state.floor, { x, y });
+
+        if (cell === '#' || closedSealDoor || closedTreasure) {
           ctx.fillStyle = visited ? '#554433' : '#2a1a0a';
           ctx.fillRect(sx, sy, CELL, CELL);
+          if (closedTreasure) {
+            ctx.fillStyle = visited ? '#d7a738' : '#735018';
+            ctx.fillRect(sx + 2, sy + 3, CELL - 4, CELL - 5);
+            ctx.fillStyle = '#fff0a0';
+            ctx.fillRect(sx + 4, sy + 4, CELL - 8, 1);
+          }
         } else {
           ctx.fillStyle = visited ? '#443322' : '#110a04';
           ctx.fillRect(sx, sy, CELL, CELL);
           if (cell === 'X') {
             ctx.fillStyle = '#33bb55';
             ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
+          } else if (cell === 'U' || cell === 'D') {
+            ctx.fillStyle = cell === 'D' ? '#55aaff' : '#ddaa44';
+            ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
+          } else if (isSealSwitch(state, cell)) {
+            ctx.fillStyle = '#ffdd66';
+            ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
+          } else if (isSealDoor(state, cell)) {
+            ctx.fillStyle = '#b580ff';
+            ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
+          } else if (isTreasureTile(state, cell)) {
+            ctx.fillStyle = '#6b4a20';
+            ctx.fillRect(sx + 3, sy + 4, CELL - 6, CELL - 6);
           }
         }
       }

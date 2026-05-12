@@ -13,6 +13,7 @@ const chapter2MasterData = getMasterData('chapter2');
 const chapter3MasterData = getMasterData('chapter3');
 const chapter4MasterData = getMasterData('chapter4');
 const chapter5MasterData = getMasterData('chapter5');
+const chapter6MasterData = getMasterData('chapter6');
 const ASSETS_BASE = `${import.meta.env.BASE_URL}assets`;
 
 const CHAPTERS: ChapterConfig[] = [
@@ -86,6 +87,26 @@ const CHAPTERS: ChapterConfig[] = [
       flag_ch2_cleared: true,
       flag_ch3_cleared: true,
       flag_ch4_cleared: true,
+      flag_station_explored: true,
+      flag_visited_slope: true,
+      flag_ch3_museum_unlocked: true,
+    },
+  },
+  {
+    id: 'chapter6',
+    title: '第6章へ',
+    chapterTitle: '一番街の迷宮を脱出せよ！',
+    masterData: chapter6MasterData,
+    initialSceneId: 'scene_ch6_start',
+    initialLocationId: 'loc_danchi',
+    unlockFlag: 'flag_ch5_cleared',
+    initialFlags: {
+      flag_chapter: 6,
+      flag_chapter1_cleared: true,
+      flag_ch2_cleared: true,
+      flag_ch3_cleared: true,
+      flag_ch4_cleared: true,
+      flag_ch5_cleared: true,
       flag_station_explored: true,
       flag_visited_slope: true,
       flag_ch3_museum_unlocked: true,

@@ -323,3 +323,28 @@ flags:
     type: boolean
     default: false
     description: "第5章クリア済み"
+
+  - id: flag_ch6_director_call
+    type: boolean
+    default: false
+    description: "第6章で館長から一番街の異変を聞いた"
+
+  - id: flag_ch6_director_briefed
+    type: boolean
+    default: false
+    description: "第6章で館長から一番街の怨霊と迷宮のしおりの説明を聞いた"
+
+  - id: flag_ch6_coderdojo_yui_met
+    type: boolean
+    default: false
+    description: "第6章でCoderDojoのユイと合流した"
+
+  - id: flag_ch6_maze_seen
+    type: boolean
+    default: false
+    description: "第6章で一番街の巨大迷宮を見た"
+
+  - id: flag_ch6_cleared
+    type: boolean
+    default: false
+    description: "第6章クリア済み"

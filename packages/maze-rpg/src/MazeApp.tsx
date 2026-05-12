@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { IGameEngine, EngineProps, GameContext, EngineTransition } from '@novel-engine/hub';
-import { initMaze, handleKey, useItemInMaze } from './engine/mazeEngine.js';
+import { getFacingTreasure, getStairDirection, initMaze, handleKey, openFacingTreasure, useItemInMaze } from './engine/mazeEngine.js';
 import type { ItemEffect } from './engine/mazeEngine.js';
-import type { Vec2, Dir } from './engine/types.js';
+import type { Vec2, Dir, MazeSealConfig, MazeTreasureConfig } from './engine/types.js';
 import { MazeView } from './components/MazeView.js';
 import { MiniMap } from './components/MiniMap.js';
 import { BattleView } from './components/BattleView.js';
@@ -32,6 +32,10 @@ export interface MazeTheme {
   uiAccent?: string;
   /** ボーダー色 @default '#443322' */
   uiBorder?: string;
+  /** 壁の朽ち具合。0 = きれい, 1 = かなり朽ちている @default 0 */
+  wallDamage?: number;
+  /** 壁の染み・苔・霊気の色 @default '#1b1208' */
+  wallStain?: string;
 }
 
 const DEFAULT_THEME: Required<MazeTheme> = {
@@ -44,6 +48,8 @@ const DEFAULT_THEME: Required<MazeTheme> = {
   uiBg:       '#080504',
   uiAccent:   '#ccaa66',
   uiBorder:   '#443322',
+  wallDamage: 0,
+  wallStain:  '#1b1208',
 };
 
 function mergeTheme(t?: MazeTheme): Required<MazeTheme> {
@@ -51,11 +57,25 @@ function mergeTheme(t?: MazeTheme): Required<MazeTheme> {
   return { ...DEFAULT_THEME, ...t };
 }
 
+function floorThemeKey(floor: number): string[] {
+  const oneBased = floor + 1;
+  return [String(oneBased), `${oneBased}F`, `B${oneBased}F`, String(floor)];
+}
+
+function mergeFloorTheme(base: MazeTheme | undefined, floorThemes: Record<string, MazeTheme> | undefined, floor: number): Required<MazeTheme> {
+  const floorTheme = floorThemeKey(floor)
+    .map(key => floorThemes?.[key])
+    .find((theme): theme is MazeTheme => !!theme);
+  return mergeTheme({ ...base, ...floorTheme });
+}
+
 export interface MazeRpgConfig {
   map: string;
   /** タイトルバーに表示する名前（省略時は map ID） */
   name?: string;
   theme?: MazeTheme;
+  /** 階層ごとのテーマ。キーは "1" / "1F" / "B1F" のいずれも可 */
+  floorThemes?: Record<string, MazeTheme>;
   /** 敵画像などのアセットベース URL（省略時は '/assets'） */
   assetsBaseUrl?: string;
   /** 探索中に流れる BGM（assetsBaseUrl 相対パス, 例: 'audio/bgm/dungeon.mp3'） */
@@ -68,11 +88,18 @@ export interface MazeRpgConfig {
   items?: MazeItemDef[];
   /** イベントタイル文字 → novel scene ID（例: { E: 'scene_maze_event_01' }） */
   events?: Record<string, string>;
+  /** 封印ギミック定義: switchTile を踏むと doorTile が通行可能になる */
+  seals?: Record<string, MazeSealConfig>;
+  /** 宝箱定義: タイル文字 → 入手アイテム */
+  treasures?: Record<string, MazeTreasureConfig>;
   /** resume 用: 再開座標・向き・探索済みセット・発火済みイベント */
   initialPos?: Vec2;
   initialDir?: Dir;
+  initialFloor?: number;
   initialVisited?: string[];
   initialTriggeredEvents?: string[];
+  initialOpenedSeals?: string[];
+  initialOpenedTreasures?: string[];
   /** アイテム効果定義（例: { item_candy: { healHp: 'full' } }） */
   itemEffects?: Record<string, ItemEffect>;
   /** NovelEngineAdapter が注入するオペーク型。出口帰還・イベント遷移に使用 */
@@ -186,6 +213,105 @@ function HealSparkleEffect() {
   );
 }
 
+function sealColor(sealId?: string): string {
+  switch (sealId) {
+    case 'red': return '#ff6b6b';
+    case 'green': return '#66f08a';
+    case 'purple': return '#c080ff';
+    default: return '#ffd86b';
+  }
+}
+
+function SealUnlockEffect({ sealId, label }: { sealId?: string; label?: string }) {
+  const color = sealColor(sealId);
+  const title = label ?? '霊符';
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        zIndex: 7,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: FONT,
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle at center, ${color}55 0%, ${color}22 25%, transparent 58%)`,
+          animation: 'maze-seal-screen-flash 1150ms ease-out forwards',
+        }}
+      />
+      {[0, 1, 2].map(i => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            width: 92 + i * 34,
+            height: 92 + i * 34,
+            borderRadius: '50%',
+            border: `2px solid ${color}`,
+            boxShadow: `0 0 18px ${color}`,
+            animation: `maze-seal-ring 1050ms ease-out ${i * 90}ms forwards`,
+            opacity: 0,
+          }}
+        />
+      ))}
+      <div
+        style={{
+          position: 'relative',
+          width: 118,
+          height: 156,
+          borderRadius: 6,
+          border: `2px solid ${color}`,
+          background: `linear-gradient(180deg, rgba(255,255,230,0.94), ${color}33)`,
+          boxShadow: `0 0 28px ${color}, inset 0 0 22px ${color}55`,
+          color,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          animation: 'maze-seal-card 1150ms ease-out forwards',
+        }}
+      >
+        <div style={{ fontSize: 42, fontWeight: 700, lineHeight: 1 }}>封</div>
+        <div style={{ fontSize: 12, color: '#201020', fontWeight: 700, letterSpacing: '0.08em' }}>{title}</div>
+        <div style={{ position: 'absolute', left: 14, right: 14, top: 18, height: 2, background: color }} />
+        <div style={{ position: 'absolute', left: 14, right: 14, bottom: 18, height: 2, background: color }} />
+      </div>
+      {[...Array(14)].map((_, i) => {
+        const angle = (i / 14) * Math.PI * 2;
+        const x = Math.cos(angle) * 140;
+        const y = Math.sin(angle) * 92;
+        return (
+          <span
+            key={i}
+            style={{
+              position: 'absolute',
+              width: 8,
+              height: 8,
+              background: color,
+              boxShadow: `0 0 12px ${color}`,
+              transform: 'translate(-50%, -50%) rotate(45deg)',
+              animation: `maze-seal-spark 900ms ease-out ${i * 28}ms forwards`,
+              ['--seal-x' as string]: `${x}px`,
+              ['--seal-y' as string]: `${y}px`,
+              opacity: 0,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function NavButton({ label, theme, onClick }: { label: string; theme: Required<MazeTheme>; onClick: () => void }) {
   const [hover, setHover] = useState(false);
   return (
@@ -219,11 +345,16 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     initMaze(config.map, context.playerStats, context.inventory, {
       initialPos:             config.initialPos,
       initialDir:             config.initialDir,
+      initialFloor:           config.initialFloor,
       initialVisited:         config.initialVisited,
       initialTriggeredEvents: config.initialTriggeredEvents,
+      initialOpenedSeals:     config.initialOpenedSeals,
+      initialOpenedTreasures: config.initialOpenedTreasures,
+      seals:                  config.seals,
+      treasures:              config.treasures,
     }),
   );
-  const theme = mergeTheme(config.theme);
+  const theme = mergeFloorTheme(config.theme, config.floorThemes, state.floor);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
 
   useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, !!state.battle);
@@ -237,6 +368,8 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const previousBattleRef = useRef(state.battle);
   const showingBattleItems = !!state.battle && itemPanelMode === 'battle';
+  const stairDirection = getStairDirection(state);
+  const facingTreasure = getFacingTreasure(state);
 
   const dispatch = useCallback((key: string) => {
     setState(prev => handleKey(prev, key));
@@ -257,9 +390,67 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     });
   }, [state.battle]);
 
+  const openTreasure = useCallback(() => {
+    if (state.battle || state.atExit) return;
+    setState(prev => {
+      const target = getFacingTreasure(prev);
+      const itemName = target
+        ? config.items?.find(item => item.id === target.treasure.itemId)?.name
+        : undefined;
+      return openFacingTreasure(prev, itemName);
+    });
+  }, [config.items, state.atExit, state.battle]);
+
   const handleUseItem = useCallback((itemId: string, itemName: string) => {
     const effect = config.itemEffects?.[itemId];
     if (effect?.attackEnemy !== undefined && !state.battle) return;
+    if (effect?.escapeToNovelScene && state.battle) return;
+    if (effect?.escapeToNovelScene && !state.battle) {
+      const nr = config._novelReturn as Record<string, unknown> | undefined;
+      if (!nr) return;
+      const idx = state.inventory.indexOf(itemId);
+      if (idx === -1) return;
+      const inventory = [...state.inventory.slice(0, idx), ...state.inventory.slice(idx + 1)];
+      const resumeConfig: MazeRpgConfig = {
+        ...config,
+        initialPos:             state.pos,
+        initialDir:             state.dir,
+        initialFloor:           state.floor,
+        initialVisited:         [...state.visited],
+        initialTriggeredEvents: [...state.triggeredEvents],
+        initialOpenedSeals:     [...state.openedSeals],
+        initialOpenedTreasures: [...state.openedTreasures],
+      };
+      const updatedContext: GameContext = {
+        ...context,
+        flags: {
+          ...context.flags,
+          [`explored_${config.map}`]: true,
+          [`maze_floor_${config.map}`]: state.floor,
+          [`maze_visited_${config.map}`]:  JSON.stringify([...state.visited]),
+          [`maze_triggered_${config.map}`]: JSON.stringify([...state.triggeredEvents]),
+          [`maze_opened_seals_${config.map}`]: JSON.stringify([...state.openedSeals]),
+          [`maze_opened_treasures_${config.map}`]: JSON.stringify([...state.openedTreasures]),
+        },
+        inventory,
+        playerStats: {
+          ...context.playerStats,
+          hp: state.playerHp,
+          maxHp: state.playerMaxHp,
+          atk: state.playerAtk,
+          def: state.playerDef,
+        },
+      };
+      onExit(updatedContext, {
+        engineId: 'novel',
+        transition: 'rift',
+        config: { ...nr, initialSceneId: effect.escapeToNovelScene, autoStart: true },
+        returnEngineId: 'maze_rpg',
+        returnConfig: resumeConfig,
+        returnTransition: 'rift',
+      } as EngineTransition);
+      return;
+    }
     if (effect?.healHp !== undefined) {
       setHealSparkleKey(prev => prev + 1);
     }
@@ -277,7 +468,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       setItemNotice(notice);
       noticeTimerRef.current = setTimeout(() => setItemNotice(null), 2500);
     }
-  }, [config.itemEffects, state.battle]);
+  }, [config, context, onExit, state]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -342,7 +533,15 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
 
   const buildUpdatedContext = useCallback((): GameContext => ({
     ...context,
-    flags: { ...context.flags, [`explored_${config.map}`]: true },
+    flags: {
+      ...context.flags,
+      [`explored_${config.map}`]: true,
+      [`maze_floor_${config.map}`]: state.floor,
+      [`maze_visited_${config.map}`]:  JSON.stringify([...state.visited]),
+      [`maze_triggered_${config.map}`]: JSON.stringify([...state.triggeredEvents]),
+      [`maze_opened_seals_${config.map}`]: JSON.stringify([...state.openedSeals]),
+      [`maze_opened_treasures_${config.map}`]: JSON.stringify([...state.openedTreasures]),
+    },
     inventory: state.inventory,
     playerStats: {
       ...context.playerStats,
@@ -351,7 +550,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       atk: state.playerAtk,
       def: state.playerDef,
     },
-  }), [context, config.map, state.inventory, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef]);
+  }), [context, config.map, state.floor, state.inventory, state.openedSeals, state.openedTreasures, state.playerHp, state.playerMaxHp, state.playerAtk, state.playerDef, state.visited, state.triggeredEvents]);
 
   const triggerExit = useCallback(() => {
     const baseContext = buildUpdatedContext();
@@ -385,6 +584,11 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           ...context.flags,
           flag_maze_defeated: true,
           flag_boss_challenged: true,
+          [`maze_floor_${config.map}`]: state.floor,
+          [`maze_visited_${config.map}`]:  JSON.stringify([...state.visited]),
+          [`maze_triggered_${config.map}`]: JSON.stringify([...state.triggeredEvents]),
+          [`maze_opened_seals_${config.map}`]: JSON.stringify([...state.openedSeals]),
+          [`maze_opened_treasures_${config.map}`]: JSON.stringify([...state.openedTreasures]),
         },
         inventory: state.inventory,
         playerStats: {
@@ -395,22 +599,29 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           def: state.playerDef,
         },
       };
-      const [bx, by] = state.pendingBossTilePos.split(',').map(Number);
+      const [, coord = state.pendingBossTilePos] = state.pendingBossTilePos.split(':');
+      const [bx, by] = coord.split(',').map(Number);
       const bossRetryConfig: MazeRpgConfig = {
         map:          config.map,
         name:         config.name,
         theme:        config.theme,
+        floorThemes:  config.floorThemes,
         assetsBaseUrl: config.assetsBaseUrl,
         bgm:          config.bgm,
         battleBgm:    config.battleBgm,
         items:        config.items,
         events:       config.events,
+        seals:        config.seals,
+        treasures:    config.treasures,
         itemEffects:  config.itemEffects,
         _novelReturn: config._novelReturn,
+        initialFloor:           state.floor,
         initialPos:             { x: (bx ?? 0) - 1, y: by ?? 0 },
         initialDir:             'E',
         initialVisited:         [...state.visited],
         initialTriggeredEvents: [...state.triggeredEvents],
+        initialOpenedSeals:     [...state.openedSeals],
+        initialOpenedTreasures: [...state.openedTreasures],
       };
       onExit(updatedContext, {
         engineId: 'novel',
@@ -430,6 +641,11 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         flags: {
           ...context.flags,
           flag_maze_defeated: true,
+          [`maze_floor_${config.map}`]: state.floor,
+          [`maze_visited_${config.map}`]:  JSON.stringify([...state.visited]),
+          [`maze_triggered_${config.map}`]: JSON.stringify([...state.triggeredEvents]),
+          [`maze_opened_seals_${config.map}`]: JSON.stringify([...state.openedSeals]),
+          [`maze_opened_treasures_${config.map}`]: JSON.stringify([...state.openedTreasures]),
         },
         inventory: state.inventory,
         playerStats: {
@@ -444,13 +660,21 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         map:          config.map,
         name:         config.name,
         theme:        config.theme,
+        floorThemes:  config.floorThemes,
         assetsBaseUrl: config.assetsBaseUrl,
         bgm:          config.bgm,
         battleBgm:    config.battleBgm,
         items:        config.items,
         events:       config.events,
+        seals:        config.seals,
+        treasures:    config.treasures,
         itemEffects:  config.itemEffects,
         _novelReturn: config._novelReturn,
+        initialFloor: state.floor,
+        initialVisited:         [...state.visited],
+        initialTriggeredEvents: [...state.triggeredEvents],
+        initialOpenedSeals:     [...state.openedSeals],
+        initialOpenedTreasures: [...state.openedTreasures],
       };
       onExit(updatedContext, {
         engineId: 'novel',
@@ -475,13 +699,16 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     if (!sceneId || !nr) return;
 
     const updatedContext = buildUpdatedContext();
-    const posKey = `${state.pos.x},${state.pos.y}`;
+    const posKey = `${state.floor}:${state.pos.x},${state.pos.y}`;
     const resumeConfig: MazeRpgConfig = {
       ...config,
       initialPos:             state.pos,
       initialDir:             state.dir,
+      initialFloor:           state.floor,
       initialVisited:         [...state.visited],
       initialTriggeredEvents: [...state.triggeredEvents, posKey],
+      initialOpenedSeals:     [...state.openedSeals],
+      initialOpenedTreasures: [...state.openedTreasures],
     };
     onExit(updatedContext, {
       engineId: 'novel',
@@ -558,6 +785,27 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
             28% { opacity: 1; transform: translate(-50%, -50%) rotate(45deg) scale(1); }
             100% { opacity: 0; transform: translate(-50%, -70px) rotate(45deg) scale(0.2); }
           }
+          @keyframes maze-seal-screen-flash {
+            0% { opacity: 0; }
+            16% { opacity: 1; }
+            100% { opacity: 0; }
+          }
+          @keyframes maze-seal-ring {
+            0% { opacity: 0; transform: scale(0.25); }
+            28% { opacity: 0.95; transform: scale(0.75); }
+            100% { opacity: 0; transform: scale(1.8); }
+          }
+          @keyframes maze-seal-card {
+            0% { opacity: 0; transform: translateY(30px) scale(0.45) rotate(-8deg); filter: blur(2px); }
+            24% { opacity: 1; transform: translateY(0) scale(1.05) rotate(1deg); filter: blur(0); }
+            72% { opacity: 1; transform: translateY(-4px) scale(1) rotate(0); filter: blur(0); }
+            100% { opacity: 0; transform: translateY(-42px) scale(0.82) rotate(4deg); filter: blur(3px); }
+          }
+          @keyframes maze-seal-spark {
+            0% { opacity: 0; transform: translate(-50%, -50%) rotate(45deg) scale(0.2); }
+            30% { opacity: 1; transform: translate(calc(-50% + var(--seal-x) * 0.35), calc(-50% + var(--seal-y) * 0.35)) rotate(45deg) scale(1); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--seal-x)), calc(-50% + var(--seal-y))) rotate(45deg) scale(0.1); }
+          }
         `}</style>
         {/* タイトルバー */}
         <div
@@ -574,7 +822,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
           }}
         >
           <span>⚔ {config.name ?? config.map}</span>
-          <span style={{ fontSize: 11, opacity: 0.7 }}>歩数: {state.steps}</span>
+          <span style={{ fontSize: 11, opacity: 0.7 }}>B{state.floor + 1}F / 歩数: {state.steps}</span>
         </div>
 
         {/* メインエリア */}
@@ -601,6 +849,13 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                 <MazeView state={state} theme={theme} />
 
                 {healSparkleKey > 0 && <HealSparkleEffect key={healSparkleKey} />}
+                {state.lastSealOpened && (
+                  <SealUnlockEffect
+                    key={`${state.lastSealOpened}-${state.steps}`}
+                    sealId={state.lastSealOpened}
+                    label={state.seals[state.lastSealOpened]?.label}
+                  />
+                )}
 
                 {state.battle && (
                   <>
@@ -639,7 +894,76 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                     <div title="右回転" style={{ cursor: 'e-resize' }} onClick={() => dispatch('ArrowRight')} />
                   </div>
                 )}
+
+                {!state.battle && !state.atExit && facingTreasure && (
+                  <button
+                    type="button"
+                    onClick={openTreasure}
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      bottom: 22,
+                      transform: 'translateX(-50%)',
+                      zIndex: 8,
+                      minWidth: 168,
+                      padding: '9px 18px',
+                      borderRadius: 4,
+                      border: '1px solid #f2c96d',
+                      background: 'linear-gradient(180deg, #40220a, #1a0902)',
+                      color: '#ffe09a',
+                      boxShadow: '0 0 18px rgba(255,190,80,0.45), inset 0 0 12px rgba(255,220,140,0.2)',
+                      fontFamily: FONT,
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    宝箱を開ける
+                  </button>
+                )}
               </div>
+
+              {/* 迷宮内通知 */}
+              {!state.battle && !state.atExit && state.lastNotice && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    background: '#20102a',
+                    border: `1px solid ${theme.uiAccent}`,
+                    borderRadius: 4,
+                    padding: '8px 16px',
+                    color: theme.uiAccent,
+                    fontSize: 13,
+                    textAlign: 'center',
+                    fontFamily: FONT,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {state.lastNotice}
+                </div>
+              )}
+
+              {/* 階段パネル */}
+              {!state.battle && !state.atExit && stairDirection && (
+                <div
+                  onClick={() => dispatch('Enter')}
+                  style={{
+                    marginTop: 8,
+                    background: '#0a1f2a',
+                    border: '1px solid #3388cc',
+                    borderRadius: 4,
+                    padding: '8px 16px',
+                    color: '#77ccff',
+                    fontSize: 14,
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    fontFamily: FONT,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {stairDirection === 'down' ? '下り階段' : '上り階段'}を見つけた！ [Enter] / クリックで移動
+                </div>
+              )}
 
               {/* 出口パネル */}
               {state.atExit && (
@@ -707,7 +1031,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                       {DIR_LABEL[state.dir]}
                     </div>
                     <div style={{ fontSize: 9, color: theme.uiBorder, letterSpacing: '0.04em' }}>
-                      ({state.pos.x},{state.pos.y})
+                      B{state.floor + 1}F ({state.pos.x},{state.pos.y})
                     </div>
                   </div>
                 </div>

@@ -1438,10 +1438,8 @@ scenes:
         voice_character_id: char_hero
       - text: 梅の木公園——団地のすぐ脇にある、小さな公園だ。
         voice_character_id: null
-      - text: 古い梅の木が一本だけ立っていて、ケンはいつも通り過ぎるだけで、ちゃんと入ったことはなかった。
+      - text: 梅の木がたくさん生えていて、ケンはいつも通り過ぎるだけで、ちゃんと入ったことはなかった。
         voice_character_id: null
-      - text: （こんなところに子猫がいたのか）
-        voice_character_id: char_hero
     next_scene: null
   - id: scene_ch4_obachan_chat
     location_id: loc_danchi

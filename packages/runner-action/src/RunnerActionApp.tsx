@@ -35,6 +35,9 @@ export interface RunnerActionConfig {
   chaseStartDistance?: number;
   chaseCatchRate?: number;
   chaseHitDistancePenalty?: number;
+  playerYOffset?: number;
+  opponentYOffset?: number;
+  bossYOffset?: number;
   theme?: RunnerActionTheme;
   _novelReturn?: unknown;
 }
@@ -441,6 +444,7 @@ function drawMuseumDirectorBoss(
   bossImg?: HTMLImageElement | null,
   bossImgW = 72,
   bossImgH = 120,
+  bossYOffset = 0,
 ) {
   if (defeatProgress !== undefined && defeatProgress >= 1) return;
 
@@ -503,7 +507,7 @@ function drawMuseumDirectorBoss(
   if (bossImg) {
     // Image-based body: draw sprite centered at boss position
     const imgX = BOSS_DIRECTOR_X - bossImgW / 2;
-    const imgY = bossY - bossImgH + 30;
+    const imgY = bossY - bossImgH + 30 + bossYOffset;
     ctx.drawImage(bossImg, imgX, imgY, bossImgW, bossImgH);
   } else {
     // Procedural fallback
@@ -957,6 +961,7 @@ function drawRunner(
     bossImage: HTMLImageElement | null;
     bossWidth: number;
     bossHeight: number;
+    bossYOffset: number;
   },
 ) {
   const progress = Math.min(1, state.elapsedMs / config.durationMs);
@@ -978,7 +983,7 @@ function drawRunner(
         : undefined;
       drawMuseumDirectorBoss(
         ctx, state.elapsedMs, defeatProgress,
-        assets.bossImage, assets.bossWidth, assets.bossHeight,
+        assets.bossImage, assets.bossWidth, assets.bossHeight, assets.bossYOffset,
       );
     }
   } else if (assets.backgroundImage) {
@@ -1178,6 +1183,9 @@ function RunnerActionAppComponent({
   const stompEnemies = config.stompEnemies ?? false;
   const enemySet = config.enemySet ?? 'entrance';
   const lives = Math.max(1, config.lives ?? 3);
+  const playerYOffset = config.playerYOffset ?? 0;
+  const opponentYOffset = config.opponentYOffset ?? 0;
+  const bossYOffset = config.bossYOffset ?? 0;
 
   const jump = useCallback(() => {
     const state = stateRef.current;
@@ -1260,6 +1268,7 @@ function RunnerActionAppComponent({
             bossImage: bossAsset.image,
             bossWidth,
             bossHeight,
+            bossYOffset,
           });
         }
         setElapsedMs(elapsed);
@@ -1294,6 +1303,7 @@ function RunnerActionAppComponent({
             bossImage: bossAsset.image,
             bossWidth,
             bossHeight,
+            bossYOffset,
           });
         }
         setElapsedMs(elapsed);
@@ -1416,6 +1426,7 @@ function RunnerActionAppComponent({
           bossImage: bossAsset.image,
           bossWidth,
           bossHeight,
+          bossYOffset,
         });
       }
 
@@ -1532,7 +1543,7 @@ function RunnerActionAppComponent({
             style={{
               position: 'absolute',
               left: playerLeft,
-              top: playerTopPx,
+              top: playerTopPx + playerYOffset,
               width: playerWidth,
               height: playerHeight,
               transform: gameOverT === null ? undefined : `rotate(${-gameOverT * 1.4}turn)`,
@@ -1550,7 +1561,7 @@ function RunnerActionAppComponent({
             style={{
               position: 'absolute',
               left: opponentLeft,
-              top: opponentTop,
+              top: opponentTop + opponentYOffset,
               width: opponentWidth,
               height: opponentHeight,
               pointerEvents: 'none',
