@@ -203,49 +203,78 @@ function renderScene(ctx: CanvasRenderingContext2D, state: MazeState, theme: Req
 
 // 霧パーティクルのシード値（起動時に1度だけ生成、再レンダリングごとにリセットしない）
 interface MistParticle {
-  bx: number; by: number; rx: number; ry: number; angle: number;
-  dxFreq: number; dxAmp: number; dyFreq: number; dyAmp: number;
-  alphaBase: number; alphaFreq: number; alphaPhase: number;
+  bx: number;
+  by: number;
+  depth: number;
+  size: number;
+  drift: number;
+  speed: number;
+  phase: number;
+  alpha: number;
 }
 interface MistWisp {
-  by: number; speed: number; dir: number; rx: number; ry: number;
-  alphaBase: number; alphaFreq: number; alphaPhase: number;
+  by: number;
+  depth: number;
+  length: number;
+  thickness: number;
+  speed: number;
+  phase: number;
+  sway: number;
+  alpha: number;
+}
+interface MistSpark {
+  bx: number;
+  by: number;
+  depth: number;
+  speed: number;
+  phase: number;
+  size: number;
+  alpha: number;
 }
 
-function buildMistParticles(density: number): { blobs: MistParticle[]; wisps: MistWisp[] } {
-  const blobCount = Math.round(18 + density * 32);
+function buildMistParticles(density: number): { blobs: MistParticle[]; wisps: MistWisp[]; sparks: MistSpark[] } {
+  const blobCount = Math.round(26 + density * 42);
   const blobs: MistParticle[] = Array.from({ length: blobCount }, (_, i) => {
-    const s = (i * 37 + 97) % 211;
+    const s = (i * 53 + 97) % 251;
     return {
-      bx: (s * 29 + i * 53) % VW,
-      by: 10 + ((s * 13 + i * 31) % (VH - 20)),
-      rx: 14 + (s % 40) * (0.5 + 0.5 * density),
-      ry: 3 + (s % 7),
-      angle: (s % 9) * 0.08,
-      dxFreq: 0.11 + (s % 10) * 0.018,
-      dxAmp:  12 + (s % 24) * density,
-      dyFreq: 0.08 + (s % 8) * 0.013,
-      dyAmp:  4 + s % 9,
-      alphaBase:  0.04 + density * 0.11,
-      alphaFreq:  0.22 + (s % 5) * 0.09,
-      alphaPhase: i * 1.3,
+      bx: (s * 37 + i * 61) % VW,
+      by: 20 + ((s * 17 + i * 29) % (VH - 40)),
+      depth: 0.25 + ((s % 100) / 100) * 0.75,
+      size: 14 + (s % 42),
+      drift: 10 + (s % 38) * density,
+      speed: 8 + (s % 20),
+      phase: i * 0.73,
+      alpha: 0.035 + density * 0.095,
     };
   });
-  const wispCount = Math.round(2 + density * 5);
+  const wispCount = Math.round(7 + density * 11);
   const wisps: MistWisp[] = Array.from({ length: wispCount }, (_, i) => {
-    const s = i * 73 + 41;
+    const s = i * 79 + 41;
     return {
-      by:        12 + ((s * 17) % (VH - 24)),
-      speed:     (0.022 + (s % 10) * 0.006) * VW,
-      dir:       i % 2 === 0 ? 1 : -1,
-      rx:        38 + (s % 60) * density,
-      ry:        4 + (s % 8),
-      alphaBase: 0.05 + density * 0.10,
-      alphaFreq: 0.18,
-      alphaPhase: s * 0.1,
+      by: 34 + ((s * 19) % (VH - 68)),
+      depth: 0.22 + ((s % 100) / 100) * 0.78,
+      length: 130 + (s % 170),
+      thickness: 4 + (s % 10),
+      speed: 18 + (s % 34),
+      phase: s * 0.07,
+      sway: 14 + (s % 28),
+      alpha: 0.045 + density * 0.105,
     };
   });
-  return { blobs, wisps };
+  const sparkCount = Math.round(10 + density * 18);
+  const sparks: MistSpark[] = Array.from({ length: sparkCount }, (_, i) => {
+    const s = i * 67 + 23;
+    return {
+      bx: (s * 31 + i * 47) % VW,
+      by: 28 + ((s * 11) % (VH - 56)),
+      depth: 0.35 + ((s % 100) / 100) * 0.65,
+      speed: 10 + (s % 28),
+      phase: s * 0.13,
+      size: 1.2 + (s % 4) * 0.55,
+      alpha: 0.08 + density * 0.18,
+    };
+  });
+  return { blobs, wisps, sparks };
 }
 
 function drawAnimatedMist(
@@ -253,43 +282,92 @@ function drawAnimatedMist(
   theme: Required<MazeTheme>,
   density: number,
   t: number,
-  particles: { blobs: MistParticle[]; wisps: MistWisp[] },
+  particles: { blobs: MistParticle[]; wisps: MistWisp[]; sparks: MistSpark[] },
 ) {
   ctx.clearRect(0, 0, VW, VH);
+
+  // 奥から湧く薄いベール
+  ctx.save();
+  const baseAlpha = 0.07 + density * 0.19;
+  const pulse = 0.85 + 0.15 * Math.sin(t * 0.32);
+  const grad = ctx.createRadialGradient(VW / 2, VH * 0.42, 30, VW / 2, VH * 0.52, VW * 0.72);
+  grad.addColorStop(0, rgbaFromHex(theme.mistColor, baseAlpha * 0.95 * pulse));
+  grad.addColorStop(0.48, rgbaFromHex(theme.mistColor, baseAlpha * 0.45 * pulse));
+  grad.addColorStop(1, rgbaFromHex(theme.mistColor, 0));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, VW, VH);
+  ctx.restore();
+
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
 
-  // ゆっくり脈打つベースグラデーション
-  const baseAlpha = 0.07 + density * 0.19;
-  const pulse = 0.85 + 0.15 * Math.sin(t * 0.32);
-  const grad = ctx.createLinearGradient(0, 0, 0, VH);
-  grad.addColorStop(0,   rgbaFromHex(theme.mistColor, baseAlpha * 0.62 * pulse));
-  grad.addColorStop(0.5, rgbaFromHex(theme.mistColor, baseAlpha * pulse));
-  grad.addColorStop(1,   rgbaFromHex(theme.mistColor, baseAlpha * 0.48 * pulse));
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, VW, VH);
-
-  // 漂うブロブ
+  // 煙の塊。奥行きごとに大きさと速度を変えて、手前へ流れる感じにする。
   for (const p of particles.blobs) {
-    const px = (((p.bx + Math.sin(t * p.dxFreq + p.bx) * p.dxAmp) % VW) + VW) % VW;
-    const py = Math.max(5, Math.min(VH - 5, p.by + Math.cos(t * p.dyFreq + p.by * 0.05) * p.dyAmp));
-    const alpha = p.alphaBase * (0.6 + 0.4 * Math.sin(t * p.alphaFreq + p.alphaPhase));
-    ctx.fillStyle = rgbaFromHex(theme.mistColor, alpha);
+    const z = p.depth;
+    const wrapH = VH + 120;
+    const y = ((p.by + t * p.speed * (0.35 + z) + Math.sin(t * 0.45 + p.phase) * 11 + 60) % wrapH) - 60;
+    const perspective = 0.48 + z * 1.2;
+    const px = p.bx + Math.sin(t * 0.24 + p.phase) * p.drift + (z - 0.5) * Math.sin(t * 0.11) * 28;
+    const py = y;
+    const rx = p.size * perspective * (1.15 + density * 0.45);
+    const ry = Math.max(3, p.size * 0.18 * perspective);
+    const alpha = p.alpha * (0.55 + 0.45 * Math.sin(t * 0.8 + p.phase));
+    const blob = ctx.createRadialGradient(px, py, 0, px, py, rx);
+    blob.addColorStop(0, rgbaFromHex(theme.mistColor, alpha));
+    blob.addColorStop(0.58, rgbaFromHex(theme.mistColor, alpha * 0.35));
+    blob.addColorStop(1, rgbaFromHex(theme.mistColor, 0));
+    ctx.fillStyle = blob;
     ctx.beginPath();
-    ctx.ellipse(px, py, p.rx, p.ry, p.angle + Math.sin(t * 0.17) * 0.1, 0, Math.PI * 2);
+    ctx.ellipse(px, py, rx, ry, Math.sin(t * 0.17 + p.phase) * 0.18, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 横に流れるウィスプ
+  // 細い霧の筋。通路の奥へ吸い込まれるように斜めへ流す。
   for (const w of particles.wisps) {
-    const wx = ((w.dir * t * w.speed + w.by * 40) % VW + VW) % VW;
-    const alpha = w.alphaBase * (0.65 + 0.35 * Math.sin(t * w.alphaFreq + w.alphaPhase));
-    ctx.fillStyle = rgbaFromHex(theme.mistColor, alpha);
-    for (const ox of [0, w.dir > 0 ? -VW : VW]) {
-      ctx.beginPath();
-      ctx.ellipse(wx + ox, w.by, w.rx, w.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    const z = w.depth;
+    const travel = (t * w.speed + w.phase * 80) % (VW + w.length);
+    const cx = travel - w.length / 2;
+    const cy = w.by + Math.sin(t * 0.55 + w.phase) * w.sway * (0.35 + z);
+    const lean = (z - 0.45) * 46 + Math.sin(t * 0.19 + w.phase) * 18;
+    const length = w.length * (0.55 + z);
+    const thickness = w.thickness * (0.55 + z * 0.9);
+    const alpha = w.alpha * (0.62 + 0.38 * Math.sin(t * 0.7 + w.phase));
+    const lineGrad = ctx.createLinearGradient(cx - length / 2, cy, cx + length / 2, cy + lean);
+    lineGrad.addColorStop(0, rgbaFromHex(theme.mistColor, 0));
+    lineGrad.addColorStop(0.3, rgbaFromHex(theme.mistColor, alpha));
+    lineGrad.addColorStop(0.7, rgbaFromHex(theme.mistColor, alpha * 0.65));
+    lineGrad.addColorStop(1, rgbaFromHex(theme.mistColor, 0));
+    ctx.strokeStyle = lineGrad;
+    ctx.lineWidth = thickness;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx - length / 2, cy);
+    ctx.quadraticCurveTo(cx, cy - 16 * z, cx + length / 2, cy + lean);
+    ctx.stroke();
+  }
+
+  // 霧に混じる小さな光。濃い階ほど「深淵」っぽさを少し足す。
+  for (const s of particles.sparks) {
+    const z = s.depth;
+    const y = ((s.by - t * s.speed * (0.45 + z) + 50) % (VH + 100) + (VH + 100)) % (VH + 100) - 50;
+    const x = s.bx + Math.sin(t * 0.5 + s.phase) * 18 * z;
+    const blink = 0.45 + 0.55 * Math.sin(t * 1.8 + s.phase);
+    const r = s.size * (0.65 + z);
+    ctx.fillStyle = rgbaFromHex(theme.mistColor, s.alpha * blink);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 画面奥の中心にだけ薄い渦。迷宮の奥行きを強める。
+  const vortexAlpha = density * (0.08 + 0.035 * Math.sin(t * 0.9));
+  ctx.strokeStyle = rgbaFromHex(theme.mistColor, vortexAlpha);
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 4; i++) {
+    const r = 22 + i * 18 + Math.sin(t * 0.7 + i) * 5;
+    ctx.beginPath();
+    ctx.ellipse(VW / 2, VH * 0.48, r * 1.8, r * 0.5, t * 0.08 + i * 0.35, 0.2, Math.PI * 1.65);
+    ctx.stroke();
   }
 
   ctx.restore();

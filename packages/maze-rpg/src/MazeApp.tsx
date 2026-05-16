@@ -99,6 +99,8 @@ export interface MazeRpgConfig {
   bgm?: string;
   /** バトル中に流れる BGM（省略時は bgm を継続） */
   battleBgm?: string;
+  /** ボスバトル中に流れる BGM（省略時は battleBgm を使用） */
+  bossBgm?: string;
   /** ミニマップ表示。'visited' なら通ったマスだけを表示する（省略時は 'full'） */
   minimapMode?: MiniMapMode;
   /** インベントリに表示するアイテム情報（NovelEngineAdapter が自動注入） */
@@ -156,8 +158,15 @@ function useGameScale() {
   return scale;
 }
 
-function useMazeBgm(assetsBaseUrl: string, bgm: string | undefined, battleBgm: string | undefined, inBattle: boolean) {
-  const activeBgm = inBattle && battleBgm ? battleBgm : bgm;
+function useMazeBgm(
+  assetsBaseUrl: string,
+  bgm: string | undefined,
+  battleBgm: string | undefined,
+  bossBgm: string | undefined,
+  inBattle: boolean,
+  inBossBattle: boolean,
+) {
+  const activeBgm = inBossBattle && bossBgm ? bossBgm : inBattle && battleBgm ? battleBgm : bgm;
 
   useEffect(() => {
     if (!activeBgm) return;
@@ -495,7 +504,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   const theme = mergeFloorTheme(config.theme, config.floorThemes, state.floor);
   const assetsBaseUrl = config.assetsBaseUrl ?? '/assets';
 
-  useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, !!state.battle);
+  useMazeBgm(assetsBaseUrl, config.bgm, config.battleBgm, config.bossBgm, !!state.battle, !!state.battle && !!state.pendingBossTilePos);
 
   const [itemPanelMode, setItemPanelMode] = useState<'explore' | 'battle'>('explore');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -755,6 +764,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         assetsBaseUrl: config.assetsBaseUrl,
         bgm:          config.bgm,
         battleBgm:    config.battleBgm,
+        bossBgm:      config.bossBgm,
         floorLabelStart: config.floorLabelStart,
         floorLabelPrefix: config.floorLabelPrefix,
         items:        config.items,
@@ -818,6 +828,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         assetsBaseUrl: config.assetsBaseUrl,
         bgm:          config.bgm,
         battleBgm:    config.battleBgm,
+        bossBgm:      config.bossBgm,
         floorLabelStart: config.floorLabelStart,
         floorLabelPrefix: config.floorLabelPrefix,
         items:        config.items,

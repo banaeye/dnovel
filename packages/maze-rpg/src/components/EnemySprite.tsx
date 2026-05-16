@@ -1,4 +1,5 @@
 import type { Enemy } from '../engine/types.js';
+import { useState } from 'react';
 
 interface EnemySpriteProps {
   enemy: Enemy;
@@ -8,6 +9,7 @@ interface EnemySpriteProps {
 }
 
 export function EnemySprite({ enemy, assetsBaseUrl, defeated = false, onClick }: EnemySpriteProps) {
+  const [imageFailed, setImageFailed] = useState(false);
   const hpRatio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 1;
   const opacity = 0.4 + hpRatio * 0.6;
   const src = `${assetsBaseUrl}/enemies/${enemy.id}.png`;
@@ -25,65 +27,58 @@ export function EnemySprite({ enemy, assetsBaseUrl, defeated = false, onClick }:
         pointerEvents: 'none',
       }}
     >
-      {/* ダークハロー */}
-      <div
-        style={{
-          position: 'absolute',
-          width: isBoss ? 380 : 250,
-          height: isBoss ? 340 : 220,
-          borderRadius: '50%',
-          background: isBoss
-            ? 'radial-gradient(circle, rgba(80,0,0,0.80) 0%, rgba(0,0,0,0.60) 40%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(0,0,0,0.70) 0%, transparent 68%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        onClick={onClick && !defeated ? onClick : undefined}
-        style={{
-          position: 'absolute',
-          width: isBoss ? 210 : 142,
-          height: isBoss ? 230 : 152,
-          clipPath: fallback.shape,
-          background: fallback.body,
-          opacity: opacity * 0.76,
-          boxShadow: isBoss ? '0 0 34px rgba(210,60,120,0.72)' : '0 0 24px rgba(190,210,255,0.32)',
-          transform: defeated ? 'scale(1.18) rotate(-3deg)' : undefined,
-          transition: 'opacity 0.5s, transform 0.45s',
-          pointerEvents: onClick && !defeated ? 'auto' : 'none',
-          cursor: onClick && !defeated ? 'crosshair' : 'default',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          width: isBoss ? 96 : 58,
-          height: isBoss ? 70 : 44,
-          background: fallback.core,
-          backgroundSize: enemy.id === 'skeleton' ? '50% 100%' : undefined,
-          backgroundPosition: enemy.id === 'skeleton' ? '0 0, 100% 0' : undefined,
-          backgroundRepeat: 'no-repeat',
-          opacity: opacity * 0.72,
-          color: 'rgba(255,255,255,0.55)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: isBoss ? 42 : 24,
-          fontFamily: 'serif',
-          textShadow: '0 0 10px rgba(255,255,255,0.55)',
-          pointerEvents: 'none',
-        }}
-      >
-        {fallback.mark}
-      </div>
+      {imageFailed && (
+        <>
+          <div
+            aria-hidden="true"
+            onClick={onClick && !defeated ? onClick : undefined}
+            style={{
+              position: 'absolute',
+              width: isBoss ? 250 : 174,
+              height: isBoss ? 270 : 188,
+              clipPath: fallback.shape,
+              background: fallback.body,
+              opacity: opacity * 0.76,
+              boxShadow: isBoss ? '0 0 34px rgba(210,60,120,0.72)' : '0 0 24px rgba(190,210,255,0.32)',
+              transform: defeated ? 'scale(1.18) rotate(-3deg)' : undefined,
+              transition: 'opacity 0.5s, transform 0.45s',
+              pointerEvents: onClick && !defeated ? 'auto' : 'none',
+              cursor: onClick && !defeated ? 'crosshair' : 'default',
+            }}
+          />
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              width: isBoss ? 112 : 70,
+              height: isBoss ? 82 : 54,
+              background: fallback.core,
+              backgroundSize: enemy.id === 'skeleton' ? '50% 100%' : undefined,
+              backgroundPosition: enemy.id === 'skeleton' ? '0 0, 100% 0' : undefined,
+              backgroundRepeat: 'no-repeat',
+              opacity: opacity * 0.72,
+              color: 'rgba(255,255,255,0.55)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: isBoss ? 46 : 28,
+              fontFamily: 'serif',
+              textShadow: '0 0 10px rgba(255,255,255,0.55)',
+              pointerEvents: 'none',
+            }}
+          >
+            {fallback.mark}
+          </div>
+        </>
+      )}
       <img
         src={src}
         alt={enemy.name}
         style={{
           position: 'relative',
-          maxHeight: isBoss ? 280 : 180,
-          maxWidth: isBoss ? 300 : 220,
+          display: imageFailed ? 'none' : 'block',
+          maxHeight: isBoss ? 330 : 224,
+          maxWidth: isBoss ? 360 : 270,
           objectFit: 'contain',
           opacity,
           transition: 'opacity 0.5s, transform 0.45s, filter 0.45s',
@@ -97,7 +92,7 @@ export function EnemySprite({ enemy, assetsBaseUrl, defeated = false, onClick }:
         }}
         title={onClick && !defeated ? `${enemy.name}を攻撃` : undefined}
         onClick={onClick}
-        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        onError={() => setImageFailed(true)}
       />
       {defeated && (
         <div

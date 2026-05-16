@@ -11,6 +11,7 @@ export interface SpotDifferenceConfig {
   cellSize?: number;
   cellGap?: number;
   timePenaltyMs?: number;
+  bgm?: string;
   imagePool?: string[];
   assetsBaseUrl?: string;
   _novelReturn?: unknown;
@@ -144,6 +145,7 @@ function makeProblem(gridSize: number, images: string[]): Problem {
 function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDifferenceConfig>) {
   const scale = useGameScale();
   const stageId = config.stageId || 'default';
+  const bgm = config.bgm ?? 'audio/bgm/quiz.mp3';
   const timeLimitMs = Math.max(5000, config.timeLimitMs ?? 30000);
   const timePenaltyMs = Math.max(0, config.timePenaltyMs ?? 3000);
   const targetCount = Math.max(1, config.targetCount ?? 5);
@@ -167,6 +169,19 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
   const [problem, setProblem] = useState(() => makeProblem(gridSize, images));
 
   const remainingMs = Math.max(0, timeLimitMs - (now - startedAt) - penaltyMs);
+
+  useEffect(() => {
+    const src = resolveAsset(config.assetsBaseUrl, bgm);
+    if (!src) return;
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = 0.55;
+    audio.play().catch(() => {/* autoplay policy or file not found */});
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [bgm, config.assetsBaseUrl]);
 
   useEffect(() => {
     setProblem(makeProblem(gridSize, images));

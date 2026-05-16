@@ -178,7 +178,7 @@ scenes:
         durationMs: 30000
         stompEnemies: true
         lives: 3
-        bgm: audio/bgm/action1.mp3
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         objectSpeedMultiplier: 1.15
         playerImage: runner/hero.png
@@ -851,7 +851,7 @@ scenes:
         stompEnemies: true
         enemySet: deep
         lives: 3
-        bgm: audio/bgm/action2.mp3
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         objectSpeedMultiplier: 1.05
         playerImage: runner/hero.png
@@ -1239,7 +1239,7 @@ scenes:
         stompEnemies: true
         enemySet: boss
         lives: 4
-        bgm: audio/bgm/boss.mp3
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.26
         objectSpeedMultiplier: 1.1
         playerImage: runner/hero.png

@@ -232,7 +232,7 @@ scenes:
         mode: chase
         name: チケットを取り返せ！
         durationMs: 25000
-        bgm: synth:runner
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         backgroundImage: runner/loop_park.jpg
         backgroundLoopWidth: 1352
@@ -361,7 +361,7 @@ scenes:
         mode: chase
         name: チケットを取り返せ！
         durationMs: 30000
-        bgm: synth:runner
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         chaseStartDistance: 90
         chaseCatchRate: 0.0054
@@ -925,7 +925,7 @@ scenes:
         stageId: arcade_deathmatch
         name: アメちゃんゲット大会
         durationMs: 30000
-        bgm: synth:runner
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         objectSpeedMultiplier: 1.25
         backgroundImage: runner/arcade_loop.jpg
@@ -1235,7 +1235,7 @@ scenes:
         stageId: arcade_deathmatch
         name: アーケード街の死闘
         durationMs: 30000
-        bgm: synth:runner
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         objectSpeedMultiplier: 1.25
         backgroundImage: runner/arcade_loop.jpg

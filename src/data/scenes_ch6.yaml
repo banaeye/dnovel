@@ -639,7 +639,7 @@ scenes:
       config:
         stageId: ch6_mentor_training
         title: メンター修行・違う絵探し
-        timeLimitMs: 40000
+        timeLimitMs: 50000
         targetCount: 5
         gridSize: 30
         gridColumns: 6
@@ -803,7 +803,7 @@ scenes:
       config:
         stageId: ch6_mentor_training_final
         title: メンター修行・勇者のしるし
-        timeLimitMs: 42000
+        timeLimitMs: 52000
         targetCount: 6
         gridSize: 36
         gridColumns: 6
@@ -1138,7 +1138,7 @@ scenes:
   - id: scene_ch6_final_maze_enter
     location_id: loc_ichibangai
     background: backgrounds/ichibangai_gate.jpg
-    bgm: audio/bgm/dungeon.mp3
+    bgm: audio/bgm/fog.mp3
     characters:
       - character_id: char_yui
         position: center
@@ -1176,8 +1176,9 @@ scenes:
               hp: 42
               atk: 9
               def: 4
-        bgm: audio/bgm/dungeon.mp3
-        battleBgm: audio/bgm/buttle.mp3
+        bgm: audio/bgm/fog.mp3
+        battleBgm: audio/bgm/buttle2.mp3
+        bossBgm: audio/bgm/buttle_last.mp3
         theme:
           wallFront: "#394056"
           wallSide: "#171d2c"
@@ -2320,7 +2321,7 @@ scenes:
         mode: chase
         name: おばちゃんを追いかけろ！
         durationMs: 26000
-        bgm: synth:runner
+        bgm: audio/bgm/rase.mp3
         bgmVolume: 0.24
         backgroundImage: runner/arcade_loop.jpg
         backgroundLoopWidth: 1352
