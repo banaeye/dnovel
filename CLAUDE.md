@@ -539,6 +539,7 @@ interface ChapterConfig {
 
 ### 利用例（App.tsx）
 
+{% raw %}
 ```tsx
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 import { getMasterData } from './loaders/demoLoader';
@@ -575,6 +576,7 @@ const chapter2MasterData = getMasterData('chapter2');
   initialContext={{ flags: {}, inventory: [], playerStats: {} }}
 />
 ```
+{% endraw %}
 
 ---
 
@@ -824,6 +826,7 @@ GitHub Actions が `master` ブランチへの push で自動デプロイ。
 npm install @novel-engine/core react react-dom zustand js-yaml
 ```
 
+{% raw %}
 ```tsx
 import { NovelApp, parseMasterData } from '@novel-engine/core';
 
@@ -839,6 +842,7 @@ export default function App() {
   );
 }
 ```
+{% endraw %}
 
 ### GameHub（マルチエンジン）
 
@@ -846,6 +850,7 @@ export default function App() {
 npm install @novel-engine/core @novel-engine/hub @novel-engine/maze-rpg react react-dom zustand js-yaml
 ```
 
+{% raw %}
 ```tsx
 import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
 import { MazeRpgEngine } from '@novel-engine/maze-rpg';
@@ -860,6 +865,7 @@ export default function App() {
   );
 }
 ```
+{% endraw %}
 
 独自エンジンを作る場合は `IGameEngine<TConfig>` を実装する:
 

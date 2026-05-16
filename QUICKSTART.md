@@ -160,6 +160,7 @@ scenes:
 
 ## 6. App.tsx を実装
 
+{% raw %}
 ```typescript
 import scenesRaw    from './data/scenes.yaml?raw';
 import flagsRaw     from './data/flags.yaml?raw';
@@ -193,6 +194,7 @@ export default function App() {
   );
 }
 ```
+{% endraw %}
 
 ---
 

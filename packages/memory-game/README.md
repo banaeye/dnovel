@@ -152,6 +152,7 @@ next_engine:
 
 ## App.tsx への組み込み
 
+{% raw %}
 ```tsx
 import { MemoryGameEngine } from '@novel-engine/memory-game';
 
@@ -163,6 +164,7 @@ import { MemoryGameEngine } from '@novel-engine/memory-game';
   ...
 />
 ```
+{% endraw %}
 
 ---
 

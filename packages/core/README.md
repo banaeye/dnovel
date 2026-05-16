@@ -34,6 +34,7 @@ src/data/
 
 ### 2. YAML を読み込んでゲームを起動する
 
+{% raw %}
 ```tsx
 // src/App.tsx
 import scenesRaw    from './data/scenes.yaml?raw';
@@ -68,6 +69,7 @@ export default function App() {
   );
 }
 ```
+{% endraw %}
 
 ### 3. アセットを配置する
 
