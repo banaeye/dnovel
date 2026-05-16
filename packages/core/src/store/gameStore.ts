@@ -143,10 +143,11 @@ export function createGameStore(
     },
 
     toSaveData: (): SaveData => {
-      const { state, playtimeStart } = get();
+      const { state, masterData, playtimeStart } = get();
       return {
         version: SAVE_DATA_VERSION,
         chapterId: get().chapterId,
+        locationName: masterData.locations[state.currentLocationId]?.name,
         timestamp: Date.now(),
         currentSceneId: state.currentSceneId,
         currentLocationId: state.currentLocationId,

@@ -5,6 +5,7 @@ import type { GamePhase } from '../types/gameState';
 export interface SaveData {
   version: number;
   chapterId?: string;
+  locationName?: string;
   timestamp: number;
   currentSceneId: string;
   currentLocationId: string;
@@ -36,7 +37,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
 };
 
 export const SAVE_DATA_VERSION = 1;
-export const MAX_SAVE_SLOTS = 3;
+export const MAX_SAVE_SLOTS = 10;
 
 export interface IStorage {
   save(slotId: number, data: SaveData): Promise<void>;

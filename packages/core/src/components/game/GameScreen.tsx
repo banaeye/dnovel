@@ -6,6 +6,7 @@ import { useAudioStore } from '../../store/audioStore';
 import { getAvailableCommands } from '../../engine/CommandEngine';
 import { getAvailableConnections } from '../../engine/LocationEngine';
 import type { SaveData } from '../../storage/StorageInterface';
+import type { ChapterConfig } from '../../types/chapter';
 import { SceneBackground } from './SceneBackground';
 import { CharacterSprite } from './CharacterSprite';
 import { DialogueBox } from './DialogueBox';
@@ -24,9 +25,10 @@ interface GameScreenProps {
   onLoadGame: (saveData: SaveData) => void;
   /** エンディング完了後に呼ばれるコールバック。省略時は goToTitle */
   onTitle?: () => void;
+  chapters?: ChapterConfig[];
 }
 
-export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
+export function GameScreen({ onLoadGame, onTitle, chapters }: GameScreenProps) {
   const {
     state,
     masterData,
@@ -245,6 +247,7 @@ export function GameScreen({ onLoadGame, onTitle }: GameScreenProps) {
           onGetSaveData={toSaveData}
           onLoad={onLoadGame}
           onTitle={goToTitle}
+          chapters={chapters}
         />
       )}
 

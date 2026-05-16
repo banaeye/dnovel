@@ -95,7 +95,7 @@ const CHAPTERS: ChapterConfig[] = [
   {
     id: 'chapter6',
     title: '第6章へ',
-    chapterTitle: '一番街の迷宮を脱出せよ！',
+    chapterTitle: '伝説の勇者たち',
     masterData: chapter6MasterData,
     initialSceneId: 'scene_ch6_start',
     initialLocationId: 'loc_danchi',

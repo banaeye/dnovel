@@ -5,15 +5,17 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { SaveLoadMenu } from './SaveLoadMenu';
 import { SettingsPanel } from './SettingsPanel';
+import type { ChapterConfig } from '../../types/chapter';
 import styles from './SystemMenu.module.css';
 
 interface SystemMenuProps {
   onGetSaveData: () => SaveData;
   onLoad: (saveData: SaveData) => void;
   onTitle: () => void;
+  chapters?: ChapterConfig[];
 }
 
-export function SystemMenu({ onGetSaveData, onLoad, onTitle }: SystemMenuProps) {
+export function SystemMenu({ onGetSaveData, onLoad, onTitle, chapters }: SystemMenuProps) {
   const [open, setOpen] = useState(false);
   const [showSaveLoad, setShowSaveLoad] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -64,6 +66,7 @@ export function SystemMenu({ onGetSaveData, onLoad, onTitle }: SystemMenuProps) 
             setOpen(false);
           }}
           onClose={() => setShowSaveLoad(false)}
+          chapters={chapters}
         />
       )}
     </>

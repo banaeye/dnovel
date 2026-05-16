@@ -213,7 +213,7 @@ function GameContent({
             onStartChapter={handleStartChapter}
           />
         ) : (
-          <GameScreen onLoadGame={onLoadGame} onTitle={handleEndingToTitle} />
+          <GameScreen onLoadGame={onLoadGame} onTitle={handleEndingToTitle} chapters={chapters} />
         )}
       </div>
       <button

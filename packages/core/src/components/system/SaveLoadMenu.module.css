@@ -1,36 +1,66 @@
 .slots {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+  max-height: 440px;
+  overflow-y: auto;
 }
 
 .slot {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 6px 10px;
   background: rgba(15, 12, 25, 0.8);
   border: 1px solid #3a2a18;
   border-radius: 3px;
 }
 
-.slotInfo {
-  flex: 1;
+.slotNum {
+  width: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: #8a7a60;
+  flex-shrink: 0;
 }
 
-.slotLabel {
+.slotInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.slotMeta {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  margin-bottom: 1px;
+}
+
+.slotChapter {
   font-size: 12px;
-  color: #8a7a60;
-  margin-bottom: 2px;
+  color: #c8a85a;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.slotLocation {
+  font-size: 11px;
+  color: #a09880;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .slotData {
-  font-size: 13px;
-  color: #c0b8a8;
+  font-size: 11px;
+  color: #8a8070;
 }
 
 .slotEmpty {
-  font-size: 13px;
+  font-size: 11px;
   color: #4a3a28;
   font-style: italic;
 }
@@ -38,12 +68,13 @@
 .slotActions {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .tabs {
   display: flex;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .tab {

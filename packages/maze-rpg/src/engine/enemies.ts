@@ -51,7 +51,7 @@ export const MAP_FLOOR_ENEMIES: Record<string, Record<number, EnemyTemplate[]>> 
 export const MAP_BOSS: Record<string, EnemyTemplate> = {
   dungeon_02: { id: 'maze_boss', name: '迷宮の主', hp: 22, atk: 7, def: 2 },
   dungeon_03: { id: 'maze_boss', name: '迷宮の主', hp: 22, atk: 7, def: 2 },
-  ichibangai_abyss_5f: { id: 'abyss_boss', name: '巨大迷宮の怨霊', hp: 30, atk: 8, def: 3 },
+  ichibangai_abyss_5f: { id: 'maze_boss', name: '迷宮の主', hp: 22, atk: 7, def: 2 },
   ichibangai_abyss_final_13f: { id: 'abyss_boss', name: '一番街の深淵', hp: 42, atk: 10, def: 4 },
 };
 

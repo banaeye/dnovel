@@ -4,6 +4,7 @@ import { MAX_SAVE_SLOTS } from '../../storage/StorageInterface';
 import { getStorage } from '../../storage/StorageFactory';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
+import type { ChapterConfig } from '../../types/chapter';
 import styles from './SaveLoadMenu.module.css';
 
 type Tab = 'save' | 'load';
@@ -13,9 +14,10 @@ interface SaveLoadMenuProps {
   onLoad: (saveData: SaveData) => void;
   onClose: () => void;
   initialTab?: Tab;
+  chapters?: ChapterConfig[];
 }
 
-export function SaveLoadMenu({ onSave, onLoad, onClose, initialTab = 'save' }: SaveLoadMenuProps) {
+export function SaveLoadMenu({ onSave, onLoad, onClose, initialTab = 'save', chapters }: SaveLoadMenuProps) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [saves, setSaves] = useState<Array<{ slotId: number; data: SaveData } | null>>([]);
 
@@ -40,6 +42,11 @@ export function SaveLoadMenu({ onSave, onLoad, onClose, initialTab = 'save' }: S
     });
   }
 
+  function getChapterTitle(chapterId?: string): string | undefined {
+    if (!chapterId || !chapters) return undefined;
+    return chapters.find((c) => c.id === chapterId)?.title;
+  }
+
   return (
     <Modal title="セーブ / ロード" onClose={onClose}>
       <div className={styles.tabs}>
@@ -61,15 +68,22 @@ export function SaveLoadMenu({ onSave, onLoad, onClose, initialTab = 'save' }: S
         {Array.from({ length: MAX_SAVE_SLOTS }, (_, i) => {
           const slotId = i + 1;
           const entry = saves[i] ?? null;
+          const chapterTitle = entry ? getChapterTitle(entry.data.chapterId) : undefined;
           return (
             <div key={slotId} className={styles.slot}>
+              <div className={styles.slotNum}>{slotId}</div>
               <div className={styles.slotInfo}>
-                <div className={styles.slotLabel}>スロット {slotId}</div>
                 {entry ? (
-                  <div className={styles.slotData}>
-                    {formatDate(entry.data.timestamp)}
-                    　プレイ時間: {Math.floor(entry.data.playtime / 60)}分
-                  </div>
+                  <>
+                    <div className={styles.slotMeta}>
+                      {chapterTitle && <span className={styles.slotChapter}>{chapterTitle}</span>}
+                      {entry.data.locationName && <span className={styles.slotLocation}>{entry.data.locationName}</span>}
+                    </div>
+                    <div className={styles.slotData}>
+                      {formatDate(entry.data.timestamp)}
+                      　{Math.floor(entry.data.playtime / 60)}分
+                    </div>
+                  </>
                 ) : (
                   <div className={styles.slotEmpty}>データなし</div>
                 )}

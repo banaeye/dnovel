@@ -93,6 +93,7 @@ export function TitleScreen({ onNewGame, onLoad, chapters, onStartChapter }: Tit
           }}
           onClose={() => setShowLoad(false)}
           initialTab="load"
+          chapters={chapters}
         />
       )}
     </div>
