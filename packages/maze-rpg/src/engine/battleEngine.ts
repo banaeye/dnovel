@@ -117,6 +117,7 @@ export function handleBattleKey(state: MazeState, key: string): MazeState {
         battle: null,
         pendingBossTilePos: null,
         triggeredEvents,
+        lastBossDefeated: true,
       };
     }
     return { ...state, battle: null };

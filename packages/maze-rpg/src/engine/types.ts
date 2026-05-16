@@ -75,4 +75,6 @@ export interface MazeState {
   pendingDeath: boolean;
   /** ボスタイルを踏んだ座標 "x,y"。勝利後に triggeredEvents へ追加して null に戻す */
   pendingBossTilePos: string | null;
+  /** true のときボス撃破後のノベル遷移待ち */
+  lastBossDefeated: boolean;
 }

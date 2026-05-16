@@ -62,8 +62,8 @@ export function MiniMap({ state, mode = 'full' }: { state: MazeState; mode?: Min
           if (cell === 'X') {
             ctx.fillStyle = '#33bb55';
             ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
-          } else if (cell === 'U' || cell === 'D') {
-            ctx.fillStyle = cell === 'D' ? '#55aaff' : '#ddaa44';
+          } else if (cell === 'D') {
+            ctx.fillStyle = '#55aaff';
             ctx.fillRect(sx + 2, sy + 2, CELL - 4, CELL - 4);
           } else if (isSealSwitch(state, cell)) {
             ctx.fillStyle = '#ffdd66';

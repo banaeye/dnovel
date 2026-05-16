@@ -112,23 +112,33 @@ function resolveAsset(assetsBaseUrl: string | undefined, path: string | undefine
   return base ? `${base}/${clean}` : `/${clean}`;
 }
 
-function makeProblem(round: number, gridSize: number, images: string[]): Problem {
-  const base = SYMBOLS[round % SYMBOLS.length];
-  const odd = SYMBOLS[(round + 3) % SYMBOLS.length];
-  const oddIndex = (round * 11 + 7) % gridSize;
+function randomIndex(length: number): number {
+  return Math.floor(Math.random() * length);
+}
+
+function makeProblem(gridSize: number, images: string[]): Problem {
+  const baseIndex = randomIndex(SYMBOLS.length);
+  let oddSymbolIndex = randomIndex(SYMBOLS.length);
+  if (oddSymbolIndex === baseIndex) oddSymbolIndex = (oddSymbolIndex + 1) % SYMBOLS.length;
+
+  const base = SYMBOLS[baseIndex]!;
+  const odd = SYMBOLS[oddSymbolIndex]!;
+  const oddIndex = randomIndex(gridSize);
+  const tint = COLORS[randomIndex(COLORS.length)]!;
   if (images.length >= 2) {
-    const baseIndex = round % images.length;
-    const oddIndexInPool = (baseIndex + 1 + (round % (images.length - 1))) % images.length;
+    const baseImageIndex = randomIndex(images.length);
+    let oddImageIndex = randomIndex(images.length);
+    if (oddImageIndex === baseImageIndex) oddImageIndex = (oddImageIndex + 1) % images.length;
     return {
       base,
       odd,
-      baseImage: images[baseIndex],
-      oddImage: images[oddIndexInPool],
+      baseImage: images[baseImageIndex],
+      oddImage: images[oddImageIndex],
       oddIndex,
-      tint: COLORS[round % COLORS.length],
+      tint,
     };
   }
-  return { base, odd, oddIndex, tint: COLORS[round % COLORS.length] };
+  return { base, odd, oddIndex, tint };
 }
 
 function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDifferenceConfig>) {
@@ -154,9 +164,14 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; index: number; seq: number } | null>(null);
   const [screenFlash, setScreenFlash] = useState<{ type: 'correct' | 'wrong'; seq: number } | null>(null);
   const [finished, setFinished] = useState<'win' | 'lose' | null>(null);
-  const problem = useMemo(() => makeProblem(round, gridSize, images), [round, gridSize, images]);
+  const [problem, setProblem] = useState(() => makeProblem(gridSize, images));
 
   const remainingMs = Math.max(0, timeLimitMs - (now - startedAt) - penaltyMs);
+
+  useEffect(() => {
+    setProblem(makeProblem(gridSize, images));
+    setRound(0);
+  }, [gridSize, images]);
 
   useEffect(() => {
     if (finished) return;
@@ -202,6 +217,7 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
         if (nextScore >= targetCount) {
           setFinished('win');
         } else {
+          setProblem(makeProblem(gridSize, images));
           setRound((r) => r + 1);
         }
       }, 780);
@@ -213,7 +229,7 @@ function SpotDifferenceComponent({ context, config, onExit }: EngineProps<SpotDi
       setPenaltyMs((ms) => ms + timePenaltyMs);
       window.setTimeout(() => setFeedback(null), 580);
     }
-  }, [feedback, finished, problem.oddIndex, score, targetCount, timePenaltyMs]);
+  }, [feedback, finished, gridSize, images, problem.oddIndex, score, targetCount, timePenaltyMs]);
 
   const gridW = cols * cell + (cols - 1) * gap;
   const rows = Math.ceil(gridSize / cols);

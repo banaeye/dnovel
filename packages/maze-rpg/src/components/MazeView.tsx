@@ -179,10 +179,18 @@ function renderScene(ctx: CanvasRenderingContext2D, state: MazeState, theme: Req
     ctx.fillRect(fl, ft, frf - fl, ffb - ft);
   }
 
+  if (getCell(state.map, state.pos.x, state.pos.y) === 'D') {
+    drawDownStairs(ctx, 0, theme);
+  }
+
   for (let d = 1; d <= MAX_DEPTH; d++) {
     const pos = getForwardPos(state, d);
     const tile = getCell(state.map, pos.x, pos.y);
     if (tile === '#') break;
+    if (tile === 'D') {
+      drawDownStairs(ctx, d, theme);
+      break;
+    }
     if (isTreasureTile(state, tile)) {
       if (!isTreasureOpen(state, state.floor, pos)) drawTreasureChest(ctx, d, tile);
       break;
@@ -284,6 +292,68 @@ function drawAnimatedMist(
     }
   }
 
+  ctx.restore();
+}
+
+function drawDownStairs(ctx: CanvasRenderingContext2D, depth: number, theme: Required<MazeTheme>) {
+  const frame = depth === 0 ? FRAMES[1]! : FRAMES[depth] ?? FRAMES[MAX_DEPTH]!;
+  const [fl, ft, fr, fb] = frame;
+  const near = depth === 0;
+  const cx = (fl + fr) / 2;
+  const floorTop = VH / 2;
+  const baseY = near ? VH - 22 : fb - (fb - ft) * 0.08;
+  const topY = near ? Math.max(floorTop + 30, VH - 94) : fb - (fb - ft) * 0.34;
+  const width = near ? 230 : Math.max(34, (fr - fl) * 0.54);
+  const topWidth = width * 0.42;
+  const bottomWidth = width;
+  const height = Math.max(18, baseY - topY);
+  const alpha = near ? 0.92 : Math.max(0.38, 0.9 / Math.max(1, depth * 0.86));
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.shadowColor = rgbaFromHex(theme.uiAccent, 0.65);
+  ctx.shadowBlur = near ? 18 : 10 / Math.max(1, depth);
+
+  const pitGrad = ctx.createLinearGradient(cx, topY, cx, baseY);
+  pitGrad.addColorStop(0, rgbaFromHex(theme.floorBottom, 0.25));
+  pitGrad.addColorStop(0.35, '#05070d');
+  pitGrad.addColorStop(1, '#000000');
+  ctx.fillStyle = pitGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx - topWidth / 2, topY);
+  ctx.lineTo(cx + topWidth / 2, topY);
+  ctx.lineTo(cx + bottomWidth / 2, baseY);
+  ctx.lineTo(cx - bottomWidth / 2, baseY);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = rgbaFromHex(theme.uiAccent, near ? 0.62 : 0.42);
+  ctx.lineWidth = Math.max(1, near ? 3 : 2 / Math.max(1, depth));
+  ctx.beginPath();
+  ctx.moveTo(cx - topWidth / 2, topY);
+  ctx.lineTo(cx - bottomWidth / 2, baseY);
+  ctx.moveTo(cx + topWidth / 2, topY);
+  ctx.lineTo(cx + bottomWidth / 2, baseY);
+  ctx.stroke();
+
+  const stepCount = near ? 6 : Math.max(3, 7 - depth);
+  for (let i = 1; i <= stepCount; i++) {
+    const t = i / (stepCount + 1);
+    const y = topY + height * t;
+    const w = topWidth + (bottomWidth - topWidth) * t;
+    ctx.strokeStyle = `rgba(180,225,255,${near ? 0.44 : 0.34})`;
+    ctx.lineWidth = Math.max(1, near ? 2 : 1);
+    ctx.beginPath();
+    ctx.moveTo(cx - w / 2, y);
+    ctx.lineTo(cx + w / 2, y);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = rgbaFromHex(theme.uiAccent, near ? 0.16 : 0.1);
+  ctx.beginPath();
+  ctx.ellipse(cx, topY + height * 0.28, bottomWidth * 0.22, height * 0.2, 0, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 

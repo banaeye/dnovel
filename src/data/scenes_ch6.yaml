@@ -646,10 +646,10 @@ scenes:
         cellSize: 62
         cellGap: 10
         imagePool:
-          - difference/obachan01_m.png
-          - difference/obachan02_m.png
-          - difference/obachan03_m.png
-          - difference/obachan04_m.png
+          - difference/mentor01.jpg
+          - difference/mentor02.jpg
+          - difference/mentor03.jpg
+          - difference/mentor04.jpg
       return_scene: scene_ch6_mentor_training_result
 
   - id: scene_ch6_mentor_training_result
@@ -810,10 +810,10 @@ scenes:
         cellSize: 62
         cellGap: 10
         imagePool:
-          - difference/obachan01_m.png
-          - difference/obachan02_m.png
-          - difference/obachan03_m.png
-          - difference/obachan04_m.png
+          - difference/mentor01.jpg
+          - difference/mentor02.jpg
+          - difference/mentor03.jpg
+          - difference/mentor04.jpg
       return_scene: scene_ch6_mentor_second_training_result
 
   - id: scene_ch6_mentor_second_training_result
@@ -1109,7 +1109,7 @@ scenes:
         expression: normal
     talkable:
       - character_id: char_yui
-        scene_id: scene_ch6_talk_yui_maze_gate
+        scene_id: scene_ch6_talk_yui_final_maze_gate
     messages:
       - text: 一番街の入口は開いている。奥から、かすかな灯りが見えた。
         voice_character_id: null
@@ -1271,6 +1271,7 @@ scenes:
           atk: 7
           def: 1
         weakenedBossFlag: flag_ch6_final_boss_weakened
+        bossVictoryScene: scene_ch6_final_maze_result
         itemEffects:
           item_labyrinth_bookmark:
             escapeToNovelScene: scene_ch6_maze_escape_landing
@@ -1298,7 +1299,7 @@ scenes:
 
   - id: scene_ch6_final_maze_director_event
     location_id: loc_ichibangai
-    background: backgrounds/ichibangai_gate.jpg
+    background: backgrounds/inner_ichibangai_dark.jpg
     bgm: audio/bgm/dungeon.mp3
     characters:
       - character_id: char_yui
@@ -1427,8 +1428,6 @@ scenes:
         voice_character_id: char_yui
       - text: 「どこかで、レベルを上げなきゃ……」
         voice_character_id: char_hero
-      - text: 「CoderDojoに戻ってみよう。メンターが来ているかもしれない」
-        voice_character_id: char_yui
     branches:
       type: choice
       choices:
@@ -1471,7 +1470,7 @@ scenes:
         expression: normal
     talkable:
       - character_id: char_yui
-        scene_id: scene_ch6_talk_yui_maze_retry
+        scene_id: scene_ch6_talk_yui_maze_retry_final
     messages:
       - text: 霧の中で力が抜け、ケンはその場に倒れこんだ。
         voice_character_id: null
@@ -1501,15 +1500,102 @@ scenes:
         position: center
         expression: normal
     messages:
-      - text: 13階の奥で深淵を退けると、霧が細い糸のようにほどけていった。
+      - text: 怨霊王が消えた瞬間、13階の霧が細い糸のようにほどけていった。
         voice_character_id: null
-      - text: けれど、一番街の奥にはまだ誰かの灯りが残っている。
+      - text: 足元が白く光り、ケンとユイは一番街の入口へ戻っていた。
         voice_character_id: null
-      - text: 「館長さん……近い」
+      - text: さっきまで黒く沈んでいたゲートの奥に、朝みたいな光が差している。
+        voice_character_id: null
+      - text: 「戻ってきた……本当に、終わったんだ」
         voice_character_id: char_yui
-      - text: （ここまで来た。あと少しだ）
+      - text: 「うん。一番街も、みんなの記憶も、ちゃんと帰ってきた」
         voice_character_id: char_hero
-    next_scene: null
+      - text: ケンは一番街の入口を振り返り、小さく息を吐いた。
+        voice_character_id: null
+      - text: 「団地へ戻ろう。きっと、みんな待ってる」
+        voice_character_id: char_yui
+    next_scene: scene_ch6_danchi_final_reunion
+
+  - id: scene_ch6_danchi_final_reunion
+    location_id: loc_danchi
+    background: backgrounds/danchi_day.jpg
+    bgm: audio/bgm/danchi.mp3
+    ending_title: 全章エンド　赤羽の一日
+    flags_set:
+      - flag: flag_ch6_cleared
+        value: true
+    characters:
+      - character_id: char_obachan
+        position: left
+        expression: normal
+      - character_id: char_yui
+        position: center
+        expression: normal
+      - character_id: char_museum_director
+        position: right
+        expression: normal
+    messages:
+      - text: 団地へ戻ると、夕方の光が住棟の壁をやわらかく染めていた。
+        voice_character_id: null
+      - text: ベンチのそばには、おばちゃんと館長が並んで立っていた。
+        voice_character_id: null
+      - text: 「ケンちゃん、おかえり。よう帰ってきたねえ」
+        voice_character_id: char_obachan
+      - text: 「ただいま。おばちゃんも、無事でよかった」
+        voice_character_id: char_hero
+      - text: 「君たちのおかげだ。三十年前の宿題を、ようやく終えられた」
+        voice_character_id: char_museum_director
+      - text: 「宿題って、ずいぶん長かったですね」
+        voice_character_id: char_yui
+      - text: 館長は少し照れたように笑い、おばちゃんはいつもの調子で小さく肩をすくめた。
+        voice_character_id: null
+      - text: 「長い宿題ほど、終わったあとのお茶がおいしいもんだよ」
+        voice_character_id: char_obachan
+      - text: そのとき、坂の方から息を切らした大学生が駆けてきた。
+        voice_character_id: null
+        characters:
+          - character_id: char_obachan
+            position: left
+            expression: normal
+          - character_id: char_college_student
+            position: center
+            expression: normal
+          - character_id: char_yui
+            position: right
+            expression: normal
+      - text: 「ケンくん！　一番街の霧、消えてましたよ。ほんとに、全部終わったんですね」
+        voice_character_id: char_college_student
+      - text: 「うん。みんなが手伝ってくれたから」
+        voice_character_id: char_hero
+      - text: 「最初はグミひとつだったのに、ずいぶん遠くまで来ましたね」
+        voice_character_id: char_college_student
+      - text: 「赤羽って、そういう街なのかも」
+        voice_character_id: char_yui
+      - text: 「ふふ。小さいものが、人をつないでいくんだよ」
+        voice_character_id: char_obachan
+      - text: ケンは団地の空を見上げた。いつもの夕焼けなのに、少しだけ新しく見えた。
+        voice_character_id: null
+        characters:
+          - character_id: char_obachan
+            position: left
+            expression: normal
+          - character_id: char_yui
+            position: center
+            expression: normal
+          - character_id: char_museum_director
+            position: right
+            expression: normal
+      - text: 「ケン、また明日も赤羽を歩こう」
+        voice_character_id: char_yui
+      - text: 「うん。今度は、普通の一日を」
+        voice_character_id: char_hero
+      - text: 「普通が一番だ。けれど、君たちなら、その普通をちゃんと守っていける」
+        voice_character_id: char_museum_director
+      - text: 「さあ、帰ろうか。今日のアメちゃんは、特別に甘いやつだよ」
+        voice_character_id: char_obachan
+      - text: ケンは笑ってうなずいた。赤羽の一日は、また明日へ続いていく。
+        voice_character_id: null
+    game_end: true
 
   - id: scene_ch6_ichibangai_need_yui
     location_id: loc_ichibangai
@@ -1600,7 +1686,24 @@ scenes:
         voice_character_id: char_hero
       - text: 「迷宮のしおり、忘れないでね」
         voice_character_id: char_yui
-    next_scene: null
+    next_scene: scene_ch6_ichibangai_challenge
+
+  - id: scene_ch6_talk_yui_final_maze_gate
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/dungeon.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: talking
+    messages:
+      - text: 「ここから先が、ほんとうに最後だね」
+        voice_character_id: char_yui
+      - text: 「うん。館長さんも、おばちゃんも助けよう」
+        voice_character_id: char_hero
+      - text: 「迷宮のしおり、忘れないでね」
+        voice_character_id: char_yui
+    next_scene: scene_ch6_ichibangai_final_ready
 
   - id: scene_ch6_maze_no_bookmark
     location_id: loc_ichibangai
@@ -1757,7 +1860,7 @@ scenes:
 
   - id: scene_ch6_maze_event_heartbeat
     location_id: loc_ichibangai
-    background: backgrounds/ichibangai_gate.jpg
+    background: backgrounds/inner_ichibangai_dark.jpg
     bgm: audio/bgm/dungeon.mp3
     characters:
       - character_id: char_yui
@@ -1828,7 +1931,7 @@ scenes:
         voice_character_id: char_yui
       - text: 「うん。準備して、もう一回行こう」
         voice_character_id: char_hero
-    next_scene: null
+    next_scene: scene_ch6_maze_escape_landing
 
   - id: scene_ch6_talk_yui_maze_retry
     location_id: loc_ichibangai
@@ -1843,7 +1946,37 @@ scenes:
         voice_character_id: char_yui
       - text: 「うん。やってみる」
         voice_character_id: char_hero
-    next_scene: null
+    next_scene: scene_ch6_maze_gameover
+
+  - id: scene_ch6_talk_yui_maze_retry_final
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: talking
+    messages:
+      - text: 「修行で見えた道を思い出して。まだ戻れる」
+        voice_character_id: char_yui
+      - text: 「うん。次は、もっと先へ行く」
+        voice_character_id: char_hero
+    next_scene: scene_ch6_final_maze_gameover_powered
+
+  - id: scene_ch6_talk_yui_maze_retry_boss
+    location_id: loc_ichibangai
+    background: backgrounds/ichibangai_gate.jpg
+    bgm: audio/bgm/station.mp3
+    characters:
+      - character_id: char_yui
+        position: center
+        expression: talking
+    messages:
+      - text: 「ボスの動き、少し分かった。次はきっと近づける」
+        voice_character_id: char_yui
+      - text: 「うん。しおりで休みながら、もう一回行こう」
+        voice_character_id: char_hero
+    next_scene: scene_ch6_boss_gameover
 
   - id: scene_ch6_talk_yui_memory_hunt
     location_id: loc_ichibangai
@@ -1888,7 +2021,7 @@ scenes:
         voice_character_id: char_yui
       - text: 「うん、会いに行ってみる」
         voice_character_id: char_hero
-    next_scene: null
+    next_scene: scene_ch6_final_maze_gameover_need_level
 
   - id: scene_ch6_talk_yui_final_gameover_level2
     location_id: loc_ichibangai
@@ -1903,7 +2036,7 @@ scenes:
         voice_character_id: char_yui
       - text: 「うん。もう一回メンターのところへ行く」
         voice_character_id: char_hero
-    next_scene: null
+    next_scene: scene_ch6_final_maze_gameover_need_second_level
 
   - id: scene_ch6_maze_gameover
     location_id: loc_ichibangai
@@ -1945,7 +2078,7 @@ scenes:
         expression: normal
     talkable:
       - character_id: char_yui
-        scene_id: scene_ch6_talk_yui_maze_retry
+        scene_id: scene_ch6_talk_yui_maze_retry_boss
     messages:
       - text: 迷宮の奥から、黒い風に弾き出された。
         voice_character_id: null
@@ -2251,9 +2384,6 @@ scenes:
       - character_id: char_obachan
         position: left
         expression: normal
-      - character_id: char_oyaji
-        position: right
-        expression: normal
     messages:
       - text: アーケード街を抜けた先で、ケンはようやくおばちゃんに追いついた。
         voice_character_id: null
@@ -2261,6 +2391,13 @@ scenes:
         voice_character_id: char_obachan
       - text: そこへ、柱の影からおじさんがふらりと姿を見せた。
         voice_character_id: null
+        characters:
+          - character_id: char_obachan
+            position: left
+            expression: normal
+          - character_id: char_oyaji
+            position: right
+            expression: normal
       - text: 「やっぱり、ここまで来よったか」
         voice_character_id: char_oyaji
       - text: 「おじさん……何か知ってるんですか」

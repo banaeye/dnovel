@@ -115,6 +115,8 @@ export interface MazeRpgConfig {
   boostedPlayerStats?: Record<string, number>;
   /** 複数段階の能力上書き。後ろの段階ほど優先される */
   boostedStatStages?: Array<{ flag: string; stats: Record<string, number> }>;
+  /** ボス撃破時に即座に戻るノベルシーン */
+  bossVictoryScene?: string;
   /** 封印ギミック定義: switchTile を踏むと doorTile が通行可能になる */
   seals?: Record<string, MazeSealConfig>;
   /** 宝箱定義: タイル文字 → 入手アイテム */
@@ -763,6 +765,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         boostedStatsFlag: config.boostedStatsFlag,
         boostedPlayerStats: config.boostedPlayerStats,
         boostedStatStages: config.boostedStatStages,
+        bossVictoryScene: config.bossVictoryScene,
         seals:        config.seals,
         treasures:    config.treasures,
         itemEffects:  config.itemEffects,
@@ -825,6 +828,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         boostedStatsFlag: config.boostedStatsFlag,
         boostedPlayerStats: config.boostedPlayerStats,
         boostedStatStages: config.boostedStatStages,
+        bossVictoryScene: config.bossVictoryScene,
         seals:        config.seals,
         treasures:    config.treasures,
         itemEffects:  config.itemEffects,
@@ -849,6 +853,27 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.pendingDeath]);
+
+  useEffect(() => {
+    if (!state.lastBossDefeated || !config.bossVictoryScene) return;
+    const nr = config._novelReturn as Record<string, unknown> | undefined;
+    if (!nr) return;
+
+    const baseContext = buildUpdatedContext();
+    const updatedContext: GameContext = {
+      ...baseContext,
+      playerStats: {
+        ...baseContext.playerStats,
+        hp: state.playerMaxHp,
+      },
+    };
+    onExit(updatedContext, {
+      engineId: 'novel',
+      transition: 'rift',
+      config: { ...nr, initialSceneId: config.bossVictoryScene, autoStart: true },
+    } as EngineTransition);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.lastBossDefeated]);
 
   useEffect(() => {
     if (!state.pendingEvent) return;
@@ -1156,7 +1181,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
                     letterSpacing: '0.04em',
                   }}
                 >
-                  {stairDirection === 'down' ? '下り階段' : '上り階段'}を見つけた！ [Enter] / クリックで移動
+                  下り階段を見つけた！ [Enter] / クリックで移動
                 </div>
               )}
 

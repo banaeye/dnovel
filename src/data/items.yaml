@@ -2,7 +2,7 @@ items:
   - id: item_suica
     name: "Suicaカード"
     description: "電車に乗るためのICカード。残高はある。"
-    icon: null
+    icon: items/suica.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -12,7 +12,7 @@ items:
   - id: item_flyer
     name: "CoderDojoのチラシ"
     description: "CoderDojo赤羽のチラシ。「本日開催！午後1時より」と書いてある。"
-    icon: null
+    icon: items/coderdojo_flyer.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -22,7 +22,7 @@ items:
   - id: item_candy
     name: "アメちゃん"
     description: "田村のおばあさんにもらったアメ。甘くておいしい。"
-    icon: null
+    icon: items/candy.svg
     usable: true
     use_scene: scene_use_candy
     use_condition: null
@@ -31,7 +31,7 @@ items:
   - id: item_drink
     name: "ジュース"
     description: "置いてあったジュース。冷たくておいしい。"
-    icon: null
+    icon: items/drink.svg
     usable: true
     use_scene: scene_use_juice
     use_condition: null
@@ -41,7 +41,7 @@ items:
   - id: item_milktea
     name: "ミルクティー"
     description: "CoderDojoの机に置いてあったミルクティー。まだ温かい。"
-    icon: null
+    icon: items/milktea.svg
     usable: true
     use_scene: scene_use_milktea
     use_condition: null
@@ -51,7 +51,7 @@ items:
   - id: item_fushigi_candy
     name: "不思議なアメ"
     description: "暗い迷路の中で、どこからか現れたアメ。ひんやりしているのに甘い。"
-    icon: null
+    icon: items/fushigi_candy.svg
     usable: true
     use_scene: scene_use_fushigi_candy
     use_condition: null
@@ -61,7 +61,7 @@ items:
   - id: item_onigiri
     name: "お握り"
     description: "迷宮の宝箱から見つけたお握り。食べると力が戻ってくる。"
-    icon: null
+    icon: items/onigiri.svg
     usable: true
     use_scene: scene_use_onigiri
     use_condition: null
@@ -71,7 +71,7 @@ items:
   - id: item_kinchu_hikari
     name: "悪霊退散のおふだ"
     description: "田中メンターから受け取った御札。かすかに光を帯びていて、迷宮の番人に大ダメージを与えられるらしい。"
-    icon: null
+    icon: items/ofuda_glow.svg
     usable: true
     use_scene: scene_use_kinchu_hikari
     use_condition: null
@@ -81,7 +81,7 @@ items:
   - id: item_small_ofuda
     name: "ちいさなおふだ"
     description: "坂で大学生からもらった小さなおふだ。迷宮の怨霊に少し強い一撃を与えられる。"
-    icon: null
+    icon: items/ofuda_small.svg
     usable: true
     use_scene: scene_use_small_ofuda
     use_condition: null
@@ -91,7 +91,7 @@ items:
   - id: item_labyrinth_bookmark
     name: "迷宮のしおり"
     description: "館長から受け取った古いしおり。迷宮から一度脱出し、同じ場所から再開できる。"
-    icon: null
+    icon: items/labyrinth_bookmark.svg
     usable: true
     use_scene: scene_use_labyrinth_bookmark
     use_condition: null
@@ -101,7 +101,7 @@ items:
   - id: item_ch6_old_candy_wrapper
     name: "古いアメちゃんの包み紙"
     description: "アメ好きっ子が大事にしていた包み紙。おばちゃんの記憶のしるし。"
-    icon: null
+    icon: items/old_candy_wrapper.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -111,7 +111,7 @@ items:
   - id: item_ch6_old_ticket
     name: "古い切符"
     description: "三十年前、おじさんが怖いまま戻った日の切符。おじさんの記憶のしるし。"
-    icon: null
+    icon: items/old_ticket.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -121,7 +121,7 @@ items:
   - id: item_ch6_old_map_piece
     name: "古い地図の切れ端"
     description: "館長の展示ノートに挟まれていた地図。館長の記憶のしるし。"
-    icon: null
+    icon: items/old_map_piece.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -131,7 +131,7 @@ items:
   - id: item_ch6_hero_mark
     name: "勇者のしるし"
     description: "一番街の最深迷宮9階の宝箱に入っていたしるし。さらに強くなる修行に必要。"
-    icon: null
+    icon: items/hero_mark.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -141,7 +141,7 @@ items:
   - id: item_gummy
     name: "新発売のグミ"
     description: "おばちゃんのポケットから出てきたグミ。大学生が探していたやつだ。"
-    icon: null
+    icon: items/gummy_new.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -151,7 +151,7 @@ items:
   - id: item_gummy_1
     name: "坂のグミ"
     description: "大学生にもらったグミ。七つ集めると願いが叶うらしい。（1/7）"
-    icon: null
+    icon: items/gummy_1.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -161,7 +161,7 @@ items:
   - id: item_gummy_2
     name: "少年のグミ"
     description: "少年にアメちゃんと交換してもらったグミ。（2/7）"
-    icon: null
+    icon: items/gummy_2.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -171,7 +171,7 @@ items:
   - id: item_gummy_3
     name: "計算のグミ"
     description: "ミュージアムの受付との勝負で勝ってもらったグミ。（3/7）"
-    icon: null
+    icon: items/gummy_3.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -181,7 +181,7 @@ items:
   - id: item_gummy_4
     name: "謎解きのグミ"
     description: "探偵おやじの依頼を解決してもらったグミ。（4/7）"
-    icon: null
+    icon: items/gummy_4.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -191,7 +191,7 @@ items:
   - id: item_wallet
     name: "バイトの財布"
     description: "赤羽公園のベンチの下で見つかった財布。梅の木公園のバイトが探していたものだ。"
-    icon: null
+    icon: items/wallet.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -201,7 +201,7 @@ items:
   - id: item_gummy_5
     name: "お礼のグミ"
     description: "梅の木公園のバイトの子にお礼としてもらったグミ。（5/7）"
-    icon: null
+    icon: items/gummy_5.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -211,7 +211,7 @@ items:
   - id: item_gummy_6
     name: "迷宮のグミ"
     description: "一番街の迷路チャレンジをクリアしてもらったグミ。（6/7）"
-    icon: null
+    icon: items/gummy_6.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -221,7 +221,7 @@ items:
   - id: item_gummy_7
     name: "おばちゃんのグミ"
     description: "田村のおばちゃんがずっと持っていたグミ。これで七つ揃った。（7/7）"
-    icon: null
+    icon: items/gummy_7.svg
     usable: false
     use_scene: null
     use_condition: null
@@ -231,7 +231,7 @@ items:
   - id: item_event_ticket
     name: "アメちゃんゲットのチケット"
     description: "アーケード街で開かれるアメちゃんゲットゲームのイベントチケット。手書きで番号が入っている。"
-    icon: null
+    icon: items/event_ticket.svg
     usable: false
     use_scene: null
     use_condition: null

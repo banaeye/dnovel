@@ -112,6 +112,7 @@ export function initMaze(
     triggeredEvents,
     pendingDeath: false,
     pendingBossTilePos: null,
+    lastBossDefeated: false,
   };
 }
 
@@ -272,9 +273,8 @@ function findCell(map: string[], target: string, fallback: Vec2): Vec2 {
   return fallback;
 }
 
-export function getStairDirection(state: MazeState): 'up' | 'down' | null {
+export function getStairDirection(state: MazeState): 'down' | null {
   const cell = getCell(state.map, state.pos.x, state.pos.y);
-  if (cell === 'U' && state.floor > 0) return 'up';
   if (cell === 'D' && state.floor < state.floors.length - 1) return 'down';
   return null;
 }
@@ -282,11 +282,10 @@ export function getStairDirection(state: MazeState): 'up' | 'down' | null {
 export function useStairs(state: MazeState): MazeState {
   const direction = getStairDirection(state);
   if (!direction) return state;
-  const nextFloor = direction === 'down' ? state.floor + 1 : state.floor - 1;
+  const nextFloor = state.floor + 1;
   const nextMap = state.floors[nextFloor] ?? state.map;
-  const targetCell = direction === 'down' ? 'U' : 'D';
   const sameCell = getCell(nextMap, state.pos.x, state.pos.y);
-  const pos = sameCell === targetCell ? state.pos : findCell(nextMap, targetCell, state.pos);
+  const pos = sameCell === 'U' ? state.pos : findCell(nextMap, 'U', state.pos);
   const visited = new Set(state.visited);
   visited.add(floorKey(nextFloor, pos));
   return {
