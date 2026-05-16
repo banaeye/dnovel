@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_PATH: /dojonovel/
+          VITE_BASE_PATH: /dnovel/
           VITE_VOICEVOX_PREBUILT_ONLY: 'true'
 
       - name: Deploy to GitHub Pages

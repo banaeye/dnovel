@@ -55,10 +55,26 @@ function NovelEngineComponent({
         if (typeof raw !== 'string' || !raw) return undefined;
         try { return JSON.parse(raw) as string[]; } catch { return undefined; }
       };
+      const parseSavedPos = (raw: unknown): { x: number; y: number } | undefined => {
+        if (typeof raw !== 'string' || !raw) return undefined;
+        try {
+          const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
+          return typeof parsed.x === 'number' && typeof parsed.y === 'number'
+            ? { x: parsed.x, y: parsed.y }
+            : undefined;
+        } catch {
+          return undefined;
+        }
+      };
+      const parseSavedDir = (raw: unknown): 'N' | 'E' | 'S' | 'W' | undefined => (
+        raw === 'N' || raw === 'E' || raw === 'S' || raw === 'W' ? raw : undefined
+      );
       const savedVisited  = mapId ? parseJsonArray(flags[`maze_visited_${mapId}`])  : undefined;
       const savedTriggered = mapId ? parseJsonArray(flags[`maze_triggered_${mapId}`]) : undefined;
       const savedOpenedSeals = mapId ? parseJsonArray(flags[`maze_opened_seals_${mapId}`]) : undefined;
       const savedOpenedTreasures = mapId ? parseJsonArray(flags[`maze_opened_treasures_${mapId}`]) : undefined;
+      const savedPos = mapId ? parseSavedPos(flags[`maze_pos_${mapId}`]) : undefined;
+      const savedDir = mapId ? parseSavedDir(flags[`maze_dir_${mapId}`]) : undefined;
       const savedFloor = mapId && typeof flags[`maze_floor_${mapId}`] === 'number'
         ? flags[`maze_floor_${mapId}`] as number
         : undefined;
@@ -95,6 +111,8 @@ function NovelEngineComponent({
           ...resolvedCharFields,          // キャラ定義から解決した値（YAMLで明示すれば上書き可）
           // 以前の探索済みセットを自動復元（YAML側で明示すれば上書き可）
           ...(savedFloor !== undefined ? { initialFloor: savedFloor } : {}),
+          ...(savedPos ? { initialPos: savedPos } : {}),
+          ...(savedDir ? { initialDir: savedDir } : {}),
           ...(savedVisited   ? { initialVisited:         savedVisited   } : {}),
           ...(savedTriggered ? { initialTriggeredEvents: savedTriggered } : {}),
           ...(savedOpenedSeals ? { initialOpenedSeals: savedOpenedSeals } : {}),

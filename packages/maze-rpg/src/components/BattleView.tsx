@@ -56,6 +56,10 @@ export function BattleView({ state, theme, onSelectCommand, onCommand, font }: B
   const { battle } = state;
   if (!battle) return null;
   const latest = battle.log.at(-1);
+  const dropLine = battle.phase === 'win'
+    ? battle.log.find(line => line.endsWith('を手に入れた！'))
+    : undefined;
+  const dropItemName = dropLine?.replace('を手に入れた！', '');
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0, fontFamily: font }}>
@@ -84,10 +88,47 @@ export function BattleView({ state, theme, onSelectCommand, onCommand, font }: B
           ))}
         </div>
       ) : battle.phase === 'win' ? (
-        <div
-          style={{ fontSize: 12, color: '#d8b8ff', opacity: 0.95, userSelect: 'none', textShadow: '0 0 8px rgba(180,120,255,0.65)' }}
-        >
-          撃破！
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div
+            style={{ fontSize: 12, color: '#d8b8ff', opacity: 0.95, userSelect: 'none', textShadow: '0 0 8px rgba(180,120,255,0.65)' }}
+          >
+            撃破！
+          </div>
+          {dropItemName && (
+            <div
+              style={{
+                position: 'relative',
+                overflow: 'hidden',
+                border: '1px solid #f4d37a',
+                borderRadius: 4,
+                background: 'linear-gradient(135deg, rgba(92,47,8,0.96), rgba(26,9,2,0.98))',
+                boxShadow: '0 0 20px rgba(244,186,74,0.35), inset 0 0 18px rgba(255,224,154,0.13)',
+                padding: '8px 10px',
+                color: '#ffe8aa',
+                animation: 'maze-item-drop-card 820ms ease-out both',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(90deg, transparent, rgba(255,245,190,0.28), transparent)',
+                  transform: 'translateX(-100%)',
+                  animation: 'maze-item-drop-shine 1200ms ease-out 80ms both',
+                  pointerEvents: 'none',
+                }}
+              />
+              <div style={{ fontSize: 10, letterSpacing: '0.12em', color: '#f6c45f', marginBottom: 3 }}>
+                ITEM GET
+              </div>
+              <div style={{ fontSize: 15, lineHeight: 1.25, textShadow: '0 0 8px rgba(255,220,120,0.55)' }}>
+                {dropItemName}
+              </div>
+              <div style={{ fontSize: 10, marginTop: 3, opacity: 0.72 }}>
+                持ち物に入りました
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div

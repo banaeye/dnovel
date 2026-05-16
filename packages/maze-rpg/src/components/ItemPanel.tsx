@@ -45,7 +45,10 @@ function categoryLabel(category?: string): string {
 }
 
 function getUseState(item: MazeItemDef | undefined, effect: ItemEffect | undefined, mode: 'explore' | 'battle') {
-  if (!item?.usable) return { canUse: false, reason: '使用できない' };
+  // itemDefs に明示的に usable:false が設定されている場合は常に不可
+  if (item?.usable === false) return { canUse: false, reason: '使用できない' };
+  // itemDefs になく、かつ itemEffects にも登録がない場合は不可
+  if (!item?.usable && !effect) return { canUse: false, reason: '使用できない' };
   if (mode === 'explore' && effect?.attackEnemy !== undefined) return { canUse: false, reason: '戦闘中のみ使用可' };
   if (mode === 'battle' && effect?.escapeToNovelScene) return { canUse: false, reason: '戦闘中は使用不可' };
   if (mode === 'battle' && !effect?.healHp && effect?.attackEnemy === undefined) return { canUse: false, reason: '戦闘中は効果なし' };
@@ -103,7 +106,12 @@ export function ItemPanel({
   const defMap = new Map(itemDefs.map(d => [d.id, d]));
   const counts = new Map<string, number>();
   for (const id of inventory) counts.set(id, (counts.get(id) ?? 0) + 1);
-  const uniqueIds = [...counts.keys()];
+  // itemDefs で usable:true、または itemEffects に登録があるものだけ表示する
+  const uniqueIds = [...counts.keys()].filter(id => {
+    const def = defMap.get(id);
+    if (def?.usable === true) return true;
+    return !!itemEffects?.[id];
+  });
   const selectedId = selectedItemId && counts.has(selectedItemId) ? selectedItemId : null;
   const selectedDef = selectedId ? defMap.get(selectedId) : undefined;
   const selectedName = selectedDef?.name ?? selectedId ?? '';

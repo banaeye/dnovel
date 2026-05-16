@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import type { MazeState } from '../engine/types.js';
 import type { MazeTheme } from '../MazeApp.js';
 import { getCell, getForwardPos, getViewData, isTreasureOpen, isTreasureTile } from '../engine/mazeEngine.js';
@@ -29,6 +29,11 @@ function hexToRgb(hex: string): [number, number, number] {
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
+}
+
+function rgbaFromHex(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function drawWallDamage(
@@ -184,6 +189,102 @@ function renderScene(ctx: CanvasRenderingContext2D, state: MazeState, theme: Req
     }
     if (front[d]) break;
   }
+
+  // 霧は別キャンバスでアニメーション描画するため、ここでは描かない
+}
+
+// 霧パーティクルのシード値（起動時に1度だけ生成、再レンダリングごとにリセットしない）
+interface MistParticle {
+  bx: number; by: number; rx: number; ry: number; angle: number;
+  dxFreq: number; dxAmp: number; dyFreq: number; dyAmp: number;
+  alphaBase: number; alphaFreq: number; alphaPhase: number;
+}
+interface MistWisp {
+  by: number; speed: number; dir: number; rx: number; ry: number;
+  alphaBase: number; alphaFreq: number; alphaPhase: number;
+}
+
+function buildMistParticles(density: number): { blobs: MistParticle[]; wisps: MistWisp[] } {
+  const blobCount = Math.round(18 + density * 32);
+  const blobs: MistParticle[] = Array.from({ length: blobCount }, (_, i) => {
+    const s = (i * 37 + 97) % 211;
+    return {
+      bx: (s * 29 + i * 53) % VW,
+      by: 10 + ((s * 13 + i * 31) % (VH - 20)),
+      rx: 14 + (s % 40) * (0.5 + 0.5 * density),
+      ry: 3 + (s % 7),
+      angle: (s % 9) * 0.08,
+      dxFreq: 0.11 + (s % 10) * 0.018,
+      dxAmp:  12 + (s % 24) * density,
+      dyFreq: 0.08 + (s % 8) * 0.013,
+      dyAmp:  4 + s % 9,
+      alphaBase:  0.04 + density * 0.11,
+      alphaFreq:  0.22 + (s % 5) * 0.09,
+      alphaPhase: i * 1.3,
+    };
+  });
+  const wispCount = Math.round(2 + density * 5);
+  const wisps: MistWisp[] = Array.from({ length: wispCount }, (_, i) => {
+    const s = i * 73 + 41;
+    return {
+      by:        12 + ((s * 17) % (VH - 24)),
+      speed:     (0.022 + (s % 10) * 0.006) * VW,
+      dir:       i % 2 === 0 ? 1 : -1,
+      rx:        38 + (s % 60) * density,
+      ry:        4 + (s % 8),
+      alphaBase: 0.05 + density * 0.10,
+      alphaFreq: 0.18,
+      alphaPhase: s * 0.1,
+    };
+  });
+  return { blobs, wisps };
+}
+
+function drawAnimatedMist(
+  ctx: CanvasRenderingContext2D,
+  theme: Required<MazeTheme>,
+  density: number,
+  t: number,
+  particles: { blobs: MistParticle[]; wisps: MistWisp[] },
+) {
+  ctx.clearRect(0, 0, VW, VH);
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+
+  // ゆっくり脈打つベースグラデーション
+  const baseAlpha = 0.07 + density * 0.19;
+  const pulse = 0.85 + 0.15 * Math.sin(t * 0.32);
+  const grad = ctx.createLinearGradient(0, 0, 0, VH);
+  grad.addColorStop(0,   rgbaFromHex(theme.mistColor, baseAlpha * 0.62 * pulse));
+  grad.addColorStop(0.5, rgbaFromHex(theme.mistColor, baseAlpha * pulse));
+  grad.addColorStop(1,   rgbaFromHex(theme.mistColor, baseAlpha * 0.48 * pulse));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, VW, VH);
+
+  // 漂うブロブ
+  for (const p of particles.blobs) {
+    const px = (((p.bx + Math.sin(t * p.dxFreq + p.bx) * p.dxAmp) % VW) + VW) % VW;
+    const py = Math.max(5, Math.min(VH - 5, p.by + Math.cos(t * p.dyFreq + p.by * 0.05) * p.dyAmp));
+    const alpha = p.alphaBase * (0.6 + 0.4 * Math.sin(t * p.alphaFreq + p.alphaPhase));
+    ctx.fillStyle = rgbaFromHex(theme.mistColor, alpha);
+    ctx.beginPath();
+    ctx.ellipse(px, py, p.rx, p.ry, p.angle + Math.sin(t * 0.17) * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 横に流れるウィスプ
+  for (const w of particles.wisps) {
+    const wx = ((w.dir * t * w.speed + w.by * 40) % VW + VW) % VW;
+    const alpha = w.alphaBase * (0.65 + 0.35 * Math.sin(t * w.alphaFreq + w.alphaPhase));
+    ctx.fillStyle = rgbaFromHex(theme.mistColor, alpha);
+    for (const ox of [0, w.dir > 0 ? -VW : VW]) {
+      ctx.beginPath();
+      ctx.ellipse(wx + ox, w.by, w.rx, w.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
 }
 
 function drawTreasureChest(ctx: CanvasRenderingContext2D, depth: number, tile: string) {
@@ -244,24 +345,62 @@ const DEFAULT_THEME: Required<MazeTheme> = {
   wallFront: '#9a7420', wallSide: '#5a420a',
   uiBg: '#080504', uiAccent: '#ccaa66', uiBorder: '#443322',
   wallDamage: 0, wallStain: '#1b1208',
+  mistColor: '#d8e8ff', mistDensity: 0,
 };
 
 export function MazeView({ state, theme }: { state: MazeState; theme?: Required<MazeTheme> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mistCanvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number | null>(null);
   const effectiveTheme = theme ?? DEFAULT_THEME;
 
+  // 静的シーン（壁・床）— state/theme が変わったときだけ再描画
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     renderScene(ctx, state, effectiveTheme);
   }, [state, effectiveTheme]);
 
+  // 霧パーティクルのパラメータは density が変わったときだけ再生成
+  const density = Math.max(0, Math.min(1, effectiveTheme.mistDensity));
+  const particles = useMemo(() => buildMistParticles(density), [density]);
+
+  // 霧アニメーションループ — 別キャンバスで rAF 駆動
+  useEffect(() => {
+    if (density <= 0.01) {
+      const ctx = mistCanvasRef.current?.getContext('2d');
+      ctx?.clearRect(0, 0, VW, VH);
+      return;
+    }
+    const canvas = mistCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const startTime = performance.now();
+    function animate(now: number) {
+      drawAnimatedMist(ctx!, effectiveTheme, density, (now - startTime) / 1000, particles);
+      rafRef.current = requestAnimationFrame(animate);
+    }
+    rafRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [effectiveTheme, density, particles]);
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={VW}
-      height={VH}
-      style={{ display: 'block', imageRendering: 'pixelated' }}
-    />
+    <div style={{ position: 'relative', width: VW, height: VH, display: 'block' }}>
+      <canvas
+        ref={canvasRef}
+        width={VW}
+        height={VH}
+        style={{ display: 'block', imageRendering: 'pixelated' }}
+      />
+      <canvas
+        ref={mistCanvasRef}
+        width={VW}
+        height={VH}
+        style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', imageRendering: 'pixelated' }}
+      />
+    </div>
   );
 }

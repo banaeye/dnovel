@@ -66,6 +66,8 @@ locations:
               value: 3
             - flag: flag_chapter
               value: 4
+            - flag: flag_ch6_arcade_hint
+              value: true
       - location_id: loc_coderdojo
         label: "CoderDojo赤羽へ"
         condition:
@@ -164,6 +166,8 @@ locations:
               value: true
             - flag: flag_chapter
               value: 4
+            - flag: flag_ch6_arcade_hint
+              value: true
     entry_scene: scene_arcade_default
 
   - id: loc_park

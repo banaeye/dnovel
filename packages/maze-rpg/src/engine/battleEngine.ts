@@ -1,5 +1,5 @@
 import type { MazeState, BattleState } from './types.js';
-import { randomEnemy, bossEnemy } from './enemies.js';
+import { randomEnemy, bossEnemy, rollEnemyDrop } from './enemies.js';
 
 export function startBattle(state: MazeState): MazeState {
   const enemy = randomEnemy(state.mapId, state.floor);
@@ -15,7 +15,7 @@ export function startBattle(state: MazeState): MazeState {
 }
 
 export function startBossBattle(state: MazeState): MazeState {
-  const enemy = bossEnemy(state.mapId);
+  const enemy = bossEnemy(state.mapId, state.boss);
   if (!enemy) return state;
   const battle: BattleState = {
     enemy,
@@ -76,9 +76,14 @@ function executeCommand(state: MazeState): MazeState {
 
   if (newEnemyHp <= 0) {
     const enemy = { ...battle.enemy, hp: 0 };
+    const drop = rollEnemyDrop(battle.enemy.id, state.inventory);
+    const inventory = drop ? [...state.inventory, drop.itemId] : state.inventory;
+    const winLog = [...log, `${battle.enemy.name} を倒した！`];
+    if (drop) winLog.push(`${drop.itemName}を手に入れた！`);
     return {
       ...state,
-      battle: { ...battle, enemy, phase: 'win', log: [...log, `${battle.enemy.name} を倒した！`], guarding: false },
+      inventory,
+      battle: { ...battle, enemy, phase: 'win', log: winLog, guarding: false },
     };
   }
 

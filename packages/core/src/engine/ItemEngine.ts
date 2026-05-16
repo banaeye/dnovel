@@ -55,10 +55,7 @@ export function useItem(
   const item = masterData.items[itemId];
   if (!item || !item.usable) return { newState: state, sceneId: null };
 
-  let newState = state;
-  if (!item.stackable) {
-    newState = removeItem(itemId, state);
-  }
-
-  return { newState, sceneId: item.use_scene ?? null };
+  // Item removal is handled by item_remove in the use_scene YAML,
+  // so the scene itself decides whether to consume the item.
+  return { newState: state, sceneId: item.use_scene ?? null };
 }

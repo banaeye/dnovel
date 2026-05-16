@@ -98,6 +98,46 @@ items:
     stackable: false
     category: key_item
 
+  - id: item_ch6_old_candy_wrapper
+    name: "古いアメちゃんの包み紙"
+    description: "アメ好きっ子が大事にしていた包み紙。おばちゃんの記憶のしるし。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_ch6_old_ticket
+    name: "古い切符"
+    description: "三十年前、おじさんが怖いまま戻った日の切符。おじさんの記憶のしるし。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_ch6_old_map_piece
+    name: "古い地図の切れ端"
+    description: "館長の展示ノートに挟まれていた地図。館長の記憶のしるし。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
+  - id: item_ch6_hero_mark
+    name: "勇者のしるし"
+    description: "一番街の最深迷宮9階の宝箱に入っていたしるし。さらに強くなる修行に必要。"
+    icon: null
+    usable: false
+    use_scene: null
+    use_condition: null
+    stackable: false
+    category: key_item
+
   - id: item_gummy
     name: "新発売のグミ"
     description: "おばちゃんのポケットから出てきたグミ。大学生が探していたやつだ。"

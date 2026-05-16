@@ -14,6 +14,14 @@ export interface Enemy {
   def: number;
 }
 
+export interface MazeEnemyConfig {
+  id: string;
+  name: string;
+  hp: number;
+  atk: number;
+  def: number;
+}
+
 export interface MazeSealConfig {
   switchTile: string;
   doorTile: string;
@@ -42,6 +50,7 @@ export interface MazeState {
   floors: string[][];
   floor: number;
   mapId: string;
+  boss?: MazeEnemyConfig;
   seals: Record<string, MazeSealConfig>;
   treasures: Record<string, MazeTreasureConfig>;
   openedSeals: Set<string>;

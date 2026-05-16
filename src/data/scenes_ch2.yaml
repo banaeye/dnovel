@@ -753,6 +753,8 @@ scenes:
         position: center
   - id: scene_use_candy
     overlay_image: cg/candy_happy.jpg
+    item_remove:
+      - item_candy
     messages:
       - text: アメをなめた。
         voice_character_id: null
@@ -763,6 +765,8 @@ scenes:
     next_scene: null
   - id: scene_use_juice
     overlay_image: cg/happy_juice.jpg
+    item_remove:
+      - item_drink
     messages:
       - text: ジュースを飲んだ。
         voice_character_id: null
@@ -773,6 +777,8 @@ scenes:
     next_scene: null
   - id: scene_use_milktea
     overlay_image: cg/happy_juice.jpg
+    item_remove:
+      - item_milktea
     messages:
       - text: ミルクティーを飲んだ。
         voice_character_id: null
@@ -783,6 +789,8 @@ scenes:
     next_scene: null
   - id: scene_use_fushigi_candy
     overlay_image: cg/candy_happy.jpg
+    item_remove:
+      - item_fushigi_candy
     messages:
       - text: 不思議なアメをなめた。
         voice_character_id: null

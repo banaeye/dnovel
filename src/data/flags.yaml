@@ -304,6 +304,16 @@ flags:
     default: ""
     description: "第5章ユイ悪霊戦の違う絵探し結果"
 
+  - id: spot_difference_result_ch6_mentor_training
+    type: string
+    default: ""
+    description: "第6章メンター修行1回目の違う絵探し結果"
+
+  - id: spot_difference_result_ch6_mentor_training_final
+    type: string
+    default: ""
+    description: "第6章メンター修行2回目の違う絵探し結果"
+
   - id: timing_game_result_candy_spirit
     type: string
     default: ""
@@ -343,6 +353,71 @@ flags:
     type: boolean
     default: false
     description: "第6章で一番街の巨大迷宮を見た"
+
+  - id: flag_ch6_maze_boss_defeated
+    type: boolean
+    default: false
+    description: "第6章で5階の巨大迷宮ボスを倒した"
+
+  - id: flag_ch6_maze_blocked
+    type: boolean
+    default: false
+    description: "第6章でおばちゃんに迷宮への再突入を止められた"
+
+  - id: flag_ch6_arcade_hint
+    type: boolean
+    default: false
+    description: "第6章で受付とバイトからアーケード街の異変を聞いた"
+
+  - id: flag_ch6_past_revealed
+    type: boolean
+    default: false
+    description: "第6章で30年前の赤羽と三人の勇者の話を聞いた"
+
+  - id: flag_ch6_memory_hunt_started
+    type: boolean
+    default: false
+    description: "第6章後半で三人の勇者の記憶集めを開始した"
+
+  - id: flag_ch6_memory_obachan
+    type: boolean
+    default: false
+    description: "第6章でおばちゃんの記憶のしるしを得た"
+
+  - id: flag_ch6_memory_oyaji
+    type: boolean
+    default: false
+    description: "第6章でおじさんの記憶のしるしを得た"
+
+  - id: flag_ch6_memory_director
+    type: boolean
+    default: false
+    description: "第6章で館長の記憶のしるしを得た"
+
+  - id: flag_ch6_ichibangai_reopened
+    type: boolean
+    default: false
+    description: "第6章で三人の記憶により一番街入口を再び開いた"
+
+  - id: flag_ch6_final_boss_weakened
+    type: boolean
+    default: false
+    description: "第6章最終ボス初戦敗北後、おばちゃんの力でボスが弱体化した"
+
+  - id: flag_ch6_final_boss_defeated
+    type: boolean
+    default: false
+    description: "第6章で一番街最深部のボスを倒した"
+
+  - id: flag_ch6_mentor_power
+    type: boolean
+    default: false
+    description: "第6章で田中メンターの修行1回目に勝ち、主人公が一段階レベルアップした"
+
+  - id: flag_ch6_mentor_power_2
+    type: boolean
+    default: false
+    description: "第6章で勇者のしるしを持って田中メンターの修行2回目に勝ち、主人公が最終段階までレベルアップした"
 
   - id: flag_ch6_cleared
     type: boolean

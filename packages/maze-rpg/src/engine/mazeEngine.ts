@@ -1,7 +1,8 @@
-import type { Dir, Vec2, MazeSealConfig, MazeState, MazeTreasureConfig } from './types.js';
+import type { Dir, Vec2, MazeEnemyConfig, MazeSealConfig, MazeState, MazeTreasureConfig } from './types.js';
 import { BUILT_IN_MAPS } from './maps.js';
 import type { BuiltInMaze } from './maps.js';
 import { MAP_ENEMIES } from './enemies.js';
+import { rollEnemyDrop } from './enemies.js';
 import { startBattle, startBossBattle, handleBattleKey } from './battleEngine.js';
 
 const ENCOUNTER_RATE = 0.2;
@@ -56,6 +57,7 @@ export interface InitMazeOptions {
   initialTriggeredEvents?: string[];
   initialOpenedSeals?: string[];
   initialOpenedTreasures?: string[];
+  boss?: MazeEnemyConfig;
   seals?: Record<string, MazeSealConfig>;
   treasures?: Record<string, MazeTreasureConfig>;
 }
@@ -92,6 +94,7 @@ export function initMaze(
     floors,
     floor,
     mapId,
+    boss: options?.boss,
     seals: options?.seals ?? {},
     treasures: options?.treasures ?? {},
     openedSeals,
@@ -152,10 +155,13 @@ export function useItemInMaze(
     msgs.push(`${enemy.name} に ${dmg} の大ダメージ！`);
     const newEnemy = { ...enemy, hp: newEnemyHp };
     if (newEnemyHp <= 0) {
+      const drop = rollEnemyDrop(enemy.id, inventory);
+      const nextInventory = drop ? [...inventory, drop.itemId] : inventory;
       msgs.push(`${enemy.name} を倒した！`);
+      if (drop) msgs.push(`${drop.itemName}を手に入れた！`);
       return {
         ...state,
-        inventory,
+        inventory: nextInventory,
         playerHp,
         battle: { ...state.battle, enemy: newEnemy, phase: 'win', log: [...state.battle.log, ...msgs] },
       };
