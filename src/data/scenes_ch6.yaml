@@ -1269,9 +1269,9 @@ scenes:
         weakenedBoss:
           id: abyss_boss
           name: 怨霊王
-          hp: 50
+          hp: 58
           atk: 7
-          def: 1
+          def: 2
         weakenedBossFlag: flag_ch6_final_boss_weakened
         bossVictoryScene: scene_ch6_final_maze_result
         itemEffects:
@@ -1337,7 +1337,7 @@ scenes:
 
   - id: scene_ch6_final_boss_first_lose
     location_id: loc_ichibangai
-    background: backgrounds/ichibangai_gate.jpg
+    background: backgrounds/inner_ichibangai_dark.jpg
     bgm: audio/bgm/dungeon.mp3
     flags_set:
       - flag: flag_ch6_final_boss_weakened
@@ -1520,9 +1520,9 @@ scenes:
 
   - id: scene_ch6_danchi_final_reunion
     location_id: loc_danchi
-    background: backgrounds/danchi_day.jpg
+    background: backgrounds/danchimae.jpg
     bgm: audio/bgm/danchi.mp3
-    ending_title: 全章エンド　赤羽の一日
+    ending_title: 伝説の勇者たち
     flags_set:
       - flag: flag_ch6_cleared
         value: true
