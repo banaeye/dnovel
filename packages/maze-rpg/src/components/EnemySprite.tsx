@@ -77,7 +77,7 @@ export function EnemySprite({ enemy, assetsBaseUrl, defeated = false, onClick }:
         style={{
           position: 'relative',
           display: imageFailed ? 'none' : 'block',
-          maxHeight: isBoss ? 330 : 224,
+          maxHeight: isBoss ? 330 : 270,
           maxWidth: isBoss ? 360 : 270,
           objectFit: 'contain',
           opacity,

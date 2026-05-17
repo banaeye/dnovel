@@ -27,6 +27,9 @@ export interface MemoryGameConfig {
   playerMissDialogue?: string[];
   opponentMissDialogue?: string[];
   backgroundImage?: string;
+  /** BGM path relative to assetsBaseUrl, e.g. 'audio/bgm/mistery.mp3' */
+  bgm?: string;
+  bgmVolume?: number;
   assetsBaseUrl?: string;
   _novelReturn?: unknown;
 }
@@ -187,6 +190,23 @@ function resolveAsset(assetsBaseUrl: string | undefined, path: string | undefine
   if (/^(https?:)?\/\//.test(path) || path.startsWith('/')) return path;
   const base = assetsBaseUrl ?? '/assets';
   return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+}
+
+function useMemoryGameBgm(assetsBaseUrl: string | undefined, bgm: string | undefined, volume = 0.28) {
+  useEffect(() => {
+    const src = resolveAsset(assetsBaseUrl, bgm);
+    if (!src) return undefined;
+
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = Math.max(0, Math.min(1, volume));
+    audio.play().catch(() => {});
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [assetsBaseUrl, bgm, volume]);
 }
 
 function pickRandom<T>(items: T[]): T | null {
@@ -422,6 +442,7 @@ function MemoryGameComponent({ context, config, onExit }: EngineProps<MemoryGame
 
   const scale = useGameScale();
   const { speak, stop } = useGameVoice(config.assetsBaseUrl);
+  useMemoryGameBgm(config.assetsBaseUrl, config.bgm, config.bgmVolume);
   const [state, setState] = useState<GameState>(() => buildInitialState(pairs));
   const lockRef = useRef(false);
 

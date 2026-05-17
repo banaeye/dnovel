@@ -598,6 +598,7 @@ scenes:
       transition: cardflip
       config:
         stageId: ch5_student_spirit
+        bgm: audio/bgm/mistery.mp3
         mode: duel
         pairs: 6
         opponentSkill: normal
@@ -1082,6 +1083,7 @@ scenes:
       transition: timing
       config:
         stageId: candy_spirit
+        bgm: audio/bgm/mistery.mp3
         title: アメ好きっ子のタイミング勝負
         rounds: 6
         targetHits: 4

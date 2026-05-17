@@ -4,6 +4,10 @@ import type { EngineProps, IGameEngine } from '@novel-engine/hub';
 export interface TimingGameConfig {
   stageId: string;
   title?: string;
+  /** BGM path relative to assetsBaseUrl, e.g. 'audio/bgm/mistery.mp3' */
+  bgm?: string;
+  bgmVolume?: number;
+  assetsBaseUrl?: string;
   rounds?: number;
   targetHits?: number;
   cycleMs?: number;
@@ -36,8 +40,33 @@ function targetCenter(round: number): number {
   return [0.5, 0.34, 0.68, 0.42, 0.58, 0.26, 0.74, 0.48][round % 8];
 }
 
+function resolveAsset(assetsBaseUrl: string | undefined, path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^(https?:)?\/\//.test(path) || path.startsWith('/')) return path;
+  const base = assetsBaseUrl ?? '/assets';
+  return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+}
+
+function useTimingGameBgm(assetsBaseUrl: string | undefined, bgm: string | undefined, volume = 0.28) {
+  useEffect(() => {
+    const src = resolveAsset(assetsBaseUrl, bgm);
+    if (!src) return undefined;
+
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.volume = Math.max(0, Math.min(1, volume));
+    audio.play().catch(() => {});
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [assetsBaseUrl, bgm, volume]);
+}
+
 function TimingGameComponent({ context, config, onExit }: EngineProps<TimingGameConfig>) {
   const scale = useGameScale();
+  useTimingGameBgm(config.assetsBaseUrl, config.bgm, config.bgmVolume);
   const stageId = config.stageId || 'default';
   const rounds = Math.max(1, config.rounds ?? 6);
   const targetHits = Math.max(1, Math.min(rounds, config.targetHits ?? 4));

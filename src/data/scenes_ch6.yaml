@@ -1259,14 +1259,15 @@ scenes:
             mistDensity: 0.68
         events:
           E: scene_ch6_final_maze_director_event
+        bossEventKey: E
         boss:
-          id: abyss_final_boss
+          id: abyss_boss
           name: 怨霊王
           hp: 9999
           atk: 99
           def: 99
         weakenedBoss:
-          id: abyss_final_boss
+          id: abyss_boss
           name: 怨霊王
           hp: 50
           atk: 7
@@ -1552,10 +1553,10 @@ scenes:
         voice_character_id: null
       - text: 「長い宿題ほど、終わったあとのお茶がおいしいもんだよ」
         voice_character_id: char_obachan
-      - text: そのとき、坂の方から息を切らした大学生が駆けてきた。
+      - text: そのとき、坂の方から息を切らした大学生と田中メンターが駆けてきた。
         voice_character_id: null
         characters:
-          - character_id: char_obachan
+          - character_id: char_mentor
             position: left
             expression: normal
           - character_id: char_college_student
@@ -1564,6 +1565,8 @@ scenes:
           - character_id: char_yui
             position: right
             expression: normal
+      - text: 「ケンちゃん、ユイ。戻ってきたね。最後までデバッグできたみたいだ」
+        voice_character_id: char_mentor
       - text: 「ケンくん！　一番街の霧、消えてましたよ。ほんとに、全部終わったんですね」
         voice_character_id: char_college_student
       - text: 「うん。みんなが手伝ってくれたから」
@@ -1572,9 +1575,67 @@ scenes:
         voice_character_id: char_college_student
       - text: 「赤羽って、そういう街なのかも」
         voice_character_id: char_yui
-      - text: 「ふふ。小さいものが、人をつないでいくんだよ」
+      - text: 「そう。小さな違和感に気づいて、小さな勇気を積み重ねる。いいプログラムも、いい街も同じだよ」
+        voice_character_id: char_mentor
+      - text: 「ケン兄ちゃん！」
+        voice_character_id: char_candy_kid
+        characters:
+          - character_id: char_candy_kid
+            position: left
+            expression: normal
+          - character_id: char_candy_sister
+            position: center
+            expression: normal
+          - character_id: char_obachan
+            position: right
+            expression: normal
+      - text: アメ好きっ子とお姉さんが、手を振りながら団地の広場へ飛び込んできた。
+        voice_character_id: null
+      - text: 「一番街、もう怖くない？　じゃあアメちゃん大会、またできる？」
+        voice_character_id: char_candy_kid
+      - text: 「まずは片づけからね。でも……また笑って集まれるなら、きっと大丈夫」
+        voice_character_id: char_candy_sister
+      - text: 「ふふ。アメちゃんを愛する子は、ほんまはええ子や」
         voice_character_id: char_obachan
-      - text: ケンは団地の空を見上げた。いつもの夕焼けなのに、少しだけ新しく見えた。
+      - text: 「その言葉、記憶の額縁に飾っておきましょう」
+        voice_character_id: char_museum_staff
+        characters:
+          - character_id: char_museum_staff
+            position: left
+            expression: normal
+          - character_id: char_museum_part_timer
+            position: center
+            expression: normal
+          - character_id: char_museum_director
+            position: right
+            expression: normal
+      - text: ミュージアムの受付とバイトも、館長の後ろで深く頭を下げた。
+        voice_character_id: null
+      - text: 「みなさん、本当にお疲れさまでした。私、財布も鍵も今日はなくしてません！」
+        voice_character_id: char_museum_part_timer
+      - text: 「それは何よりだ。展示より先に、まず日常が戻ってきた」
+        voice_character_id: char_museum_director
+      - text: 「おや、日常が戻ったと聞いて駆けつけたぞ」
+        voice_character_id: char_detective
+        characters:
+          - character_id: char_detective
+            position: left
+            expression: normal
+          - character_id: char_priest
+            position: center
+            expression: normal
+          - character_id: char_oyaji
+            position: right
+            expression: normal
+      - text: 探偵は胸を張って現れたが、足元の小石につまずいて、神父さんにそっと支えられた。
+        voice_character_id: null
+      - text: 「……これは現場確認だ。転んだわけではない」
+        voice_character_id: char_detective
+      - text: 「足跡が増えるほど、街は強くなるものです」
+        voice_character_id: char_priest
+      - text: 「ガハハ、普通が一番じゃ。転ぶくらい普通、普通」
+        voice_character_id: char_oyaji
+      - text: みんなの笑い声が、団地の広場に広がっていった。
         voice_character_id: null
         characters:
           - character_id: char_obachan
@@ -1586,6 +1647,8 @@ scenes:
           - character_id: char_museum_director
             position: right
             expression: normal
+      - text: ケンは団地の空を見上げた。いつもの夕焼けなのに、少しだけ新しく見えた。
+        voice_character_id: null
       - text: 「ケン、また明日も赤羽を歩こう」
         voice_character_id: char_yui
       - text: 「うん。今度は、普通の一日を」
@@ -1594,7 +1657,9 @@ scenes:
         voice_character_id: char_museum_director
       - text: 「さあ、帰ろうか。今日のアメちゃんは、特別に甘いやつだよ」
         voice_character_id: char_obachan
-      - text: ケンは笑ってうなずいた。赤羽の一日は、また明日へ続いていく。
+      - text: （グミも、アメちゃんも、しおりも、おふだも。全部、誰かとつながるための小さなきっかけだったんだ）
+        voice_character_id: char_hero
+      - text: ケンは笑ってうなずいた。赤羽の一日は、みんなの声と一緒に、また明日へ続いていく。
         voice_character_id: null
     game_end: true
 
@@ -1854,6 +1919,7 @@ scenes:
             attackEnemy: 999
           item_small_ofuda:
             attackEnemy: 18
+        bossVictoryScene: scene_ch6_maze_result
       return_scene: scene_ch6_maze_result
       gameover_scene: scene_ch6_maze_gameover
       gameover_boss_scene: scene_ch6_boss_gameover

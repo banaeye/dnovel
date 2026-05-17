@@ -605,6 +605,7 @@ scenes:
       transition: cardflip
       config:
         stageId: museum_part_timer_challenge
+        bgm: audio/bgm/mistery.mp3
         mode: duel
         pairs: 5
         opponentSkill: weak
@@ -741,6 +742,7 @@ scenes:
       transition: cardflip
       config:
         stageId: museum_staff_second_challenge
+        bgm: audio/bgm/mistery.mp3
         mode: duel
         pairs: 6
         title: 再戦 チケット争奪 神経衰弱

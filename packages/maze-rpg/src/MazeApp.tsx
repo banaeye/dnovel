@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { IGameEngine, EngineProps, GameContext, EngineTransition } from '@novel-engine/hub';
 import { getFacingTreasure, getStairDirection, initMaze, handleKey, openFacingTreasure, useItemInMaze } from './engine/mazeEngine.js';
+import { startBossBattle } from './engine/battleEngine.js';
+import { BUILT_IN_MAPS } from './engine/maps.js';
 import type { ItemEffect } from './engine/mazeEngine.js';
 import type { Vec2, Dir, MazeEnemyConfig, MazeSealConfig, MazeTreasureConfig } from './engine/types.js';
 import { MazeView } from './components/MazeView.js';
@@ -119,6 +121,10 @@ export interface MazeRpgConfig {
   boostedStatStages?: Array<{ flag: string; stats: Record<string, number> }>;
   /** ボス撃破時に即座に戻るノベルシーン */
   bossVictoryScene?: string;
+  /** マウント直後にボスバトルを即開始する */
+  immediatelyStartBoss?: boolean;
+  /** このイベントキーに一致するイベント後、ボスバトルを即開始する */
+  bossEventKey?: string;
   /** 封印ギミック定義: switchTile を踏むと doorTile が通行可能になる */
   seals?: Record<string, MazeSealConfig>;
   /** 宝箱定義: タイル文字 → 入手アイテム */
@@ -589,7 +595,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         inventory,
         playerStats: {
           ...context.playerStats,
-          hp: state.playerHp,
+          hp: state.playerMaxHp,
           maxHp: state.playerMaxHp,
           atk: state.playerAtk,
           def: state.playerDef,
@@ -776,6 +782,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
         boostedPlayerStats: config.boostedPlayerStats,
         boostedStatStages: config.boostedStatStages,
         bossVictoryScene: config.bossVictoryScene,
+        immediatelyStartBoss: true,
         seals:        config.seals,
         treasures:    config.treasures,
         itemEffects:  config.itemEffects,
@@ -865,6 +872,25 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.pendingDeath]);
 
+  // immediatelyStartBoss: マウント直後にボスバトルを即開始する（一回のみ）
+  useEffect(() => {
+    if (!config.immediatelyStartBoss) return;
+    const mapData = BUILT_IN_MAPS[config.map];
+    if (!mapData) return;
+    const floorMap = mapData[state.floor];
+    if (!floorMap) return;
+    let bossKey: string | null = null;
+    for (let y = 0; y < floorMap.length && !bossKey; y++) {
+      const row = floorMap[y];
+      for (let x = 0; x < row.length && !bossKey; x++) {
+        if (row[x] === 'B') bossKey = `${state.floor}:${x},${y}`;
+      }
+    }
+    if (!bossKey || state.triggeredEvents.has(bossKey)) return;
+    setState(prev => startBossBattle({ ...prev, pendingBossTilePos: bossKey! }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!state.lastBossDefeated || !config.bossVictoryScene) return;
     const nr = config._novelReturn as Record<string, unknown> | undefined;
@@ -903,6 +929,7 @@ function MazeAppComponent({ context, config, onExit }: EngineProps<MazeRpgConfig
       initialTriggeredEvents: [...state.triggeredEvents, posKey],
       initialOpenedSeals:     [...state.openedSeals],
       initialOpenedTreasures: [...state.openedTreasures],
+      immediatelyStartBoss:   config.bossEventKey === state.pendingEvent ? true : undefined,
     };
     onExit(updatedContext, {
       engineId: 'novel',
