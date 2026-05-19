@@ -3,16 +3,18 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
+    "types": ["vite/client"],
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "paths": {
-      "@novel-engine/hub": ["../hub/src/index.ts"]
-    }
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src", "../hub/src"]
+  "include": ["src"]
 }

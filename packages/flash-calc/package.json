@@ -2,8 +2,23 @@
   "name": "@novel-engine/flash-calc",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
+  "main": "./dist/novel-engine-flash-calc.cjs",
+  "module": "./dist/novel-engine-flash-calc.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/novel-engine-flash-calc.mjs",
+      "require": "./dist/novel-engine-flash-calc.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -12,7 +27,12 @@
     "@novel-engine/hub": "*"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
-    "typescript": "~6.0.2"
+    "@types/react-dom": "^19.2.3",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.9",
+    "vite-plugin-dts": "^4.5.4"
   }
 }

@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:packages": "npm run build -w @novel-engine/core && npm run build -w @novel-engine/hub && npm run build -w @novel-engine/maze-rpg && npm run build -w @novel-engine/runner-action && npm run build -w @novel-engine/memory-game && npm run build -w @novel-engine/flash-calc && npm run build -w @novel-engine/spot-difference && npm run build -w @novel-engine/timing-game",
+    "pack:packages": "npm pack --dry-run -w @novel-engine/core && npm pack --dry-run -w @novel-engine/hub && npm pack --dry-run -w @novel-engine/maze-rpg && npm pack --dry-run -w @novel-engine/runner-action && npm pack --dry-run -w @novel-engine/memory-game && npm pack --dry-run -w @novel-engine/flash-calc && npm pack --dry-run -w @novel-engine/spot-difference && npm pack --dry-run -w @novel-engine/timing-game",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:gh": "VITE_BASE_PATH=/novel/ vite preview",

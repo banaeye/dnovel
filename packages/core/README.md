@@ -14,7 +14,7 @@ npm install @novel-engine/core react react-dom zustand js-yaml
 
 ---
 
-## クイックスタート
+## 単体 NovelApp 利用
 
 ### 1. YAML ファイルを用意する
 
@@ -128,3 +128,72 @@ const src = resolveAsset('characters/hero/normal.png');
 ## ゲームエンジン設計
 
 エンジンの詳細な設計・YAML スキーマ・開発フローは [CLAUDE.md](../../CLAUDE.md) を参照してください。
+
+---
+
+## GameHub 連携利用
+
+`@novel-engine/hub` と組み合わせると、ノベルから迷路 RPG やミニゲームへ遷移できます。
+
+```bash
+npm install @novel-engine/core @novel-engine/hub @novel-engine/maze-rpg react react-dom zustand js-yaml
+```
+
+{% raw %}
+```tsx
+import scenesRaw from './data/scenes.yaml?raw';
+import flagsRaw from './data/flags.yaml?raw';
+import itemsRaw from './data/items.yaml?raw';
+import locationsRaw from './data/locations.yaml?raw';
+import charsRaw from './data/characters.yaml?raw';
+import cmdsRaw from './data/commands.yaml?raw';
+
+import { parseMasterData } from '@novel-engine/core';
+import { GameHub, NovelEngineAdapter } from '@novel-engine/hub';
+import { MazeRpgEngine } from '@novel-engine/maze-rpg';
+import '@novel-engine/core/style.css';
+
+const masterData = parseMasterData({
+  scenes: scenesRaw,
+  flags: flagsRaw,
+  items: itemsRaw,
+  locations: locationsRaw,
+  characters: charsRaw,
+  commands: cmdsRaw,
+});
+
+export default function App() {
+  return (
+    <GameHub
+      engines={{
+        novel: NovelEngineAdapter,
+        maze_rpg: MazeRpgEngine,
+      }}
+      initial={{
+        engineId: 'novel',
+        config: {
+          masterData,
+          assetsBaseUrl: `${import.meta.env.BASE_URL}assets`,
+          initialSceneId: 'scene_opening',
+          initialLocationId: 'loc_start',
+        },
+      }}
+      initialContext={{ flags: {}, inventory: [], playerStats: {} }}
+    />
+  );
+}
+```
+{% endraw %}
+
+YAML 側では `next_engine` で登録済みエンジン ID を指定します。
+
+```yaml
+next_engine:
+  id: maze_rpg
+  config:
+    map: dungeon_01
+    bgm: audio/bgm/dungeon.mp3
+  return_scene: scene_after_maze
+```
+
+ゲーム固有の YAML と assets は利用側アプリに配置してください。パッケージには同梱されません。

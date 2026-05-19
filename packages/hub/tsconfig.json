@@ -8,12 +8,13 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "paths": {
-      "@novel-engine/core": ["../core/src/index.ts"]
-    }
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src", "../core/src"]
+  "include": ["src"]
 }
