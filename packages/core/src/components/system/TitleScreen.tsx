@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 import { SaveLoadMenu } from './SaveLoadMenu';
 import { useGameStore } from '../../context/GameStoreContext';
+import { useAssets } from '../../context/AssetContext';
 import type { ChapterConfig } from '../../types/chapter';
 import styles from './TitleScreen.module.css';
 
@@ -19,12 +20,14 @@ export function TitleScreen({ onNewGame, onLoad, chapters, onStartChapter }: Tit
   const [showContinue, setShowContinue] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
   const [saves, setSaves] = useState<Array<{ slotId: number; data: SaveData } | null>>([]);
+  const [autoSave, setAutoSave] = useState<SaveData | null>(null);
   const { state } = useGameStore();
+  const { resolveAsset } = useAssets();
 
   useEffect(() => {
-    getStorage()
-      .listSaves()
-      .then(setSaves);
+    const storage = getStorage();
+    storage.listSaves().then(setSaves);
+    storage.loadAutoSave().then(setAutoSave);
   }, []);
 
   async function handleSave(_slotId: number) {}
@@ -41,11 +44,15 @@ export function TitleScreen({ onNewGame, onLoad, chapters, onStartChapter }: Tit
   const canContinue = hasSave || playableChapters.length > 0;
 
   return (
-    <div className={styles.root}>
-      <h1 className={styles.title}>ノベルゲーム</h1>
-      <p className={styles.subtitle}>NOVEL GAME</p>
+    <div
+      className={styles.root}
+      style={{ backgroundImage: `url(${resolveAsset('cg/title.jpg')})` }}
+    >
       <div className={styles.actions}>
         <Button label="はじめから" size="large" onClick={onNewGame} />
+        {autoSave && (
+          <Button label="オートセーブからはじめる" size="large" onClick={() => onLoad(autoSave)} />
+        )}
         {canContinue && (
           <Button label="続きから" size="large" onClick={() => setShowContinue(true)} />
         )}

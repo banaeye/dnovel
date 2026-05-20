@@ -30,8 +30,9 @@
       "@novel-engine/memory-game": ["./packages/memory-game/src/index.ts"],
       "@novel-engine/flash-calc": ["./packages/flash-calc/src/index.ts"],
       "@novel-engine/spot-difference": ["./packages/spot-difference/src/index.ts"],
-      "@novel-engine/timing-game": ["./packages/timing-game/src/index.ts"]
+      "@novel-engine/timing-game": ["./packages/timing-game/src/index.ts"],
+      "@novel-engine/code-lab": ["./packages/code-lab/src/index.ts"]
     }
   },
-  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src", "packages/runner-action/src", "packages/memory-game/src", "packages/flash-calc/src", "packages/spot-difference/src", "packages/timing-game/src"]
+  "include": ["src", "packages/core/src", "packages/hub/src", "packages/maze-rpg/src", "packages/runner-action/src", "packages/memory-game/src", "packages/flash-calc/src", "packages/spot-difference/src", "packages/timing-game/src", "packages/code-lab/src"]
 }

@@ -96,6 +96,8 @@ export interface Scene {
   background_effect?: 'possessed';
   bgm?: string;
   ending_title?: string;
+  autosave?: boolean;
+  autosave_label?: string;
   characters?: CharacterDisplay[];
   messages: SceneMessage[];
   commands?: string[];

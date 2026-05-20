@@ -15,18 +15,18 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'NovelEngineHub',
+      name: 'NovelEngineMazeRpg',
       formats: ['es', 'cjs'],
-      fileName: (format) => `novel-engine-hub.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format) => `novel-engine-maze-rpg.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime', 'zustand', 'js-yaml', '@novel-engine/core'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', '@novel-engine/hub'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'ReactJsxRuntime',
-          '@novel-engine/core': 'NovelEngineCore',
+          '@novel-engine/hub': 'NovelEngineHub',
         },
       },
     },

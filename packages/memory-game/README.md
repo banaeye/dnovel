@@ -17,6 +17,32 @@
 
 ---
 
+## インストール
+
+```bash
+npm install @novel-engine/memory-game @novel-engine/hub react react-dom
+```
+
+## GameHub への登録
+
+{% raw %}
+```tsx
+import { MemoryGameEngine } from '@novel-engine/memory-game';
+
+<GameHub
+  engines={{
+    novel: NovelEngineAdapter,
+    memory_game: MemoryGameEngine,
+  }}
+  ...
+/>
+```
+{% endraw %}
+
+画像、BGM、VOICEVOX 音声はパッケージに同梱されません。利用側アプリの assets に置き、`assetsBaseUrl` からの相対パスで指定します。
+
+---
+
 ## YAML からの呼び出し
 
 ```yaml
@@ -147,29 +173,3 @@ next_engine:
 | 2 枚めくって不一致 | 0.9 秒後に裏に戻る（1 手消費） |
 | 全ペア成立 | 勝利オーバーレイ → 2.5 秒後に `return_scene` へ |
 | 手数上限到達 | 敗北オーバーレイ → 2.5 秒後に `return_scene` へ |
-
----
-
-## App.tsx への組み込み
-
-{% raw %}
-```tsx
-import { MemoryGameEngine } from '@novel-engine/memory-game';
-
-<GameHub
-  engines={{
-    novel:        NovelEngineAdapter,
-    memory_game:  MemoryGameEngine,
-  }}
-  ...
-/>
-```
-{% endraw %}
-
----
-
-## vite.config.ts のエイリアス（モノレポ開発時）
-
-```typescript
-'@novel-engine/memory-game': path.resolve(__dirname, 'packages/memory-game/src/index.ts'),
-```
