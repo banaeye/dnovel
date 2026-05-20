@@ -227,7 +227,6 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
     inset:      0,
     zIndex:     9999,
     pointerEvents: 'all',
-    background: overlayBackground,
     backgroundSize: effect === 'speedline'
       ? '100% 100%, 220px 100%, 100% 100%'
       : effect === 'rift'
@@ -240,6 +239,9 @@ export function GameHub({ engines, initial, initialContext, defaultTransition = 
               ? '100% 100%, 54px 100%, 100% 42px'
         : undefined,
     animation:  `hub-${effect}-${phase} ${DURATION[effect]}ms ease forwards`,
+    ...(overlayBackground.includes('gradient(')
+      ? { backgroundImage: overlayBackground, backgroundColor: '#000' }
+      : { backgroundColor: overlayBackground }),
   } : {
     position:      'fixed',
     inset:         0,
