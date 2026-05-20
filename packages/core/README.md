@@ -197,3 +197,20 @@ next_engine:
 ```
 
 ゲーム固有の YAML と assets は利用側アプリに配置してください。パッケージには同梱されません。
+
+### シーン到達時オートセーブ
+
+`scenes.yaml` のシーンに `autosave: true` を指定すると、そのシーンへ到達したタイミングで単一のオートセーブへ保存できます。
+オートセーブは手動セーブスロットとは別枠で、タイトル画面の「オートセーブからはじめる」から直接再開できます。
+
+```yaml
+- id: scene_html_lecture
+  autosave: true
+  autosave_label: "HTML: ボタンを作ろう"
+  messages:
+    - text: "HTMLの課題を始めよう"
+      voice_character_id: char_mentor
+```
+
+- オートセーブは常に1件だけ保持され、新しい到達地点で上書きされます。
+- `autosave_label` はタイトル画面から再開するときの保存データ表示名に使われます。

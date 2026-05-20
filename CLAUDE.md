@@ -209,6 +209,8 @@ scenes:
     background: backgrounds/xxx.jpg   # 背景画像パス（省略可）
     bgm: audio/bgm/xxx.mp3            # BGMパス（省略可）
     ending_title: "第1章　赤羽の一日"  # エンディングロール先頭タイトル（省略時は赤羽の一日）
+    autosave: true                    # 到達時に単一オートセーブへ保存する（省略可）
+    autosave_label: "HTML: ボタンを作ろう" # オートセーブ表示名（省略可）
     overlay_image: cg/xxx.jpg         # 一枚絵オーバーレイ（message フェーズ中に全面表示）
     characters:                        # シーン開始時の表示キャラ（省略可）
       - character_id: char_xxx

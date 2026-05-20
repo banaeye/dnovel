@@ -6,6 +6,7 @@ import { AssetProvider } from '../context/AssetContext';
 import { useAudioStore } from '../store/audioStore';
 import type { MasterData } from '../loaders/dataLoader';
 import type { SaveData } from '../storage/StorageInterface';
+import { getStorage } from '../storage/StorageFactory';
 import type { EngineTransitionSpec } from '../types/scene';
 import type { ChapterConfig } from '../types/chapter';
 import { TitleScreen } from './system/TitleScreen';
@@ -95,7 +96,7 @@ function GameContent({
   onLoadGame: (saveData: SaveData) => void;
   chapterId: string;
 }) {
-  const { state, startNewGame, startDebugGame, goToTitle, debugSetFlag, debugSetInventory, debugJumpToScene } = useGameStore();
+  const { state, masterData, toSaveData, startNewGame, startDebugGame, goToTitle, debugSetFlag, debugSetInventory, debugJumpToScene } = useGameStore();
   const { loadSettings } = useAudioStore();
   const scale = useGameScale();
   const { isFullscreen, toggle } = useFullscreen();
@@ -192,6 +193,22 @@ function GameContent({
       onEngineTransitionRef.current?.(state.flags, state.inventory, state.pendingEngineTransition, chapterId);
     }
   }, [state.phase, state.pendingEngineTransition, chapterId]);
+
+  const autosavedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (state.phase === 'title' || state.phase === 'ending' || state.phase === 'engine_transition') return;
+    const scene = masterData.scenes[state.currentSceneId];
+    if (!scene?.autosave) return;
+    const key = `${chapterId}:${state.currentSceneId}`;
+    if (autosavedRef.current === key) return;
+    autosavedRef.current = key;
+    const data = toSaveData();
+    getStorage().autoSave({
+      ...data,
+      timestamp: Date.now(),
+      locationName: scene.autosave_label ?? data.locationName,
+    }).catch(() => {});
+  }, [chapterId, masterData.scenes, state.currentSceneId, state.phase, toSaveData]);
 
   return (
     <div className="app-wrapper">
