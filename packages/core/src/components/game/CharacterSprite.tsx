@@ -14,8 +14,9 @@ export function CharacterSprite({ display, character, isSpeaking }: CharacterSpr
   const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
 
+  const baseExpression = display.expression === 'talking' && !isSpeaking ? 'normal' : display.expression;
   const expression =
-    isSpeaking && character.sprites?.['talking'] ? 'talking' : display.expression;
+    isSpeaking && character.sprites?.['talking'] ? 'talking' : baseExpression;
   const spritePath = character.sprites?.[expression] ?? character.sprites?.['normal'];
   const src = spritePath ? resolveAsset(spritePath) : null;
   const possessed = display.expression === 'possessed';
