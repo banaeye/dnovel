@@ -6,9 +6,10 @@ interface SceneBackgroundProps {
   backgroundPath?: string;
   locationName?: string;
   possessed?: boolean;
+  onLoad?: () => void;
 }
 
-export function SceneBackground({ backgroundPath, locationName, possessed = false }: SceneBackgroundProps) {
+export function SceneBackground({ backgroundPath, locationName, possessed = false, onLoad }: SceneBackgroundProps) {
   const { resolveAsset } = useAssets();
   const [imgError, setImgError] = useState(false);
 
@@ -23,6 +24,7 @@ export function SceneBackground({ backgroundPath, locationName, possessed = fals
           className={styles.img}
           src={src}
           alt=""
+          onLoad={onLoad}
           onError={() => setImgError(true)}
         />
       ) : (
