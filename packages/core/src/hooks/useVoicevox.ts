@@ -5,12 +5,15 @@ import { voicevoxClient } from '../audio/VoicevoxClient';
 import { audioManager } from '../audio/AudioManager';
 import { voiceHashKey } from '../utils/hashUtils';
 import { useAssets } from '../context/AssetContext';
+import { useGameStore } from '../context/GameStoreContext';
+import { applyVoiceDictionary } from '../voice/voiceText';
 
 const memoryCache = new Map<string, string>();
 
 export function useVoicevox() {
   const speakingRef = useRef(false);
   const { resolveVoicePath } = useAssets();
+  const voiceDictionary = useGameStore().masterData.voiceDictionary;
 
   const speak = useCallback(async (
     message: SceneMessage,
@@ -21,7 +24,7 @@ export function useVoicevox() {
     if (!character?.voicevox_speaker_id || !message.voice_character_id) return;
 
     const speakerId = character.voicevox_speaker_id;
-    const text = message.text;
+    const text = applyVoiceDictionary(message.voice_text ?? message.text, voiceDictionary);
     speakingRef.current = true;
 
     try {
@@ -58,7 +61,7 @@ export function useVoicevox() {
     } finally {
       speakingRef.current = false;
     }
-  }, [resolveVoicePath]);
+  }, [resolveVoicePath, voiceDictionary]);
 
   const stop = useCallback(() => {
     audioManager.stopVoice();

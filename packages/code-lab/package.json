@@ -24,7 +24,8 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
-    "@novel-engine/hub": "*"
+    "@novel-engine/hub": "*",
+    "@novel-engine/core": "*"
   },
   "dependencies": {
     "@codemirror/state": "^6.5.2",

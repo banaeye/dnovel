@@ -23,7 +23,7 @@ export function DialogueBox({ message, speaker, textSpeed, onAdvance, onSpeaking
     setInstant(false);
     speak(message, speaker, () => onSpeakingChange?.(false));
     onSpeakingChange?.(true);
-  }, [message.text]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [message.text, message.voice_text]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleClick() {
     if (!complete) {

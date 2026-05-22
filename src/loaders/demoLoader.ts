@@ -11,6 +11,7 @@ import itemsRaw from '../data/items.yaml?raw';
 import locationsRaw from '../data/locations.yaml?raw';
 import charactersRaw from '../data/characters.yaml?raw';
 import commandsRaw from '../data/commands.yaml?raw';
+import voiceDictionaryRaw from '../data/voice_dictionary.yaml?raw';
 import { parseMasterData } from '@novel-engine/core';
 import type { MasterData } from '@novel-engine/core';
 
@@ -35,6 +36,7 @@ export function getMasterData(chapterId: ChapterId = 'chapter1'): MasterData {
     locations: locationsRaw,
     characters: charactersRaw,
     commands: commandsRaw,
+    voiceDictionary: voiceDictionaryRaw,
   });
   return cached[chapterId];
 }
