@@ -61,6 +61,8 @@ export interface CodeLabConfig {
   checks: CodeLabCheck[];
   hints?: CodeLabHint[];
   successMessage?: string;
+  characterSprites?: Partial<Record<NonNullable<CodeLabHint['speaker']>, string>>;
+  assetsBaseUrl?: string;
 }
 
 interface CheckResult {
@@ -98,13 +100,18 @@ const SPEAKER_LABELS: Record<NonNullable<CodeLabHint['speaker']>, string> = {
   mentor: '田中メンター',
 };
 
+const DEFAULT_SPEAKER_SPRITES: Record<NonNullable<CodeLabHint['speaker']>, string> = {
+  ken: 'characters/hero/hero_normal.png',
+  yui: 'characters/yui/girl_normal.png',
+  mentor: 'characters/mentor/mentor_nomal.png',
+};
+
 const DEFAULT_FILES: CodeFiles = {
   html: '<h1>Hello</h1>',
   css: 'body { font-family: sans-serif; }',
   js: '',
 };
 
-const PREVIEW_REFRESH_REMINDER = 'コードを直したら、Preview の「更新」ボタンも忘れずに押そう。';
 
 const setHintLine = StateEffect.define<number | null>();
 const hintLineField = StateField.define({
@@ -413,6 +420,10 @@ function CodeEditor({
 
 function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig>) {
   const scale = useGameScale();
+  const resolveAsset = (relativePath: string) => {
+    const base = (config.assetsBaseUrl ?? '').replace(/\/$/, '');
+    return base ? `${base}/${relativePath}` : relativePath;
+  };
   const stageId = config.stageId || 'default';
   const checks = useMemo(() => config.checks ?? [], [config.checks]);
   const hints = config.hints ?? [];
@@ -425,8 +436,7 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
     ...(config.files ?? {}),
   });
   const [activeFile, setActiveFile] = useState<CodeLabFileKey>('html');
-  const [hintIndex, setHintIndex] = useState(0);
-  const [hintFocusActive, setHintFocusActive] = useState(false);
+  const [hintPlayIdx, setHintPlayIdx] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [status, setStatus] = useState<'editing' | 'clear' | 'give_up'>('editing');
   const [results, setResults] = useState<CheckResult[]>(() => createInitialResults(checks));
@@ -437,20 +447,14 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
   const srcDoc = useMemo(() => buildPreviewSrcDoc(previewFiles, checks, stageId), [checks, previewFiles, stageId]);
   const hasPreviewChanges = files.html !== previewFiles.html || files.css !== previewFiles.css || files.js !== previewFiles.js;
   const allPassed = results.length > 0 && results.every((result) => result.passed);
-  const currentHint = hints.length > 0 ? hints[hintIndex % hints.length] : undefined;
-  const footerHintText = status === 'clear'
-    ? config.successMessage ?? 'できた！ノベルに戻ります。'
-    : currentHint?.text
-      ? `${currentHint.text} ${PREVIEW_REFRESH_REMINDER}`
-      : `コードを書いたら、Preview の「更新」ボタンを押してからチェックしてみよう。`;
-  const focusedFile = hintFocusActive ? currentHint?.focus?.file : undefined;
-  const focusedLine = focusedFile === activeFile ? currentHint?.focus?.line : undefined;
+  const playHint = hints[hintPlayIdx];
+  const focusedFile = playHint?.focus?.file;
+  const focusedLine = focusedFile === activeFile ? playHint?.focus?.line : undefined;
 
   useEffect(() => {
     setResults(createInitialResults(checks));
     setLogs([]);
     setRuntimeError(null);
-    setHintFocusActive(false);
   }, [checks]);
 
   useEffect(() => {
@@ -468,6 +472,7 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
   useEffect(() => {
     if (focusedFile) setActiveFile(focusedFile);
   }, [focusedFile]);
+
 
   const updateFile = useCallback((fileKey: CodeLabFileKey, value: string) => {
     setFiles((prev) => ({ ...prev, [fileKey]: value }));
@@ -506,6 +511,10 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
       fontFamily: "'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif",
 	    }}>
 	      <style>{`
+	        @keyframes codeLabHintBlink {
+	          0%, 100% { opacity: 1; }
+	          50% { opacity: 0; }
+	        }
 	        @keyframes codeLabTabPulse {
 	          0%, 100% {
 	            background-color: #3b2b11;
@@ -561,7 +570,7 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
         transform: `scale(${scale})`,
         transformOrigin: 'center center',
         display: 'grid',
-        gridTemplateRows: '48px 1fr 66px',
+        gridTemplateRows: hints.length > 0 ? '44px 1fr 88px' : '44px 1fr',
         background: '#0b1020',
         border: '1px solid #263251',
         boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
@@ -635,16 +644,34 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
         <header style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 18px',
+          gap: 8,
+          padding: '0 10px',
           borderBottom: '1px solid #263251',
           background: 'linear-gradient(90deg, #111a2e, #13223d)',
         }}>
-          <div>
-            <div style={{ fontSize: 10, color: '#90a4d4', letterSpacing: '0.12em' }}>CODE LAB</div>
-            <div style={{ fontSize: 17, fontWeight: 700 }}>{config.title ?? 'コーディング練習'}</div>
+          <div style={{ flex: 1, fontSize: 13, fontWeight: 700, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+            {config.title ?? 'コーディング練習'}
           </div>
-          <div style={{ color: '#aebde3', fontSize: 13 }}>チェック {attempts} 回</div>
+          {attempts > 0 && (
+            <span style={{ color: '#aebde3', fontSize: 11, flexShrink: 0 }}>チェック {attempts} 回</span>
+          )}
+          <button
+            type="button"
+            onClick={checkAnswer}
+            disabled={status !== 'editing' || hasPreviewChanges}
+            style={headerButtonStyle(allPassed ? '#1d7c48' : '#31507f', '#ffffff')}
+            title={hasPreviewChanges ? '先にPreviewを更新してください' : undefined}
+          >
+            チェック
+          </button>
+          <button
+            type="button"
+            onClick={() => complete('give_up')}
+            disabled={status !== 'editing'}
+            style={headerButtonStyle('#4b2734', '#ffd8df')}
+          >
+            戻る
+          </button>
         </header>
 
         <main style={{ display: 'grid', gridTemplateColumns: '1fr 318px', minHeight: 0 }}>
@@ -765,73 +792,105 @@ function CodeLabComponent({ context, config, onExit }: EngineProps<CodeLabConfig
           </aside>
         </main>
 
-        <footer style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: 12,
-          padding: 12,
-          borderTop: '1px solid #263251',
-          background: '#090e1a',
-        }}>
-          <div style={{
-            border: '1px solid #2f3c5d',
-            background: '#101725',
-            padding: '6px 10px',
-            minWidth: 0,
-          }}>
-            <div style={{ color: '#8eb6ff', fontSize: 11, fontWeight: 700, marginBottom: 2 }}>
-              {currentHint?.speaker ? SPEAKER_LABELS[currentHint.speaker] : 'ヒント'}
+        {hints.length > 0 && playHint && (() => {
+          const speaker = playHint.speaker;
+          const spritePath = speaker
+            ? (config.characterSprites?.[speaker] ?? DEFAULT_SPEAKER_SPRITES[speaker])
+            : null;
+          const spriteUrl = spritePath ? resolveAsset(spritePath) : null;
+
+          return (
+            <div style={{
+              borderTop: '1px solid #5a4a30',
+              background: 'rgba(8, 6, 18, 0.97)',
+              display: 'flex',
+              alignItems: 'stretch',
+              overflow: 'hidden',
+              minHeight: 0,
+            }}>
+              {spriteUrl && (
+                <div style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  alignSelf: 'center',
+                  marginLeft: 8,
+                  border: '2px solid #5a4a30',
+                }}>
+                  <img
+                    src={spriteUrl}
+                    alt={speaker ? SPEAKER_LABELS[speaker] : ''}
+                    style={{
+                      width: 56,
+                      height: 56,
+                      objectFit: 'cover',
+                      objectPosition: 'top center',
+                      display: 'block',
+                    }}
+                  />
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: '3px 10px 3px 6px', gap: 3 }}>
+                <div style={{
+                  flex: 1,
+                  background: 'rgba(10, 8, 20, 0.93)',
+                  border: '1px solid #5a4a30',
+                  borderRadius: 3,
+                  padding: '4px 10px',
+                  overflow: 'hidden',
+                  userSelect: 'text',
+                  cursor: 'text',
+                }}>
+                  <div style={{ color: '#e8e0d0', fontSize: 14, lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                    {playHint.text}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                  <span style={{ color: '#7a6a4a', fontSize: 10 }}>
+                    {hintPlayIdx + 1} / {hints.length}
+                  </span>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button
+                      type="button"
+                      onClick={() => setHintPlayIdx((i) => Math.max(0, i - 1))}
+                      disabled={hintPlayIdx === 0}
+                      style={{ background: 'transparent', border: '1px solid #3a4a6a', color: hintPlayIdx === 0 ? '#3a4a6a' : '#8ab0e0', fontSize: 11, cursor: hintPlayIdx === 0 ? 'default' : 'pointer', padding: '1px 7px', borderRadius: 2 }}
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHintPlayIdx((i) => Math.min(hints.length - 1, i + 1))}
+                      disabled={hintPlayIdx >= hints.length - 1}
+                      style={{ background: 'transparent', border: '1px solid #3a4a6a', color: hintPlayIdx >= hints.length - 1 ? '#3a4a6a' : '#8ab0e0', fontSize: 11, cursor: hintPlayIdx >= hints.length - 1 ? 'default' : 'pointer', padding: '1px 7px', borderRadius: 2 }}
+                    >
+                      ›
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div style={{ color: '#edf3ff', fontSize: 13, lineHeight: 1.35 }}>
-              {footerHintText}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => {
-                if (hints.length === 0) return;
-                setHintFocusActive(true);
-                setHintIndex((i) => i + 1);
-              }}
-              disabled={hints.length === 0}
-              style={buttonStyle('#243553', '#dce8ff')}
-            >
-              ヒント
-            </button>
-              <button
-                type="button"
-                onClick={checkAnswer}
-                disabled={status !== 'editing' || hasPreviewChanges}
-                style={buttonStyle(allPassed ? '#1d7c48' : '#31507f', '#ffffff')}
-                title={hasPreviewChanges ? '先にPreviewを更新してください' : undefined}
-              >
-                チェック
-              </button>
-            <button
-              type="button"
-              onClick={() => complete('give_up')}
-              disabled={status !== 'editing'}
-              style={buttonStyle('#4b2734', '#ffd8df')}
-            >
-              戻る
-            </button>
-          </div>
-        </footer>
+          );
+        })()}
+
       </div>
     </div>
   );
 }
 
-function buttonStyle(background: string, color: string): CSSProperties {
+function headerButtonStyle(background: string, color: string): CSSProperties {
   return {
-    minWidth: 78,
-    height: 32,
-    border: '1px solid rgba(255,255,255,0.22)',
+    minWidth: 64,
+    height: 28,
+    border: '1px solid rgba(255,255,255,0.18)',
     background,
     color,
     fontWeight: 700,
+    fontSize: 12,
     cursor: 'pointer',
+    flexShrink: 0,
   };
 }
 

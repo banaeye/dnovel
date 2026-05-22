@@ -7,6 +7,7 @@ export { parseMasterData } from './loaders/dataLoader';
 export type { MasterData, RawYamlInputs } from './loaders/dataLoader';
 
 export { AssetProvider, useAssets } from './context/AssetContext';
+export { TextWriter } from './components/ui/TextWriter';
 export { GameStoreContext, useGameStore } from './context/GameStoreContext';
 
 export { createGameStore } from './store/gameStore';
@@ -14,3 +15,5 @@ export type { GameStoreApi, GameStore, DebugStartConfig, GameStoreOptions } from
 
 export type { EngineTransitionSpec } from './types/scene';
 export type { ChapterConfig } from './types/chapter';
+export type { VoiceDictionary, VoiceDictionaryEntry } from './types/voice';
+export { applyVoiceDictionary } from './voice/voiceText';

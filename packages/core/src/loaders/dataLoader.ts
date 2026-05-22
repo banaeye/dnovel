@@ -5,6 +5,7 @@ import type { ItemDefinition } from '../types/item';
 import type { LocationDefinition } from '../types/location';
 import type { CharacterDefinition } from '../types/character';
 import type { CommandDefinition } from '../types/command';
+import type { VoiceDictionary } from '../types/voice';
 
 export interface MasterData {
   scenes: Record<string, Scene>;
@@ -13,6 +14,7 @@ export interface MasterData {
   locations: Record<string, LocationDefinition>;
   characters: Record<string, CharacterDefinition>;
   commands: Record<string, CommandDefinition>;
+  voiceDictionary: VoiceDictionary;
 }
 
 export interface RawYamlInputs {
@@ -22,6 +24,7 @@ export interface RawYamlInputs {
   locations: string;
   characters: string;
   commands: string;
+  voiceDictionary?: string;
 }
 
 function toRecord<T extends { id: string }>(arr: T[]): Record<string, T> {
@@ -52,6 +55,9 @@ export function parseMasterData(inputs: RawYamlInputs): MasterData {
   const locationsData = yaml.load(inputs.locations) as { locations: LocationDefinition[] };
   const charactersData = yaml.load(inputs.characters) as { characters: CharacterDefinition[] };
   const commandsData = yaml.load(inputs.commands) as { commands: CommandDefinition[] };
+  const voiceDictionaryData = inputs.voiceDictionary
+    ? yaml.load(inputs.voiceDictionary) as Partial<VoiceDictionary> | null
+    : null;
 
   return {
     scenes: toRecord(flattenScenes(scenesData.scenes)),
@@ -60,6 +66,8 @@ export function parseMasterData(inputs: RawYamlInputs): MasterData {
     locations: toRecord(locationsData.locations),
     characters: toRecord(charactersData.characters),
     commands: toRecord(commandsData.commands),
+    voiceDictionary: {
+      entries: voiceDictionaryData?.entries ?? [],
+    },
   };
 }
-

@@ -62,6 +62,17 @@ export function GameScreen({ onLoadGame, onTitle, chapters }: GameScreenProps) {
   const speakingCharId = currentMessage?.voice_character_id ?? null;
   const effectiveIsSpeaking = isSpeaking && state.phase === 'message';
 
+  const [bgReady, setBgReady] = useState(true);
+  const prevBgRef = useRef<string | undefined>(scene?.background);
+  useEffect(() => {
+    const next = scene?.background;
+    if (next === prevBgRef.current) return;
+    prevBgRef.current = next;
+    if (next) {
+      setBgReady(false);
+    }
+  }, [scene?.background]);
+
   const prevInventoryRef = useRef<string[]>(state.inventory);
   const [popupQueue, setPopupQueue] = useState<string[]>([]);
 
@@ -122,9 +133,10 @@ export function GameScreen({ onLoadGame, onTitle, chapters }: GameScreenProps) {
         backgroundPath={scene?.background}
         locationName={location?.name}
         possessed={scene?.background_effect === 'possessed' || state.currentCharacters.some((display) => display.expression === 'possessed')}
+        onLoad={() => setBgReady(true)}
       />
 
-      {state.phase !== 'examine' && state.currentCharacters.map((display) => {
+      {state.phase !== 'examine' && bgReady && state.currentCharacters.map((display) => {
         const char = masterData.characters[display.character_id];
         if (!char) return null;
         return (

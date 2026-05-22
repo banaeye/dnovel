@@ -19,6 +19,7 @@ export interface Condition {
 
 export interface SceneMessage {
   text: string;
+  voice_text?: string;
   voice_character_id: string | null;
   voice_style?: string;
   focus_overlay_image?: string;

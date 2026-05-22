@@ -18,9 +18,43 @@ const ffmpegBin = require('ffmpeg-static');
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const VOICEVOX_URL = process.env.VOICEVOX_URL ?? 'http://localhost:50021';
 const OUT_DIR = path.join(ROOT, 'public/assets/voicevox');
+const VOICE_DICTIONARY_FILE = path.join(ROOT, 'src/data/voice_dictionary.yaml');
+const MANIFEST_FILE = path.join(OUT_DIR, 'voice-manifest.json');
 
 function hashKey(text, speakerId) {
   return createHash('sha1').update(`${text}_${speakerId}`, 'utf8').digest('hex');
+}
+
+function readManifest() {
+  if (!fs.existsSync(MANIFEST_FILE)) return { version: 1, entries: {} };
+  try {
+    return JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf8'));
+  } catch {
+    return { version: 1, entries: {} };
+  }
+}
+
+function deleteVoiceFile(key) {
+  let deleted = 0;
+  for (const ext of ['.mp3', '.wav']) {
+    const target = path.join(OUT_DIR, `${key}${ext}`);
+    if (fs.existsSync(target)) {
+      fs.unlinkSync(target);
+      deleted++;
+    }
+  }
+  return deleted;
+}
+
+function applyVoiceDictionary(text, dictionary) {
+  if (!dictionary?.entries?.length) return text;
+  return [...dictionary.entries]
+    .filter(entry => entry.from?.length > 0)
+    .sort((a, b) => b.from.length - a.from.length)
+    .reduce((current, entry) => {
+      if (entry.match === 'exact') return current === entry.from ? entry.to : current;
+      return current.split(entry.from).join(entry.to);
+    }, text);
 }
 
 function wavToMp3(wavBuffer) {
@@ -43,6 +77,9 @@ const scenes = SCENE_FILES.flatMap(file => {
   return yaml.load(fs.readFileSync(fullPath, 'utf8')).scenes ?? [];
 });
 const characters = yaml.load(fs.readFileSync(path.join(ROOT, 'src/data/characters.yaml'), 'utf8')).characters;
+const voiceDictionary = fs.existsSync(VOICE_DICTIONARY_FILE)
+  ? yaml.load(fs.readFileSync(VOICE_DICTIONARY_FILE, 'utf8'))
+  : { entries: [] };
 
 // キャラID → speakerId マップ
 const speakerMap = Object.fromEntries(
@@ -59,9 +96,11 @@ function collectJobs(sceneList) {
       if (!msg.voice_character_id) continue;
       const speakerId = speakerMap[msg.voice_character_id];
       if (speakerId == null) continue;
-      const key = hashKey(msg.text, speakerId);
-      if (!jobs.has(key)) {
-        jobs.set(key, { text: msg.text, speakerId, key });
+      const voiceText = applyVoiceDictionary(msg.voice_text ?? msg.text, voiceDictionary);
+      const jobId = hashKey(msg.text, speakerId);
+      const key = hashKey(voiceText, speakerId);
+      if (!jobs.has(jobId)) {
+        jobs.set(jobId, { jobId, text: msg.text, voiceText, speakerId, key });
       }
     }
     if (scene.child_scenes?.length) collectJobs(scene.child_scenes);
@@ -84,21 +123,43 @@ try {
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
+const previousManifest = readManifest();
+const nextManifest = { version: 1, entries: {} };
+let refreshed = 0;
+
+for (const { jobId, text, voiceText, speakerId, key } of jobs.values()) {
+  const previous = previousManifest.entries?.[jobId];
+  if (previous?.key && previous.key !== key) {
+    refreshed += deleteVoiceFile(previous.key);
+    console.log(`  refresh "${text.slice(0, 24)}${text.length > 24 ? '…' : ''}" (speaker:${speakerId})`);
+    continue;
+  }
+
+  if (!previous && voiceText !== text && jobId !== key) {
+    refreshed += deleteVoiceFile(jobId);
+  }
+}
+
+if (refreshed > 0) {
+  console.log(`\n辞書変更の影響を受けた既存音声を削除: ${refreshed} ファイル\n`);
+}
+
 let generated = 0, skipped = 0, errors = 0;
 
-for (const { text, speakerId, key } of jobs.values()) {
+for (const { jobId, text, voiceText, speakerId, key } of jobs.values()) {
   const outPath = path.join(OUT_DIR, `${key}.mp3`);
   const label = `"${text.slice(0, 24)}${text.length > 24 ? '…' : ''}" (speaker:${speakerId})`;
 
   if (fs.existsSync(outPath)) {
     console.log(`  skip  ${label}`);
+    nextManifest.entries[jobId] = { key, text, voiceText, speakerId };
     skipped++;
     continue;
   }
 
   try {
     const queryRes = await fetch(
-      `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(text)}&speaker=${speakerId}`,
+      `${VOICEVOX_URL}/audio_query?text=${encodeURIComponent(voiceText)}&speaker=${speakerId}`,
       { method: 'POST' }
     );
     if (!queryRes.ok) throw new Error(`audio_query ${queryRes.status}`);
@@ -116,6 +177,7 @@ for (const { text, speakerId, key } of jobs.values()) {
     const wavBuf = Buffer.from(await synthRes.arrayBuffer());
     fs.writeFileSync(outPath, wavToMp3(wavBuf));
     console.log(`  gen   ${label} → ${key}.mp3`);
+    nextManifest.entries[jobId] = { key, text, voiceText, speakerId };
     generated++;
   } catch (e) {
     console.error(`  error ${label}: ${e.message}`);
@@ -124,6 +186,7 @@ for (const { text, speakerId, key } of jobs.values()) {
 }
 
 console.log(`\n完了: ${generated}件生成, ${skipped}件スキップ, ${errors}件エラー`);
+fs.writeFileSync(MANIFEST_FILE, `${JSON.stringify(nextManifest, null, 2)}\n`);
 
 // 既存 .wav を .mp3 に変換して削除
 const wavFiles = fs.readdirSync(OUT_DIR).filter(f => f.endsWith('.wav'));
